@@ -2,6 +2,10 @@
   "name": "@asyncapi/java-spring-cloud-stream-template",
   "version": "0.1.0",
   "description": "Java Spring Cloud Stream template for AsyncAPI generator.",
+  "scripts": {
+    "release": "semantic-release",
+    "get-version": "echo $npm_package_version"
+  },
   "keywords": [
     "asyncapi",
     "cloud",
@@ -15,5 +19,43 @@
   "dependencies": {
     "lodash": "^4.17.15",
     "js-yaml": "^3.13.1"
+  },
+  "devDependencies": {
+    "@semantic-release/commit-analyzer": "^8.0.1",
+    "@semantic-release/github": "^7.0.4",
+    "@semantic-release/npm": "^7.0.3",
+    "@semantic-release/release-notes-generator": "^9.0.1",
+    "conventional-changelog-conventionalcommits": "^4.2.3",
+    "semantic-release": "^17.0.4",
+    "semantic-release-slack-bot": "^1.5.0"
+  },
+  "release": {
+    "branches": [
+      "master"
+    ],
+    "plugins": [
+      [
+        "@semantic-release/commit-analyzer",
+        {
+          "preset": "conventionalcommits"
+        }
+      ],
+      [
+        "@semantic-release/release-notes-generator",
+        {
+          "preset": "conventionalcommits"
+        }
+      ],
+      [
+        "semantic-release-slack-bot",
+        {
+          "notifyOnSuccess": true,
+          "packageName": "https://github.com/asyncapi/generator",
+          "markdownReleaseNotes": true
+        }
+      ],
+      "@semantic-release/npm",
+      "@semantic-release/github"
+    ]
   }
 }
