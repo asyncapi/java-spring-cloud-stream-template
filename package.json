@@ -14,6 +14,9 @@
     "spring",
     "template"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Michael Davis <damaru.inc@gmail.com>",
   "license": "Apache-2.0",
   "dependencies": {
