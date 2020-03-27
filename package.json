@@ -14,6 +14,9 @@
     "spring",
     "template"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Michael Davis <damaru.inc@gmail.com>",
   "license": "Apache-2.0",
   "dependencies": {
@@ -26,8 +29,7 @@
     "@semantic-release/npm": "^7.0.3",
     "@semantic-release/release-notes-generator": "^9.0.1",
     "conventional-changelog-conventionalcommits": "^4.2.3",
-    "semantic-release": "^17.0.4",
-    "semantic-release-slack-bot": "^1.5.0"
+    "semantic-release": "^17.0.4"
   },
   "release": {
     "branches": [
@@ -44,14 +46,6 @@
         "@semantic-release/release-notes-generator",
         {
           "preset": "conventionalcommits"
-        }
-      ],
-      [
-        "semantic-release-slack-bot",
-        {
-          "notifyOnSuccess": true,
-          "packageName": "https://github.com/asyncapi/generator",
-          "markdownReleaseNotes": true
         }
       ],
       "@semantic-release/npm",
