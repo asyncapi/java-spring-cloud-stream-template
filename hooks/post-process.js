@@ -79,9 +79,6 @@ module.exports = register => {
       */
     }
 
-    // Rename the README file.
-    fs.renameSync(path.resolve(generator.targetDir, "__README.md"), path.resolve(generator.targetDir, "README.md"));
-
     // Rename schema objects if necessary
 
     const schemas = asyncapi._json.components.schemas;
