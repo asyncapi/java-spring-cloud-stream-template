@@ -1,6 +1,5 @@
 # Java Spring Cloud Stream Generator Template
 
-## What is it? 
 This template generates a Spring Cloud Stream (SCSt) microservice. It uses version 3 of SCSt which uses function names rather than annotations to configure the channels. See the [reference](https://cloud.spring.io/spring-cloud-static/spring-cloud-stream/3.0.1.RELEASE/reference/html/spring-cloud-stream.html). The generated microservice is a Maven project so it can easily be imported into your IDE. 
 
 The Spring Cloud Stream microservice generated using this template will be an _almost ready to run_ Spring Boot app. The microservice will contain a java class, by default _Application.java_, which includes methods which publish or subscribe events as defined in the AsyncAPI document. These generated methods include Supplier, Consumer and Function functional interfaces from the [java.util.function](https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html) package. These methods will be already be pre-configured to publish to and consume from the channels as defined in the AsyncAPI. This configuration is located in the `spring.cloud.stream` section of the generated application.yml file. 
