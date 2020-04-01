@@ -171,7 +171,7 @@ module.exports = ({ Nunjucks }) => {
   // This returns the proper Java type for a schema property.
   Nunjucks.addFilter('fixType', ([name, property]) => {
 
-    console.log('fixType: ' + name);
+    //console.log('fixType: ' + name);
     
     let isArrayOfObjects = false;
 
