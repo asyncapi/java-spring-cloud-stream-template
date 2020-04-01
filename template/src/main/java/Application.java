@@ -1,5 +1,5 @@
 {# vim: set ts=4 sw=4 sts=4 noexpandtab : #}
-{%- include '.partials/java-package' -%}
+{%- include 'partials/java-package' -%}
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
