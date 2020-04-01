@@ -1,10 +1,9 @@
 # Java Spring Cloud Stream Generator Template
 
-This template generates a Spring Cloud Stream (SCSt) microservice. It uses version 3 of SCSt which uses function names rather than annotations to configure the channels. See the [reference](https://cloud.spring.io/spring-cloud-static/spring-cloud-stream/3.0.1.RELEASE/reference/html/spring-cloud-stream.html). The generated microservice is a Maven project so it can easily be imported into your IDE. 
+This template generates a Spring Cloud Stream (SCSt) microservice. It uses version 3 of SCSt which uses function names to configure the channels. See the [reference](https://cloud.spring.io/spring-cloud-static/spring-cloud-stream/3.0.1.RELEASE/reference/html/spring-cloud-stream.html). The generated microservice is a Maven project so it can easily be imported into your IDE. 
 
-The Spring Cloud Stream microservice generated using this template will be an _almost ready to run_ Spring Boot app. The microservice will contain a java class, by default _Application.java_, which includes methods which publish or subscribe events as defined in the AsyncAPI document. These generated methods include Supplier, Consumer and Function functional interfaces from the [java.util.function](https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html) package. These methods will be already be pre-configured to publish to and consume from the channels as defined in the AsyncAPI. This configuration is located in the `spring.cloud.stream` section of the generated application.yml file. 
+The Spring Cloud Stream microservice generated using this template will be an _almost ready to run_ Spring Boot app. The microservice will contain a java class, by default _Application.java_, which includes methods which publish or subscribe events as defined in the AsyncAPI document. These generated methods include Supplier, Consumer and Function functional interfaces from the [java.util.function](https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html) package. These methods will be already be pre-configured to publish to and consume from the channels as defined in the AsyncAPI. This configuration is located in the `spring.cloud.stream` section of the generated application.yml file.
 
-When generating an application, you can set the parameter ```binder={binderType}``` to specify which binder will get pulled in via a Maven dependency. Supported values are kafka (the default), rabbit and solace.
 
 ## How it works
 Note that this template interprets the AsyncAPI document from the perspective of an application, not an API. This means that when the template sees a subscribe operation, it generates code to subscribe to a topic, not publish to one.
@@ -48,17 +47,19 @@ ag -p binder=solace -p artifactId=ExampleArtifactId -p groupId=com.example -p ja
 ```
 
 
-## Destination Overrides
+## Configuration Options
 
-There are two specification extentions you can use to shape how the bindings are configured. You can add the following to a subscription operation:
+### Destination Overrides
 
-```x-scs-destination``` : This overrides the destination value in a binder. This is useful when you are using the Solace binder and you are following the Solace pattern of publishing to topics but subscribing from queues. In this case the s-scs-destination value would be treated as the name of a queue.
+There are two specification extentions you can use to shape how the bindings are configured. You can add the following to a _subscribe_ operation:
 
-```x-scs-group``` : This will add the group value on a binding.
+```x-scs-destination``` : This overrides the destination value in a binder. This is useful when you are using the Solace binder and you are following the Solace pattern of publishing to topics and consuming from queues. In this case the x-scs-destination value would be treated as the name of the queue which your microservice will consume from.
 
-## Parameters
+```x-scs-group``` : This will add the group value on a binding which configures your microservice to use [Consumer Groups](https://cloud.spring.io/spring-cloud-static/spring-cloud-stream/current/reference/html/spring-cloud-stream.html#consumer-groups)
 
-Parameters can be passed to the generator using command line arguments in the form ```-p param=value```. Here is a list of the parameters that can be used with this template. In some cases these can be put into the AsyncAPI documents using the specification extensions feature. In those cases, the 'info' prefix means that it belongs in the info section of the document.
+### Parameters
+
+Parameters can be passed to the generator using command line arguments in the form ```-p param=value -p param2=value2```. Here is a list of the parameters that can be used with this template. In some cases these can be put into the AsyncAPI documents using the specification extensions feature. In those cases, the 'info' prefix means that it belongs in the info section of the document.
 
 Parameter   |   Extension  |    Description
 ------------|--------------|------------------
@@ -88,7 +89,7 @@ info.x-group-id | groupId | The Maven group id.
 info.x-java-class | | The name of the main class. Defaults to Application.
 info.x-java-package | javaPackage | The Java package of the generated classes.
 info.x-solace-spring-cloud-version | solaceSpringCloudVersion | The version of the solace-spring-cloud BOM dependency used when generating an application. Example: 1.0.0
-info.x-spring-cloud-version | info.x-spring-cloud-version | The version of the spring-cloud-dependencies BOM dependency used when generating an application. Example Hoxton.SR1
+info.x-spring-cloud-version | springCloudVersion | The version of the spring-cloud-dependencies BOM dependency used when generating an application. Example Hoxton.SR1
 info.x-spring-cloud-stream-version | springCloudStreamVersion | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead. Example 3.0.1.RELEASE.
 operation.x-scs-function-name | | This specifies the base function name to use on a publish or subscribe operation. For example, if it is set to myFunction, then the template will create functions myFunctionSupplier and/or myFunctionConsumer. If the same name is used on one subscribe operation and one publish operation, a processor function will be generated.
 channel.subscription.x-scs-destination | | This overrides the destination on an incoming binding. It can be used to specify, for example, the name of a queue to subscribe to instead of a topic.
