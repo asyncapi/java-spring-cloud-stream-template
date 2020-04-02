@@ -2,11 +2,13 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
+const ScsLib = require('../lib/ScsLib');
 
 const sourceHead = '/src/main/java/';
 
 module.exports = register => {
   register('generate:after', generator => {
+	var scsLib = new ScsLib();
     const asyncapi = generator.asyncapi;
     let sourcePath = generator.targetDir + sourceHead;
     const info = asyncapi.info();
@@ -52,10 +54,10 @@ module.exports = register => {
     let artifactType = generator.templateParams['artifactType'];
 
     let mainClassName = "Application";
-    let overrideClassName;
-    if (extensions && extensions['x-java-class']) {
-      overrideClassName = extensions['x-java-class'] + ".java";
-    }
+	let overrideClassName = scsLib.getParamOrExtension(info, generator.templateParams, 'javaClass', 'x-java-class');
+//    if (extensions && extensions['x-java-class']) {
+      //overrideClassName = extensions['x-java-class'] + ".java";
+//    }
 
     if (artifactType === "library") {
       fs.renameSync(path.resolve(generator.targetDir, "pom.lib"), path.resolve(generator.targetDir, "pom.xml"));
@@ -67,6 +69,7 @@ module.exports = register => {
       fs.unlinkSync(path.resolve(generator.targetDir, "pom.lib"));
 
       if (overrideClassName) {
+		overrideClassName += '.java';
         fs.renameSync(path.resolve(sourcePath, "Application.java"), path.resolve(sourcePath, overrideClassName));
       }
 

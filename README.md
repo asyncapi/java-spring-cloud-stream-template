@@ -43,39 +43,40 @@ There are two specification extentions you can use to shape how the bindings are
 
 Parameters can be passed to the generator using command line arguments in the form ```-p param=value```. Here is a list of the parameters that can be used with this template. In some cases these can be put into the AsyncAPI documents using the specification extensions feature. In those cases, the 'info' prefix means that it belongs in the info section of the document.
 
-Parameter   |   Extension  |    Description
-------------|--------------|------------------
-actuator    |              | If present, it adds the dependencies for spring-boot-starter-web, spring-boot-starter-actuator and micrometer-registry-prometheus.
-artifactId  |  info.x-artifact-id | The Maven artifact id.
-artifactType | | The type of project to generate, application or library. The default is library. When generating an application, the pom.xml file will contain the complete set of dependencies required to run an app, and it will contain an Application class with a main function. Otherwise the pom file will include only the dependencies required to compile a library.
-binder | | The name of the binder implementation, one of kafka, rabbit or solace. Default: kafka. If you need other binders to be supported, please let us know!
-groupId | info.x-group-id | The Maven group id.
-host | | The host connection property. Currently this only works with the Solace binder. Example: tcp://myhost.com:55555
-javaPackage | info.x-java-package	| The Java package of the generated classes.
-msgVpn | | The message vpn connection property. Currently this only works with the Solace binder.
-password | | The client password connection property. Currently this only works with the Solace binder.
-reactive | | If true, the generated functions will use the Reactive style and use the Flux class.
-solaceSpringCloudVersion | info.x-solace-spring-cloud-version | The version of the solace-spring-cloud-bom dependency used when generating an application. Example: 1.0.0
-springCloudVersion | info.x-spring-cloud-version | The version of the spring-cloud-dependencies BOM dependency used when generating an application. Example: Hoxton.RELEASE.
-springCloudStreamVersion | info.x-spring-cloud-stream-version | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead. Example: 3.0.1.RELEASE.
-username | | The client username connection property. Currently this only works with the Solace binder.
+Parameter | Extension | Default | Required | Description
+----------|-----------|---------|----------|--
+actuator    |              | false | | If present, it adds the dependencies for spring-boot-starter-web, spring-boot-starter-actuator and micrometer-registry-prometheus.
+artifactId  |  info.x-artifact-id | | Yes | The Maven artifact id.
+artifactType | | application | | The type of project to generate, application or library. When generating an application, the pom.xml file will contain the complete set of dependencies required to run an app, and it will contain an Application class with a main function. Otherwise the pom file will include only the dependencies required to compile a library.
+binder | | kafka | | The name of the binder implementation, one of kafka, rabbit or solace. Default: kafka. If you need other binders to be supported, please let us know!
+groupId | info.x-group-id | | Yes | The Maven group id.
+host | | tcp://localhost:55555 | |The host connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
+javaClass | info.x-java-class | Application | | The name of the main class. Only used when artifactType is 'application'.
+javaPackage | info.x-java-package | | | The Java package of the generated classes. If not set then the classes will be in the default package.
+msgVpn | | default | | The message vpn connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
+password | | default | | The client password connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
+reactive | | false | | If true, the generated functions will use the Reactive style and use the Flux class.
+solaceSpringCloudVersion | info.x-solace-spring-cloud-version | | Only when artifactType is 'application' and binder is 'solace' | The version of the solace-spring-cloud-bom dependency used when generating an application. Example: 1.0.0
+springCloudVersion | info.x-spring-cloud-version | | Only when artifactType is 'application' | The version of the spring-cloud-dependencies BOM dependency used when generating an application. Example: Hoxton.RELEASE.
+springCloudStreamVersion | info.x-spring-cloud-stream-version | | Only when artifactType is 'library' | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead. Example: 3.0.1.RELEASE.
+username | | default | |The client username connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
 
 ## Specification Extensions
 
 The following specification extensions are supported. In some cases their value can be provided as a command line parameter. The 'info' prefix means that it belongs in the info section of the document.
 
-Extension | Parameter | Description
-------------|--------------|------------------
-info.x-artifact-id | artifactId | The Maven artifact id.
-info.x-group-id | groupId | The Maven group id.
-info.x-java-class | | The name of the main class. Defaults to Application.
-info.x-java-package | javaPackage | The Java package of the generated classes.
-info.x-solace-spring-cloud-version | solaceSpringCloudVersion | The version of the solace-spring-cloud BOM dependency used when generating an application. Example: 1.0.0
-info.x-spring-cloud-version | info.x-spring-cloud-version | The version of the spring-cloud-dependencies BOM dependency used when generating an application. Example Hoxton.SR1
-info.x-spring-cloud-stream-version | springCloudStreamVersion | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead. Example 3.0.1.RELEASE.
-operation.x-scs-function-name | | This specifies the base function name to use on a publish or subscribe operation. For example, if it is set to myFunction, then the template will create functions myFunctionSupplier and/or myFunctionConsumer. If the same name is used on one subscribe operation and one publish operation, a processor function will be generated.
-channel.subscription.x-scs-destination | | This overrides the destination on an incoming binding. It can be used to specify, for example, the name of a queue to subscribe to instead of a topic.
-channel.subscription.x-scs-group | | This is used to specify the group property of an incoming binding.
+Extension | Parameter | Default | Required | Description
+----------|-----------|---------|----------|-------------
+info.x-artifact-id | artifactId | | Yes | The Maven artifact id.
+info.x-group-id | groupId | | Yes | The Maven group id.
+info.x-java-class | javaClass | Application | | The name of the main class. Only used when artifactType is 'application'.
+info.x-java-package | javaPackage | | | The Java package of the generated classes. If not set then the classes will be in the default package.
+info.x-solace-spring-cloud-version | solaceSpringCloudVersion | | Only when artifactType is 'application' and binder is 'solace' | The version of the solace-spring-cloud BOM dependency used when generating an application. Example: 1.0.0
+info.x-spring-cloud-version | info.x-spring-cloud-version | | Only when artifactType is 'application' | The version of the spring-cloud-dependencies BOM dependency used when generating an application. Example Hoxton.SR1
+info.x-spring-cloud-stream-version | springCloudStreamVersion | | Only when artifactType is 'library' | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead. Example 3.0.1.RELEASE.
+operation.x-scs-function-name | | | | This specifies the base function name to use on a publish or subscribe operation. For example, if it is set to myFunction, then the template will create functions myFunctionSupplier and/or myFunctionConsumer. If the same name is used on one subscribe operation and one publish operation, a processor function will be generated.
+channel.subscription.x-scs-destination | | | | This overrides the destination on an incoming binding. It can be used to specify, for example, the name of a queue to subscribe to instead of a topic.
+channel.subscription.x-scs-group | | | | This is used to specify the group property of an incoming binding.
 
 
 

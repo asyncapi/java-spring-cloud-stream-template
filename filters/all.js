@@ -3,6 +3,8 @@ module.exports = ({ Nunjucks }) => {
 
   var yaml = require('js-yaml');
   var _ = require('lodash');
+  const ScsLib = require('../lib/ScsLib');
+  const scsLib = new ScsLib();
 
   // This maps json schema types to Java format strings.
   const formatMap = new Map();
@@ -18,7 +20,7 @@ module.exports = ({ Nunjucks }) => {
   sampleMap.set('boolean', 'true');
   sampleMap.set('integer', '1');
   sampleMap.set('null', 'string');
-  sampleMap.set('number', '1');
+  sampleMap.set('number', '1.1');
   sampleMap.set('string', '"string"');
 
   // This maps json schema types to Java types.
@@ -26,7 +28,7 @@ module.exports = ({ Nunjucks }) => {
   typeMap.set('boolean', 'Boolean');
   typeMap.set('integer', 'Integer');
   typeMap.set('null', 'String');
-  typeMap.set('number', 'int');
+  typeMap.set('number', 'Double');
   typeMap.set('string', 'String');
 
   class SCSFunction {
@@ -138,7 +140,7 @@ module.exports = ({ Nunjucks }) => {
   });
 
   Nunjucks.addFilter('artifactId', ([info, params]) => {
-    return getParamOrExtension(info, params, 'artifactId', 'x-artifact-id', 'Maven artifact ID', 'my-application');
+    return scsLib.getParamOrExtension(info, params, 'artifactId', 'x-artifact-id', 'Maven artifact ID', 'my-application', true);
   })
 
   Nunjucks.addFilter('camelCase', (str) => {
@@ -225,7 +227,7 @@ module.exports = ({ Nunjucks }) => {
   });
 
   Nunjucks.addFilter('groupId', ([info, params]) => {
-    return getParamOrExtension(info, params, 'groupId', 'x-group-id', 'Maven group ID.', 'com.company');
+    return scsLib.getParamOrExtension(info, params, 'groupId', 'x-group-id', 'Maven group ID.', 'com.company', true);
   })
 
   Nunjucks.addFilter('lowerFirst', (str) => {
@@ -233,7 +235,8 @@ module.exports = ({ Nunjucks }) => {
   })
 
   Nunjucks.addFilter('mainClassName', ([info, params]) => {
-    let  ret = info.extensions()['x-java-class'] || "Application";
+    let cls = scsLib.getParamOrExtension(info, params, 'javaClass', 'x-java-class', 'Main application class.', 'Application', false);
+    let ret = cls || "Application";
     return ret;
   });
 
@@ -250,15 +253,18 @@ module.exports = ({ Nunjucks }) => {
   })
 
   Nunjucks.addFilter('solaceSpringCloudVersion', ([info, params]) => {
-    return getParamOrExtension(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version', 'Solace Spring Cloud version', '1.0.0-SNAPSHOT');
+    var required = isApplication(params) && params.binder === 'solace';
+    return scsLib.getParamOrExtension(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version', 'Solace Spring Cloud version', '1.0.0-RELEASE', required);
   })
 
   Nunjucks.addFilter('springCloudStreamVersion', ([info, params]) => {
-    return getParamOrExtension(info, params, 'springCloudStreamVersion', 'x-spring-cloud-stream-version', 'Spring Cloud Stream version', '3.0.1.RELEASE');
+    var required = !isApplication(params);
+    return scsLib.getParamOrExtension(info, params, 'springCloudStreamVersion', 'x-spring-cloud-stream-version', 'Spring Cloud Stream version', '3.0.1.RELEASE', required);
   })
 
   Nunjucks.addFilter('springCloudVersion', ([info, params]) => {
-    return getParamOrExtension(info, params, 'springCloudVersion', 'x-spring-cloud-version', 'Spring Cloud version', 'Hoxton.SR1');
+    var required = isApplication(params);
+    return scsLib.getParamOrExtension(info, params, 'springCloudVersion', 'x-spring-cloud-version', 'Spring Cloud version', 'Hoxton.SR1', required);
   })
 
   // This returns an object containing information the template needs to render topic strings.
@@ -428,29 +434,6 @@ module.exports = ({ Nunjucks }) => {
     return functionMap;
   }
 
-  // This returns the value of a param, or specification extention if the param isn't set. If neither are set it throws an error.
-  function getParamOrExtension(info, params, paramName, extensionName, description, example) {
-    let ret = '';
-    if (params[paramName]) {
-      ret = params[paramName];
-    } else if (info.extensions()[extensionName]) {
-      ret = info.extensions()[extensionName];
-    } else {
-      throw new Error(`Can't determine the ${description}. Please set the param ${paramName} or info.${extensionName}. Example: ${example}`);
-    }
-    return ret;
-  }
-
-  // This returns the value of a param, or 'xxxxx' if not found. This is for generating connection string placeholders in application.yaml.
-  function getParamOrXs(params, param) {
-    let ret = params[param];
-    if (!ret) {
-      ret = "xxxxx";
-    }
-
-    return ret;
-  }
-
   function getPayloadClass(pubOrSub) {
     let ret;
 
@@ -466,10 +449,10 @@ module.exports = ({ Nunjucks }) => {
   function getSolace(params) {
     let ret = {};
     ret.java = {};
-    ret.java.host = getParamOrXs(params, 'host');
-    ret.java.msgVpn = getParamOrXs(params, 'msgVpn');
-    ret.java.clientUsername = getParamOrXs(params, 'username');
-    ret.java.clientPassword = getParamOrXs(params, 'password');
+    ret.java.host = params.host || 'tcp://localhost:5555';
+    ret.java.msgVpn = params.msgVpn || 'default';
+    ret.java.clientUsername = params.username || 'default';
+    ret.java.clientPassword = params.password || 'default';
     return ret;
   }
 
@@ -548,4 +531,8 @@ module.exports = ({ Nunjucks }) => {
     return "\t".repeat(numTabs);
   }
 
+  function isApplication(params) {
+    var artifactType = params.artifactType;
+    return (!artifactType || artifactType === 'application')
+  }
 }
