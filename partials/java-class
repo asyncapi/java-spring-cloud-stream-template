@@ -1,4 +1,4 @@
-{%- macro javaClass(name, properties, indentLevel, isStatic) %}
+{%- macro javaClass(name, schema, properties, indentLevel, isStatic) %}
 {%- set className = name | upperFirst %}
 {% set indent1 = indentLevel | indent1 -%}
 {% set indent2 = indentLevel | indent2 -%}
@@ -8,6 +8,19 @@
 {{ indent2 }}public {{ className }} () {
 {{ indent2 }}}
 
+{% if schema._json.type === 'array' %}
+{%- set name = schema._json.title | camelCase -%}
+{%- set type = name | upperFirst -%}
+{%- set arrayType = type + '[]' %}
+{{ indent2 }}public {{ className }} ({{ arrayType }} {{ name }}) {
+{{ indent3 }}this.{{ name }} = {{ name }};
+{{ indent2 }}}
+
+{{ indent2 }}private {{ arrayType }} {{ name }};
+
+{{ javaClass(type, null, schema._json.items.properties, indentLevel+1, true) }}
+
+{% else -%}
 {% set first = true %}
 {{ indent2 }}public {{ className }} (
 {%- for name, prop in properties -%}
@@ -26,6 +39,7 @@
 {{ indent3 }}this.{{ name }} = {{ name }};
 {% endfor -%}
 {{ indent2 }}}
+{% endif -%}
 
 {% for name, prop in properties -%}
 {% set name = name | camelCase -%}
@@ -48,13 +62,13 @@
 {{ indent3 }}return this;
 {{ indent2 }}}
 {%- if indentLevel == 0 and  prop.type() === 'object' %}
-{{ javaClass(name, prop.properties(), indentLevel+1, true) }}
+{{ javaClass(name, null, prop.properties(), indentLevel+1, true) }}
 {% endif -%}
 {%- if indentLevel > 0 and prop.type === 'object' %}
-{{ javaClass(name, prop.properties, indentLevel+1, true) }}
+{{ javaClass(name, null, prop.properties, indentLevel+1, true) }}
 {% endif -%}
 {%- if isArrayOfObjects %}
-{{ javaClass(name, prop.items()._json.properties, indentLevel+1, true) }}
+{{ javaClass(name, null, prop.items()._json.properties, indentLevel+1, true) }}
 {% endif -%}
 {%- if prop._json.enum %}
 

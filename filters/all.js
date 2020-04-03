@@ -147,12 +147,6 @@ module.exports = ({ Nunjucks }) => {
     return _.camelCase(str);
   })
 
-  Nunjucks.addFilter('dump', (str) => {
-    console.log("Dumping " + str);
-    return str;
-  })
-
-
   // This determines the base function name that we will use for the SCSt mapping between functions and bindings.
   Nunjucks.addFilter('functionName', ([channelName, channel]) => {
     return getFunctionNameByChannel(channelName, channel);
@@ -230,6 +224,11 @@ module.exports = ({ Nunjucks }) => {
     return scsLib.getParamOrExtension(info, params, 'groupId', 'x-group-id', 'Maven group ID.', 'com.company', true);
   })
 
+  Nunjucks.addFilter('log', (str) => {
+    console.log(str);
+    return str;
+  })
+
   Nunjucks.addFilter('lowerFirst', (str) => {
     return _.lowerFirst(str);
   })
@@ -266,6 +265,12 @@ module.exports = ({ Nunjucks }) => {
     var required = isApplication(params);
     return scsLib.getParamOrExtension(info, params, 'springCloudVersion', 'x-spring-cloud-version', 'Spring Cloud version', 'Hoxton.SR1', required);
   })
+
+	Nunjucks.addFilter('stringify', (obj) => {
+    var str = JSON.stringify(obj, null, 2);
+    return str;
+  })
+
 
   // This returns an object containing information the template needs to render topic strings.
   Nunjucks.addFilter('topicInfo', ([channelName, channel]) => {
