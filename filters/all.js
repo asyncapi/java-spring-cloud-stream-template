@@ -33,7 +33,8 @@ module.exports = ({ Nunjucks }) => {
 
   class SCSFunction {
     name;
-    type;
+		type;
+		group;
     publishChannel;
     subscribeChannel;
     publishPayload;
@@ -112,8 +113,7 @@ module.exports = ({ Nunjucks }) => {
       }
     }
 
-    let type = params.artifactType;
-    if (type && type === 'application') {
+		if (isApplication(params)) {
       if (params.binder === 'solace') {
         doc.solace = getSolace(params);
       }
@@ -304,7 +304,7 @@ module.exports = ({ Nunjucks }) => {
             ret = {};
             ret.bindings = {};
           }
-          let bindingName = functionName + "Consumer-in-0";
+          let bindingName = functionName + "-in-0";
           ret.bindings[bindingName] = {};
           ret.bindings[bindingName].consumer = {};
           ret.bindings[bindingName].consumer.queueAdditionalSubscriptions = topicInfo.subscribeTopic;
@@ -327,7 +327,10 @@ module.exports = ({ Nunjucks }) => {
       }
       if (spec.isSubscriber) {
         ret[spec.subscribeBindingName] = {};
-        ret[spec.subscribeBindingName].destination = spec.subscribeChannel;
+				ret[spec.subscribeBindingName].destination = spec.subscribeChannel;
+				if (spec.group) {
+					ret[spec.subscribeBindingName].group = spec.group;
+				}
       }
     });
     return ret;
@@ -427,7 +430,16 @@ module.exports = ({ Nunjucks }) => {
           throw new Error("Channel " + channelName + ": no payload class has been defined.");
         }
         functionSpec.subscribePayload = payload;
-        functionSpec.subscribeChannel = channelName;
+				var group = channelJson.subscribe['x-scs-group'];
+				if (group) {
+					functionSpec.group = group;
+				}
+				var dest = channelJson.subscribe['x-scs-destination'];
+				if (dest) {
+					functionSpec.subscribeChannel = dest;
+				} else {
+					functionSpec.subscribeChannel = channelName;
+				}
       }
     }
 
