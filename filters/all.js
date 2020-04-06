@@ -33,8 +33,8 @@ module.exports = ({ Nunjucks }) => {
 
   class SCSFunction {
     name;
-		type;
-		group;
+    type;
+    group;
     publishChannel;
     subscribeChannel;
     publishPayload;
@@ -147,11 +147,18 @@ module.exports = ({ Nunjucks }) => {
     return _.camelCase(str);
   })
 
+  Nunjucks.addFilter('checkPropertyNames', ([schemaName, schema]) => {
+    //console.log("------------- " + schemaName);
+    let ret =  checkPropertyNames(schemaName, schema._json);
+    //console.log("------------- " + ret);
+    return ret;
+  })
+
   // This determines the base function name that we will use for the SCSt mapping between functions and bindings.
   Nunjucks.addFilter('functionName', ([channelName, channel]) => {
     return getFunctionNameByChannel(channelName, channel);
   })
-
+  
   Nunjucks.addFilter('indent1', (numTabs) => {
     return indent(numTabs);
   })
@@ -281,6 +288,48 @@ module.exports = ({ Nunjucks }) => {
   Nunjucks.addFilter('upperFirst', (str) => {
     return _.upperFirst(str);
   })
+
+  // Returns true if any property names will be different between json and java.
+  function checkPropertyNames(name, schema) {
+    let ret = false;
+
+    //console.log(JSON.stringify(schema));
+    //console.log('Checking schema ' + name);
+    for (let propName in schema.properties) {
+      let javaName = _.camelCase(propName);
+      let prop = schema.properties[propName];
+      //console.log('checking ' + propName + ' ' + prop.type);
+
+      if (javaName !== propName) {
+        //console.log("Java name " + javaName + " is different from " + propName);
+        return true;
+      }
+      if (prop.type === 'object') {
+        //console.log("Recursing into object");
+        let check = checkPropertyNames(propName, prop);
+        if (check) {
+          return true;
+        }
+      } else if (prop.type === 'array') {
+        //console.log('checkPropertyNames: ' + JSON.stringify(prop));
+        if (!prop.items) {
+          throw new Error("Array named " + propName + " must have an 'items' property to indicate what type the array elements are.");
+        }
+        let itemsType = prop.items.type;
+        //console.log('checkPropertyNames: ' + JSON.stringify(prop.items));
+        //console.log('array of : ' + itemsType);
+        if (itemsType === 'object') {
+          //console.log("Recursing into array");
+          let check = checkPropertyNames(propName, prop.items);
+          if (check) {
+            return true;
+          }
+
+        }
+      }
+    }
+    return ret;
+  }
 
   function dump(obj) {
     let s = typeof obj;
@@ -435,16 +484,16 @@ module.exports = ({ Nunjucks }) => {
           throw new Error("Channel " + channelName + ": no payload class has been defined.");
         }
         functionSpec.subscribePayload = payload;
-				var group = channelJson.subscribe['x-scs-group'];
-				if (group) {
-					functionSpec.group = group;
-				}
-				var dest = channelJson.subscribe['x-scs-destination'];
-				if (dest) {
-					functionSpec.subscribeChannel = dest;
-				} else {
-					functionSpec.subscribeChannel = channelName;
-				}
+        var group = channelJson.subscribe['x-scs-group'];
+        if (group) {
+            functionSpec.group = group;
+        }
+        var dest = channelJson.subscribe['x-scs-destination'];
+        if (dest) {
+            functionSpec.subscribeChannel = dest;
+        } else {
+            functionSpec.subscribeChannel = channelName;
+        }
       }
     }
 
