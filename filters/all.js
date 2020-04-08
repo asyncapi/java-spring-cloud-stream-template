@@ -158,7 +158,7 @@ module.exports = ({ Nunjucks }) => {
   Nunjucks.addFilter('functionName', ([channelName, channel]) => {
     return getFunctionNameByChannel(channelName, channel);
   })
-  
+
   Nunjucks.addFilter('indent1', (numTabs) => {
     return indent(numTabs);
   })
@@ -294,10 +294,17 @@ module.exports = ({ Nunjucks }) => {
     let ret = false;
 
     //console.log(JSON.stringify(schema));
-    //console.log('Checking schema ' + name);
-    for (let propName in schema.properties) {
+		//console.log('Checking schema ' + name);
+		
+		var properties = schema.properties;
+
+		if (schema.type === 'array') {
+			properties = schema.items.properties;
+		}
+
+    for (let propName in properties) {
       let javaName = _.camelCase(propName);
-      let prop = schema.properties[propName];
+      let prop = properties[propName];
       //console.log('checking ' + propName + ' ' + prop.type);
 
       if (javaName !== propName) {
@@ -324,7 +331,6 @@ module.exports = ({ Nunjucks }) => {
           if (check) {
             return true;
           }
-
         }
       }
     }
