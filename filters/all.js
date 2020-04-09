@@ -36,7 +36,7 @@ module.exports = ({ Nunjucks }) => {
   typeMap.set('null', 'String');
   typeMap.set('number', 'Double');
   typeMap.set('string', 'String');
-
+	
   class SCSFunction {
     name;
     type;
@@ -165,6 +165,10 @@ module.exports = ({ Nunjucks }) => {
     return getFunctionNameByChannel(channelName, channel);
   })
 
+  Nunjucks.addFilter('identifierName', (str) => {
+    return scsLib.getIdentifierName(str);
+  })
+
   Nunjucks.addFilter('indent1', (numTabs) => {
     return indent(numTabs);
   })
@@ -178,7 +182,7 @@ module.exports = ({ Nunjucks }) => {
   })
 
   // This returns the proper Java type for a schema property.
-  Nunjucks.addFilter('fixType', ([name, property]) => {
+  Nunjucks.addFilter('fixType', ([name, javaName, property]) => {
 
     //console.log('fixType: ' + name);
     
@@ -200,7 +204,7 @@ module.exports = ({ Nunjucks }) => {
     let ret;
     if (type === undefined) {
       if (property._json.enum) {
-        ret = _.upperFirst(name);
+        ret = _.upperFirst(javaName);
       } else {
         ret = property.title();
       }
@@ -214,12 +218,12 @@ module.exports = ({ Nunjucks }) => {
         itemsType = typeMap.get(itemsType);
       }
       if (!itemsType) {
-        itemsType = _.upperFirst(name);
+        itemsType = _.upperFirst(javaName);
         isArrayOfObjects = true;
       }
       ret = _.upperFirst(itemsType) + "[]";
     } else if (type === 'object') {
-      ret = _.upperFirst(name);
+      ret = _.upperFirst(javaName);
     } else {
       ret = typeMap.get(type);
       if (!ret) {
@@ -353,7 +357,6 @@ module.exports = ({ Nunjucks }) => {
   }
 
   // For the Solace binder. This determines the topic that must be subscribed to on a queue, when the x-scs-destination is given (which is the queue name.)
-  // TODO: Make this work with the new FunctionSpec stuff.
   function getAdditionalSubs(asyncapi) {
     let ret;
 
@@ -415,7 +418,7 @@ module.exports = ({ Nunjucks }) => {
     if (functionName) {
       ret = functionName;
     } else {
-      ret = _.camelCase(channelName) + (isSubscribe ? "Consumer" : "Provider");
+      ret = _.camelCase(channelName) + (isSubscribe ? "Consumer" : "Supplier");
     }
     return ret;
   }

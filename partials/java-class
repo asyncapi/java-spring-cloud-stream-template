@@ -4,7 +4,7 @@
 {% set indent2 = indentLevel | indent2 -%}
 {% set indent3 = indentLevel | indent3 -%}
 {{ indent1 }}@JsonInclude(JsonInclude.Include.NON_NULL)
-{{ indent1 }}public {% if isStatic %}static {% endif %} class {{ className }} {
+{{ indent1 }}public {% if isStatic %}static {% endif %}class {{ className }} {
 {# Default constructor #}
 {{ indent2 }}public {{ className }} () {
 {{ indent2 }}}
@@ -23,27 +23,27 @@
 {#- Constructor with all properties -#}
 {{ indent2 }}public {{ className }} (
 {%- for name, prop in properties -%}
-{%- set name = name | camelCase -%}
-{%- set typeInfo = [name, prop] | fixType -%}
+{%- set javaName = name | identifierName -%}
+{%- set typeInfo = [name, javaName, prop] | fixType -%}
 {%- set type = typeInfo[0] -%}
 {%- if first -%}
 {%- set first = false -%}
 {%- else -%}
 , {% endif -%}
-{{ type }} {{ name }}
+{{ type }} {{ javaName }}
 {%- endfor -%}
 ) {
 {% for name, prop in properties -%}
-{%- set name = name | camelCase -%}
-{{ indent3 }}this.{{ name }} = {{ name }};
+{%- set javaName = name | identifierName -%}
+{{ indent3 }}this.{{ javaName }} = {{ javaName }};
 {% endfor -%}
 {{ indent2 }}}
 {% endif -%}
 
 {# Members #}
 {% for name, prop in properties -%}
-{% set javaName = name | camelCase -%}
-{% set typeInfo = [javaName, prop] | fixType -%}
+{% set javaName = name | identifierName -%}
+{% set typeInfo = [javaName, javaName, prop] | fixType -%}
 {% set type = typeInfo[0] -%}
 {% set isArrayOfObjects = typeInfo[1] %}
 {% if javaName !== name -%}
@@ -54,27 +54,27 @@
 
 {# Getters and Setters #}
 {%- for name, prop in properties %}
-{% set name = name | camelCase -%}
-{% set typeInfo = [name, prop] | fixType -%}
+{% set javaName = name | identifierName -%}
+{% set typeInfo = [name, javaName, prop] | fixType -%}
 {% set type = typeInfo[0] -%}
 {% set isArrayOfObjects = typeInfo[1] %}
-{{ indent2 }}public {{ type }} get{{- name | upperFirst }}() {
-{{ indent3 }}return {{ name }};
+{{ indent2 }}public {{ type }} get{{- javaName | upperFirst }}() {
+{{ indent3 }}return {{ javaName }};
 {{ indent2 }}}
 
-{{ indent2 }}public {{ className }} set{{- name | upperFirst }}({{ type }} {{ name }}) {
-{{ indent3 }}this.{{-name }} = {{ name }};
+{{ indent2 }}public {{ className }} set{{- javaName | upperFirst }}({{ type }} {{ javaName }}) {
+{{ indent3 }}this.{{-javaName }} = {{ javaName }};
 {{ indent3 }}return this;
 {{ indent2 }}}
 {# Inner classes #}
 {%- if indentLevel == 0 and  prop.type() === 'object' %}
-{{ javaClass(name, null, prop.properties(), prop.required(), indentLevel+1, true) }}
+{{ javaClass(javaName, null, prop.properties(), prop.required(), indentLevel+1, true) }}
 {% endif -%}
 {%- if indentLevel > 0 and prop.type === 'object' %}
-{{ javaClass(name, null, prop.properties, prop.required, indentLevel+1, true) }}
+{{ javaClass(javaName, null, prop.properties, prop.required, indentLevel+1, true) }}
 {% endif -%}
 {%- if isArrayOfObjects %}
-{{ javaClass(name, null, prop.items()._json.properties, prop.items()._json.required, indentLevel+1, true) }}
+{{ javaClass(javaName, null, prop.items()._json.properties, prop.items()._json.required, indentLevel+1, true) }}
 {% endif -%}
 {# Enums #}
 {%- if prop._json.enum %}
@@ -86,8 +86,8 @@
 {{ indent2 }}public String toString() {
 {{ indent3 }}return "{{ className }} ["
 {%- for name, prop in properties %}
-{%- set name = name | camelCase %}
-{{ indent3 }}+ " {{ name }}: " + {{ name }}
+{%- set javaName = name | identifierName %}
+{{ indent3 }}+ " {{ javaName }}: " + {{ javaName }}
 {%- endfor %}
 {{ indent3 }}+ " ]";
 {{ indent2 }}}

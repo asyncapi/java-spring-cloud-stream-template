@@ -28,6 +28,9 @@ public Supplier<Order> storeProcessSupplier () {
   return null;
 }
 ```
+### Property Naming
+
+When converting from property names to Java field names, the property names are first converted to camelCase, removing non-alphanumeric characters in the process. If the resulting name ends up being a Java keyword, it is prepended with an underscore.
 
 ## How to Use This Template
 
