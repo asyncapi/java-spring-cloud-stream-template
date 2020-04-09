@@ -32,6 +32,12 @@ public Supplier<Order> storeProcessSupplier () {
 
 When converting from property names to Java field names, the property names are first converted to camelCase, removing non-alphanumeric characters in the process. If the resulting name ends up being a Java keyword, it is prepended with an underscore.
 
+### Application vs Library
+
+By default, this will generate a runnable Spring Boot application. If you set the ```artifactType``` parameter to ```library```, then it will generate a project without a main Application class and without the main Spring Boot dependencies. That will produce a library that can be imported into another application as a Maven artifact. It will contain the model classes and the Spring Cloud Stream configuration.
+
+Doing that allows you to hava a clean separation between the generated code and your hand-written code, and ensures that regenerating the library will not overwrite your business logic.
+
 ## How to Use This Template
 
 Install the AsyncAPI Generator
