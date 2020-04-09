@@ -4,7 +4,13 @@ module.exports = ({ Nunjucks }) => {
   var yaml = require('js-yaml');
   var _ = require('lodash');
   const ScsLib = require('../lib/ScsLib');
-  const scsLib = new ScsLib();
+	const scsLib = new ScsLib();
+	
+	// Library versions
+	const SOLACE_SPRING_CLOUD_VERSION = '1.0.0';
+	const SPRING_BOOT_VERSION = '2.2.6.RELEASE';
+	const SPRING_CLOUD_VERSION = 'Hoxton.SR3';
+	const SPRING_CLOUD_STREAM_VERSION = '3.0.3.RELEASE';
 
   // This maps json schema types to Java format strings.
   const formatMap = new Map();
@@ -140,7 +146,7 @@ module.exports = ({ Nunjucks }) => {
   });
 
   Nunjucks.addFilter('artifactId', ([info, params]) => {
-    return scsLib.getParamOrExtension(info, params, 'artifactId', 'x-artifact-id', 'Maven artifact ID', 'my-application', true);
+    return scsLib.getParamOrDefault(info, params, 'artifactId', 'x-artifact-id', 'project-name');
   })
 
   Nunjucks.addFilter('camelCase', (str) => {
@@ -228,7 +234,7 @@ module.exports = ({ Nunjucks }) => {
   });
 
   Nunjucks.addFilter('groupId', ([info, params]) => {
-    return scsLib.getParamOrExtension(info, params, 'groupId', 'x-group-id', 'Maven group ID.', 'com.company', true);
+    return scsLib.getParamOrDefault(info, params, 'groupId', 'x-group-id', 'com.company');
   })
 
   Nunjucks.addFilter('log', (str) => {
@@ -241,9 +247,7 @@ module.exports = ({ Nunjucks }) => {
   })
 
   Nunjucks.addFilter('mainClassName', ([info, params]) => {
-    let cls = scsLib.getParamOrExtension(info, params, 'javaClass', 'x-java-class', 'Main application class.', 'Application', false);
-    let ret = cls || "Application";
-    return ret;
+    return scsLib.getParamOrDefault(info, params, 'javaClass', 'x-java-class', 'Application');
   });
 
   // This returns the Java class name of the payload.
@@ -260,17 +264,19 @@ module.exports = ({ Nunjucks }) => {
 
   Nunjucks.addFilter('solaceSpringCloudVersion', ([info, params]) => {
     var required = isApplication(params) && params.binder === 'solace';
-    return scsLib.getParamOrExtension(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version', 'Solace Spring Cloud version', '1.0.0-RELEASE', required);
+		return scsLib.getParamOrDefault(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version', SOLACE_SPRING_CLOUD_VERSION);
+  })
+
+  Nunjucks.addFilter('springBootVersion', ([info, params]) => {
+		return scsLib.getParamOrDefault(info, params, 'springBootVersion', 'x-spring-boot-version', SPRING_BOOT_VERSION);
   })
 
   Nunjucks.addFilter('springCloudStreamVersion', ([info, params]) => {
-    var required = !isApplication(params);
-    return scsLib.getParamOrExtension(info, params, 'springCloudStreamVersion', 'x-spring-cloud-stream-version', 'Spring Cloud Stream version', '3.0.1.RELEASE', required);
+		return scsLib.getParamOrDefault(info, params, 'springCloudStreamVersion', 'x-spring-cloud-stream-version', SPRING_CLOUD_STREAM_VERSION);
   })
 
   Nunjucks.addFilter('springCloudVersion', ([info, params]) => {
-    var required = isApplication(params);
-    return scsLib.getParamOrExtension(info, params, 'springCloudVersion', 'x-spring-cloud-version', 'Spring Cloud version', 'Hoxton.SR1', required);
+		return scsLib.getParamOrDefault(info, params, 'springCloudVersion', 'x-spring-cloud-version', SPRING_CLOUD_VERSION);
   })
 
 	Nunjucks.addFilter('stringify', (obj) => {

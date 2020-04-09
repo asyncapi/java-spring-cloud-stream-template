@@ -66,7 +66,7 @@ module.exports = register => {
       fs.unlinkSync(path.resolve(generator.targetDir, "pom.lib"));
 
       if (overrideClassName) {
-		overrideClassName += '.java';
+		    overrideClassName += '.java';
         fs.renameSync(path.resolve(sourcePath, "Application.java"), path.resolve(sourcePath, overrideClassName));
       }
     }
