@@ -72,7 +72,7 @@ Parameters can be passed to the generator using command line arguments in the fo
 
 Parameter | Extension | Default | Description
 ----------|-----------|---------|---
-actuator    |              | false | If present, it adds the dependencies for spring-boot-starter-web, spring-boot-starter-actuator and micrometer-registry-prometheus.
+actuator    |              | false | If true, it adds the dependencies for spring-boot-starter-web, spring-boot-starter-actuator and micrometer-registry-prometheus.
 artifactId  |  info.x-artifact-id | project-name | The Maven artifact id.
 artifactType | | application | The type of project to generate, application or library. When generating an application, the pom.xml file will contain the complete set of dependencies required to run an app, and it will contain an Application class with a main function. Otherwise the pom file will include only the dependencies required to compile a library.
 binder | | kafka | The name of the binder implementation, one of kafka, rabbit or solace. Default: kafka. If you need other binders to be supported, please let us know!
