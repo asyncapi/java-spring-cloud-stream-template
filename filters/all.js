@@ -12,6 +12,10 @@ module.exports = ({ Nunjucks }) => {
 	const SPRING_CLOUD_VERSION = 'Hoxton.SR3';
 	const SPRING_CLOUD_STREAM_VERSION = '3.0.3.RELEASE';
 
+	// Connection defaults. SOLACE_DEFAULT applies to msgVpn, username and password.
+	const SOLACE_HOST = 'tcp://localhost:55555';
+	const SOLACE_DEFAULT = 'default';
+
   // This maps json schema types to Java format strings.
   const formatMap = new Map();
   formatMap.set('boolean', '%s');
@@ -530,10 +534,10 @@ module.exports = ({ Nunjucks }) => {
   function getSolace(params) {
     let ret = {};
     ret.java = {};
-    ret.java.host = params.host || 'tcp://localhost:5555';
-    ret.java.msgVpn = params.msgVpn || 'default';
-    ret.java.clientUsername = params.username || 'default';
-    ret.java.clientPassword = params.password || 'default';
+    ret.java.host = params.host || SOLACE_HOST;
+    ret.java.msgVpn = params.msgVpn || SOLACE_DEFAULT;
+    ret.java.clientUsername = params.username || SOLACE_DEFAULT;
+    ret.java.clientPassword = params.password || SOLACE_DEFAULT;
     return ret;
   }
 
