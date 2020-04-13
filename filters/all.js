@@ -3,6 +3,18 @@ module.exports = ({ Nunjucks }) => {
 
   var yaml = require('js-yaml');
   var _ = require('lodash');
+  const ScsLib = require('../lib/ScsLib');
+	const scsLib = new ScsLib();
+	
+	// Library versions
+	const SOLACE_SPRING_CLOUD_VERSION = '1.0.0';
+	const SPRING_BOOT_VERSION = '2.2.6.RELEASE';
+	const SPRING_CLOUD_VERSION = 'Hoxton.SR3';
+	const SPRING_CLOUD_STREAM_VERSION = '3.0.3.RELEASE';
+
+	// Connection defaults. SOLACE_DEFAULT applies to msgVpn, username and password.
+	const SOLACE_HOST = 'tcp://localhost:55555';
+	const SOLACE_DEFAULT = 'default';
 
   // This maps json schema types to Java format strings.
   const formatMap = new Map();
@@ -18,7 +30,7 @@ module.exports = ({ Nunjucks }) => {
   sampleMap.set('boolean', 'true');
   sampleMap.set('integer', '1');
   sampleMap.set('null', 'string');
-  sampleMap.set('number', '1');
+  sampleMap.set('number', '1.1');
   sampleMap.set('string', '"string"');
 
   // This maps json schema types to Java types.
@@ -26,12 +38,13 @@ module.exports = ({ Nunjucks }) => {
   typeMap.set('boolean', 'Boolean');
   typeMap.set('integer', 'Integer');
   typeMap.set('null', 'String');
-  typeMap.set('number', 'int');
+  typeMap.set('number', 'Double');
   typeMap.set('string', 'String');
-
+	
   class SCSFunction {
     name;
     type;
+    group;
     publishChannel;
     subscribeChannel;
     publishPayload;
@@ -110,8 +123,7 @@ module.exports = ({ Nunjucks }) => {
       }
     }
 
-    let type = params.artifactType;
-    if (type && type === 'application') {
+		if (isApplication(params)) {
       if (params.binder === 'solace') {
         doc.solace = getSolace(params);
       }
@@ -138,22 +150,27 @@ module.exports = ({ Nunjucks }) => {
   });
 
   Nunjucks.addFilter('artifactId', ([info, params]) => {
-    return getParamOrExtension(info, params, 'artifactId', 'x-artifact-id', 'Maven artifact ID', 'my-application');
+    return scsLib.getParamOrDefault(info, params, 'artifactId', 'x-artifact-id', 'project-name');
   })
 
   Nunjucks.addFilter('camelCase', (str) => {
     return _.camelCase(str);
   })
 
-  Nunjucks.addFilter('dump', (str) => {
-    console.log("Dumping " + str);
-    return str;
+  Nunjucks.addFilter('checkPropertyNames', ([schemaName, schema]) => {
+    //console.log("------------- " + schemaName);
+    let ret =  checkPropertyNames(schemaName, schema._json);
+    //console.log("------------- " + ret);
+    return ret;
   })
-
 
   // This determines the base function name that we will use for the SCSt mapping between functions and bindings.
   Nunjucks.addFilter('functionName', ([channelName, channel]) => {
     return getFunctionNameByChannel(channelName, channel);
+  })
+
+  Nunjucks.addFilter('identifierName', (str) => {
+    return scsLib.getIdentifierName(str);
   })
 
   Nunjucks.addFilter('indent1', (numTabs) => {
@@ -169,7 +186,7 @@ module.exports = ({ Nunjucks }) => {
   })
 
   // This returns the proper Java type for a schema property.
-  Nunjucks.addFilter('fixType', ([name, property]) => {
+  Nunjucks.addFilter('fixType', ([name, javaName, property]) => {
 
     //console.log('fixType: ' + name);
     
@@ -191,7 +208,7 @@ module.exports = ({ Nunjucks }) => {
     let ret;
     if (type === undefined) {
       if (property._json.enum) {
-        ret = _.upperFirst(name);
+        ret = _.upperFirst(javaName);
       } else {
         ret = property.title();
       }
@@ -205,12 +222,12 @@ module.exports = ({ Nunjucks }) => {
         itemsType = typeMap.get(itemsType);
       }
       if (!itemsType) {
-        itemsType = _.upperFirst(name);
+        itemsType = _.upperFirst(javaName);
         isArrayOfObjects = true;
       }
       ret = _.upperFirst(itemsType) + "[]";
     } else if (type === 'object') {
-      ret = _.upperFirst(name);
+      ret = _.upperFirst(javaName);
     } else {
       ret = typeMap.get(type);
       if (!ret) {
@@ -225,7 +242,12 @@ module.exports = ({ Nunjucks }) => {
   });
 
   Nunjucks.addFilter('groupId', ([info, params]) => {
-    return getParamOrExtension(info, params, 'groupId', 'x-group-id', 'Maven group ID.', 'com.company');
+    return scsLib.getParamOrDefault(info, params, 'groupId', 'x-group-id', 'com.company');
+  })
+
+  Nunjucks.addFilter('log', (str) => {
+    console.log(str);
+    return str;
   })
 
   Nunjucks.addFilter('lowerFirst', (str) => {
@@ -233,8 +255,7 @@ module.exports = ({ Nunjucks }) => {
   })
 
   Nunjucks.addFilter('mainClassName', ([info, params]) => {
-    let  ret = info.extensions()['x-java-class'] || "Application";
-    return ret;
+    return scsLib.getParamOrDefault(info, params, 'javaClass', 'x-java-class', 'Application');
   });
 
   // This returns the Java class name of the payload.
@@ -250,16 +271,27 @@ module.exports = ({ Nunjucks }) => {
   })
 
   Nunjucks.addFilter('solaceSpringCloudVersion', ([info, params]) => {
-    return getParamOrExtension(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version', 'Solace Spring Cloud version', '1.0.0-SNAPSHOT');
+    var required = isApplication(params) && params.binder === 'solace';
+		return scsLib.getParamOrDefault(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version', SOLACE_SPRING_CLOUD_VERSION);
+  })
+
+  Nunjucks.addFilter('springBootVersion', ([info, params]) => {
+		return scsLib.getParamOrDefault(info, params, 'springBootVersion', 'x-spring-boot-version', SPRING_BOOT_VERSION);
   })
 
   Nunjucks.addFilter('springCloudStreamVersion', ([info, params]) => {
-    return getParamOrExtension(info, params, 'springCloudStreamVersion', 'x-spring-cloud-stream-version', 'Spring Cloud Stream version', '3.0.1.RELEASE');
+		return scsLib.getParamOrDefault(info, params, 'springCloudStreamVersion', 'x-spring-cloud-stream-version', SPRING_CLOUD_STREAM_VERSION);
   })
 
   Nunjucks.addFilter('springCloudVersion', ([info, params]) => {
-    return getParamOrExtension(info, params, 'springCloudVersion', 'x-spring-cloud-version', 'Spring Cloud version', 'Hoxton.SR1');
+		return scsLib.getParamOrDefault(info, params, 'springCloudVersion', 'x-spring-cloud-version', SPRING_CLOUD_VERSION);
   })
+
+	Nunjucks.addFilter('stringify', (obj) => {
+    var str = JSON.stringify(obj, null, 2);
+    return str;
+  })
+
 
   // This returns an object containing information the template needs to render topic strings.
   Nunjucks.addFilter('topicInfo', ([channelName, channel]) => {
@@ -271,6 +303,54 @@ module.exports = ({ Nunjucks }) => {
     return _.upperFirst(str);
   })
 
+  // Returns true if any property names will be different between json and java.
+  function checkPropertyNames(name, schema) {
+    let ret = false;
+
+    //console.log(JSON.stringify(schema));
+		//console.log('Checking schema ' + name);
+		
+		var properties = schema.properties;
+
+		if (schema.type === 'array') {
+			properties = schema.items.properties;
+		}
+
+    for (let propName in properties) {
+      let javaName = _.camelCase(propName);
+      let prop = properties[propName];
+      //console.log('checking ' + propName + ' ' + prop.type);
+
+      if (javaName !== propName) {
+        //console.log("Java name " + javaName + " is different from " + propName);
+        return true;
+      }
+      if (prop.type === 'object') {
+        //console.log("Recursing into object");
+        let check = checkPropertyNames(propName, prop);
+        if (check) {
+          return true;
+        }
+      } else if (prop.type === 'array') {
+        //console.log('checkPropertyNames: ' + JSON.stringify(prop));
+        if (!prop.items) {
+          throw new Error("Array named " + propName + " must have an 'items' property to indicate what type the array elements are.");
+        }
+        let itemsType = prop.items.type;
+        //console.log('checkPropertyNames: ' + JSON.stringify(prop.items));
+        //console.log('array of : ' + itemsType);
+        if (itemsType === 'object') {
+          //console.log("Recursing into array");
+          let check = checkPropertyNames(propName, prop.items);
+          if (check) {
+            return true;
+          }
+        }
+      }
+    }
+    return ret;
+  }
+
   function dump(obj) {
     let s = typeof obj;
     for (let p in obj) {
@@ -281,7 +361,6 @@ module.exports = ({ Nunjucks }) => {
   }
 
   // For the Solace binder. This determines the topic that must be subscribed to on a queue, when the x-scs-destination is given (which is the queue name.)
-  // TODO: Make this work with the new FunctionSpec stuff.
   function getAdditionalSubs(asyncapi) {
     let ret;
 
@@ -298,7 +377,7 @@ module.exports = ({ Nunjucks }) => {
             ret = {};
             ret.bindings = {};
           }
-          let bindingName = functionName + "Consumer-in-0";
+          let bindingName = functionName + "-in-0";
           ret.bindings[bindingName] = {};
           ret.bindings[bindingName].consumer = {};
           ret.bindings[bindingName].consumer.queueAdditionalSubscriptions = topicInfo.subscribeTopic;
@@ -321,7 +400,10 @@ module.exports = ({ Nunjucks }) => {
       }
       if (spec.isSubscriber) {
         ret[spec.subscribeBindingName] = {};
-        ret[spec.subscribeBindingName].destination = spec.subscribeChannel;
+				ret[spec.subscribeBindingName].destination = spec.subscribeChannel;
+				if (spec.group) {
+					ret[spec.subscribeBindingName].group = spec.group;
+				}
       }
     });
     return ret;
@@ -340,7 +422,7 @@ module.exports = ({ Nunjucks }) => {
     if (functionName) {
       ret = functionName;
     } else {
-      ret = _.camelCase(channelName) + (isSubscribe ? "Consumer" : "Provider");
+      ret = _.camelCase(channelName) + (isSubscribe ? "Consumer" : "Supplier");
     }
     return ret;
   }
@@ -421,34 +503,20 @@ module.exports = ({ Nunjucks }) => {
           throw new Error("Channel " + channelName + ": no payload class has been defined.");
         }
         functionSpec.subscribePayload = payload;
-        functionSpec.subscribeChannel = channelName;
+        var group = channelJson.subscribe['x-scs-group'];
+        if (group) {
+            functionSpec.group = group;
+        }
+        var dest = channelJson.subscribe['x-scs-destination'];
+        if (dest) {
+            functionSpec.subscribeChannel = dest;
+        } else {
+            functionSpec.subscribeChannel = channelName;
+        }
       }
     }
 
     return functionMap;
-  }
-
-  // This returns the value of a param, or specification extention if the param isn't set. If neither are set it throws an error.
-  function getParamOrExtension(info, params, paramName, extensionName, description, example) {
-    let ret = '';
-    if (params[paramName]) {
-      ret = params[paramName];
-    } else if (info.extensions()[extensionName]) {
-      ret = info.extensions()[extensionName];
-    } else {
-      throw new Error(`Can't determine the ${description}. Please set the param ${paramName} or info.${extensionName}. Example: ${example}`);
-    }
-    return ret;
-  }
-
-  // This returns the value of a param, or 'xxxxx' if not found. This is for generating connection string placeholders in application.yaml.
-  function getParamOrXs(params, param) {
-    let ret = params[param];
-    if (!ret) {
-      ret = "xxxxx";
-    }
-
-    return ret;
   }
 
   function getPayloadClass(pubOrSub) {
@@ -466,10 +534,10 @@ module.exports = ({ Nunjucks }) => {
   function getSolace(params) {
     let ret = {};
     ret.java = {};
-    ret.java.host = getParamOrXs(params, 'host');
-    ret.java.msgVpn = getParamOrXs(params, 'msgVpn');
-    ret.java.clientUsername = getParamOrXs(params, 'username');
-    ret.java.clientPassword = getParamOrXs(params, 'password');
+    ret.java.host = params.host || SOLACE_HOST;
+    ret.java.msgVpn = params.msgVpn || SOLACE_DEFAULT;
+    ret.java.clientUsername = params.username || SOLACE_DEFAULT;
+    ret.java.clientPassword = params.password || SOLACE_DEFAULT;
     return ret;
   }
 
@@ -548,4 +616,8 @@ module.exports = ({ Nunjucks }) => {
     return "\t".repeat(numTabs);
   }
 
+  function isApplication(params) {
+    var artifactType = params.artifactType;
+    return (!artifactType || artifactType === 'application')
+  }
 }

@@ -2,11 +2,13 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
+const ScsLib = require('../lib/ScsLib');
 
 const sourceHead = '/src/main/java/';
 
 module.exports = register => {
   register('generate:after', generator => {
+	var scsLib = new ScsLib();
     const asyncapi = generator.asyncapi;
     let sourcePath = generator.targetDir + sourceHead;
     const info = asyncapi.info();
@@ -31,7 +33,7 @@ module.exports = register => {
       fs.readdirSync(sourcePath).forEach(file => {
         if (first) {
           first = false;
-          console.log("Making " + overridePath);
+          //console.log("Making " + overridePath);
           fs.mkdirSync(overridePath, { recursive: true });
         }
 
@@ -52,10 +54,7 @@ module.exports = register => {
     let artifactType = generator.templateParams['artifactType'];
 
     let mainClassName = "Application";
-    let overrideClassName;
-    if (extensions && extensions['x-java-class']) {
-      overrideClassName = extensions['x-java-class'] + ".java";
-    }
+	  let overrideClassName = scsLib.getParamOrExtension(info, generator.templateParams, 'javaClass', 'x-java-class');
 
     if (artifactType === "library") {
       fs.renameSync(path.resolve(generator.targetDir, "pom.lib"), path.resolve(generator.targetDir, "pom.xml"));
@@ -67,24 +66,16 @@ module.exports = register => {
       fs.unlinkSync(path.resolve(generator.targetDir, "pom.lib"));
 
       if (overrideClassName) {
+		    overrideClassName += '.java';
         fs.renameSync(path.resolve(sourcePath, "Application.java"), path.resolve(sourcePath, overrideClassName));
       }
-
-      /*
-      if (generateMessagingClass) {
-        fs.renameSync(path.resolve(sourcePath, "ApplicationWithMessaging.java"), path.resolve(sourcePath, overrideClassName));
-      } else {
-        fs.unlinkSync(path.resolve(sourcePath, "ApplicationWithMessaging.java"));
-      }
-      */
     }
 
-    // Rename schema objects if necessary
+    // This renames schema objects according to the title field. By default we won't do this, we might add this as an option.
 
-    const schemas = asyncapi._json.components.schemas;
+    ///const schemas = asyncapi._json.components.schemas;
     //console.log("schemas: " + JSON.stringify(schemas));
 
-    // this renames schema objects according to the title field. By default we won't do this, we might add this as an option.
     /*
     for (let schema in schemas) {
       let schemaObject = schemas[schema];
