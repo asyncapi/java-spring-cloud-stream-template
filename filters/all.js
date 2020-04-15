@@ -233,11 +233,16 @@ module.exports = ({ Nunjucks }) => {
         }
       }
       if (!itemsType) {
+<<<<<<< HEAD
         itemsType = property._json.items['x-parser-schema-id'];
 
         if (!itemsType) {
           throw new Error("Array named " + name + ": can't determine the type of the items.");
         }
+=======
+        itemsType = _.upperFirst(javaName);
+        isArrayOfObjects = true;
+>>>>>>> master
       }
       ret = _.upperFirst(itemsType) + "[]";
     } else if (type === 'object') {
