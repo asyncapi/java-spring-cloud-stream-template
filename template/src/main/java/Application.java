@@ -16,7 +16,6 @@ import reactor.core.publisher.Flux;
 {%- for funcName, funcSpec in funcs -%}
 {%- if funcSpec.type === 'function' -%}
 {%- set hasFunctions = true %}
-		{{ 'has functions.' }}
 {%- endif %}
 {%- if funcSpec.type === 'consumer' -%}
 {%- set hasConsumers = true %}
