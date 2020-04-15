@@ -48,6 +48,10 @@
       "description": "The version of the solace-spring-cloud-bom dependency used when generating an application. Alternatively you can set the specification extension info.x-solace-spring-cloud-version.",
       "required": false
     },
+    "springBootVersion": {
+      "description": "The version of Spring Boot used when generating an application. Alternatively you can set the specification extension info.x-spring-booot-version. Example: 2.2.6.RELEASE.",
+      "required": false
+    },
     "springCloudVersion": {
       "description": "The version of the spring-cloud-dependencies BOM dependency used when generating an application. Alternatively you can set the specification extension info.x-spring-cloud-version. Example: Hoxton.RELEASE.",
       "required": false
