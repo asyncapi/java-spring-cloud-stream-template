@@ -29,8 +29,8 @@
 {%- if first -%}
 {%- set first = false -%}
 {%- else -%}
-, {% endif -%}
-{{ type }} {{ javaName }}
+, {% endif %}
+{{ indent3 }}{{ type }} {{ javaName }}
 {%- endfor -%}
 ) {
 {% for name, prop in properties -%}
@@ -44,8 +44,7 @@
 {% for name, prop in properties -%}
 {% set javaName = name | identifierName -%}
 {% set typeInfo = [javaName, javaName, prop] | fixType -%}
-{% set type = typeInfo[0] -%}
-{% set isArrayOfObjects = typeInfo[1] %}
+{% set type = typeInfo[0] %}
 {% if javaName !== name -%}
 {{ indent2 }}@JsonProperty("{{name}}")
 {% endif -%}

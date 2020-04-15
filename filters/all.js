@@ -202,7 +202,7 @@ module.exports = ({ Nunjucks }) => {
 
     //console.log('fixType: ' + name + ' ' + type + ' ' + JSON.stringify(property._json) + ' ' );
     //console.log("");
-
+  
     // If a schema has a property that is a ref to another schema,
     // the type is undefined, and the title gives the title of the referenced schema.
     let ret;
@@ -210,20 +210,34 @@ module.exports = ({ Nunjucks }) => {
       if (property._json.enum) {
         ret = _.upperFirst(javaName);
       } else {
-        ret = property.title();
+        // check to see if it's a ref to another schema.
+        ret = property._json['x-parser-schema-id'];
+
+        if (!ret) {
+          throw new Error("Can't determine the type of property " + name);
+        }
       }
     } else if (type === 'array') {
       if (!property._json.items) {
         throw new Error("Array named " + name + " must have an 'items' property to indicate what type the array elements are.");
       }
-      //console.log('fixtype: ' + JSON.stringify(propery._json.items));
+      //console.log('fixtype: ' + JSON.stringify(property._json.items));
       let itemsType = property._json.items.type;
       if (itemsType) {
-        itemsType = typeMap.get(itemsType);
+
+        if (itemsType === 'object') {
+          isArrayOfObjects = true;
+          itemsType = _.upperFirst(javaName);
+        } else {
+          itemsType = typeMap.get(itemsType);
+        }
       }
       if (!itemsType) {
-        itemsType = _.upperFirst(javaName);
-        isArrayOfObjects = true;
+        itemsType = property._json.items['x-parser-schema-id'];
+
+        if (!itemsType) {
+          throw new Error("Array named " + name + ": can't determine the type of the items.");
+        }
       }
       ret = _.upperFirst(itemsType) + "[]";
     } else if (type === 'object') {
