@@ -9,15 +9,15 @@
 {{ indent2 }}public {{ className }} () {
 {{ indent2 }}}
 {# If the top level object is an array, we need to deal with that specially. -#}
-{%- if schema._json.type === 'array' -%}
-{%- set name = schema._json.title | camelCase -%}
+{%- if schema and schema.type() === 'array' -%}
+{%- set name = schema.title() | camelCase -%}
 {%- set type = name | upperFirst -%}
 {%- set arrayType = type + '[]' -%}
 {{ indent2 }}public {{ className }} ({{ arrayType }} {{ name }}) {
 {{ indent3 }}this.{{ name }} = {{ name }};
 {{ indent2 }}}
 {{ indent2 }}private {{ arrayType }} {{ name }};
-{{ javaClass(type, null, schema._json.items.properties, schema._json.items.required, indentLevel+1, true) }}
+{{ javaClass(type, null, schema.items().properties(), schema.items().required(), indentLevel+1, true) }}
 {%- else -%} {# not an array at the top level. #}
 {%- set first = true -%}
 {#- Constructor with all properties -#}
@@ -73,12 +73,12 @@
 {{ javaClass(javaName, null, prop.properties, prop.required, indentLevel+1, true) }}
 {% endif -%}
 {%- if isArrayOfObjects %}
-{{ javaClass(javaName, null, prop.items()._json.properties, prop.items()._json.required, indentLevel+1, true) }}
+{{ javaClass(javaName, null, prop.items().properties(), prop.items().required(), indentLevel+1, true) }}
 {% endif -%}
 {# Enums #}
-{%- if prop._json.enum %}
+{%- if prop.enum() %}
 
-{{ indent2 }}public static enum {{ type }} { {{ prop._json.enum }} }
+{{ indent2 }}public static enum {{ type }} { {{ prop.enum() }} }
 {% endif -%}
 {%- endfor %}
 

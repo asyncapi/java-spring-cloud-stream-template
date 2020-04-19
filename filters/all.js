@@ -158,9 +158,9 @@ module.exports = ({ Nunjucks }) => {
   })
 
   Nunjucks.addFilter('checkPropertyNames', ([schemaName, schema]) => {
-    //console.log("------------- " + schemaName);
-    let ret =  checkPropertyNames(schemaName, schema._json);
-    //console.log("------------- " + ret);
+    //console.log("checkPropertyNames " + schemaName + "  " + schema.type());
+    let ret =  checkPropertyNames(schemaName, schema);
+    //console.log("checkPropertyNames" + ret);
     return ret;
   })
 
@@ -188,7 +188,7 @@ module.exports = ({ Nunjucks }) => {
   // This returns the proper Java type for a schema property.
   Nunjucks.addFilter('fixType', ([name, javaName, property]) => {
 
-    //console.log('fixType: ' + name);
+    //console.log('fixType: ' + name + " " + dump(property));
     
     let isArrayOfObjects = false;
 
@@ -196,33 +196,32 @@ module.exports = ({ Nunjucks }) => {
     // For schema properties, type is a function.
     let type = property.type;
 
+    //console.log("fixType: " + property);
+
     if (typeof type == "function") {
       type = property.type();
     }
 
-    //console.log('fixType: ' + name + ' ' + type + ' ' + JSON.stringify(property._json) + ' ' );
-    //console.log("");
-  
     // If a schema has a property that is a ref to another schema,
     // the type is undefined, and the title gives the title of the referenced schema.
     let ret;
     if (type === undefined) {
-      if (property._json.enum) {
+      if (property.enum()) {
         ret = _.upperFirst(javaName);
       } else {
         // check to see if it's a ref to another schema.
-        ret = property._json['x-parser-schema-id'];
+        ret = property.ext('x-parser-schema-id');
 
         if (!ret) {
           throw new Error("Can't determine the type of property " + name);
         }
       }
     } else if (type === 'array') {
-      if (!property._json.items) {
+      if (!property.items()) {
         throw new Error("Array named " + name + " must have an 'items' property to indicate what type the array elements are.");
       }
-      //console.log('fixtype: ' + JSON.stringify(property._json.items));
-      let itemsType = property._json.items.type;
+      let itemsType = property.items().type();
+
       if (itemsType) {
 
         if (itemsType === 'object') {
@@ -233,7 +232,8 @@ module.exports = ({ Nunjucks }) => {
         }
       }
       if (!itemsType) {
-        itemsType = property._json.items['x-parser-schema-id'];
+        itemsType = property.items().ext('x-parser-schema-id');
+        //console.log("items: " + itemsType + " -- " + itemsType2);
 
         if (!itemsType) {
           throw new Error("Array named " + name + ": can't determine the type of the items.");
@@ -263,6 +263,16 @@ module.exports = ({ Nunjucks }) => {
     console.log(str);
     return str;
   })
+
+  Nunjucks.addFilter('logFull', (obj) => {
+    console.log(obj);
+    if (obj) {
+      console.log(dump(obj));
+      console.log(getMethods(obj));
+    }
+    return obj;
+  })
+
 
   Nunjucks.addFilter('lowerFirst', (str) => {
     return _.lowerFirst(str);
@@ -322,18 +332,21 @@ module.exports = ({ Nunjucks }) => {
     let ret = false;
 
     //console.log(JSON.stringify(schema));
-		//console.log('Checking schema ' + name);
+		//console.log('checkPropertyNames: checking schema ' + name + getMethods(schema));
 		
-		var properties = schema.properties;
+    var properties = schema.properties();
+    
 
-		if (schema.type === 'array') {
-			properties = schema.items.properties;
+		if (schema.type() === 'array') {
+      properties = schema.items().properties();
 		}
+
+    //console.log("schema type: " + schema.type());
 
     for (let propName in properties) {
       let javaName = _.camelCase(propName);
       let prop = properties[propName];
-      //console.log('checking ' + propName + ' ' + prop.type);
+      //console.log('checking ' + propName + ' ' + prop.type());
 
       if (javaName !== propName) {
         //console.log("Java name " + javaName + " is different from " + propName);
@@ -380,12 +393,12 @@ module.exports = ({ Nunjucks }) => {
 
     for (let channelName in asyncapi.channels()) {
       let channel = asyncapi.channels()[channelName];
-      let channelJson = channel._json;
+      let subscribe = channel.subscribe();
       
-      if (channelJson.subscribe) {
-        let functionName = getFunctionName(channelName, channelJson.subscribe, true);
+      if (subscribe) {
+        let functionName = getFunctionName(channelName, subscribe);
         let topicInfo = getTopicInfo(channelName, channel);
-        let queue = channelJson.subscribe['x-scs-destination'];
+        let queue = subscribe.ext(['x-scs-destination']);
         if (topicInfo.hasParams || queue) {
           if (!ret) {
             ret = {};
@@ -424,29 +437,30 @@ module.exports = ({ Nunjucks }) => {
   }
 
   // This returns the base function name that SCSt will use to map functions with bindings.
-  function getFunctionName(channelName, operation, isSubscribe) {
+  function getFunctionName(channelName, operation) {
     let ret;
     //console.log('functionName operation: ' + JSON.stringify(operation));
-    let functionName = operation['x-scs-function-name'];
+    let functionName = operation.ext(['x-scs-function-name']);
+    //console.log(getMethods(operation));
 
     if (!functionName) {
-      functionName = operation.operationId;
+      functionName = operation.id();
     }
 
     if (functionName) {
       ret = functionName;
     } else {
-      ret = _.camelCase(channelName) + (isSubscribe ? "Consumer" : "Supplier");
+      ret = _.camelCase(channelName) + (operation.isSubscribe() ? "Consumer" : "Supplier");
     }
     return ret;
   }
 
+  
   // This returns the base function name that SCSt will use to map functions with bindings.
   function getFunctionNameByChannel(channelName, channel) {
     let ret = _.camelCase(channelName);
-    let channelJson = channel._json;
     //console.log('functionName channel: ' + JSON.stringify(channelJson));
-    let functionName = channelJson['x-scs-function-name'];
+    let functionName = channel.ext(['x-scs-function-name']);
     //console.log('function name for channel ' + channelName + ': ' + functionName);
     if (functionName) {
       ret = functionName;
@@ -470,13 +484,13 @@ module.exports = ({ Nunjucks }) => {
 
     for (let channelName in asyncapi.channels()) {
       let channel = asyncapi.channels()[channelName];
-      let channelJson = channel._json;
       //console.log("=====================================");
       //console.log("channelJson: " + JSON.stringify(channelJson));
       //console.log("=====================================");
       let functionSpec;
-      if (channelJson.publish) {
-        let name = getFunctionName(channelName, channelJson.publish, false);
+      let publish = channel.publish();
+      if (publish) {
+        let name = getFunctionName(channelName, publish);
         functionSpec = functionMap.get(name);
         if (functionSpec) {
           if (functionSpec.type === 'supplier' || functionSpec === 'function') {
@@ -497,8 +511,10 @@ module.exports = ({ Nunjucks }) => {
         functionSpec.publishPayload = payload;
         functionSpec.publishChannel = channelName;
       }
-      if (channelJson.subscribe) {
-        let name = getFunctionName(channelName, channelJson.subscribe, true);
+
+      let subscribe = channel.subscribe();
+      if (subscribe) {
+        let name = getFunctionName(channelName, subscribe);
         functionSpec = functionMap.get(name);
         if (functionSpec) {
           if (functionSpec.type === 'consumer' || functionSpec === 'function') {
@@ -512,16 +528,16 @@ module.exports = ({ Nunjucks }) => {
           functionSpec.reactive = reactive;
           functionMap.set(name, functionSpec);
         }
-        let payload = getPayloadClass(channel.subscribe());
+        let payload = getPayloadClass(subscribe);
         if (!payload) {
           throw new Error("Channel " + channelName + ": no payload class has been defined.");
         }
         functionSpec.subscribePayload = payload;
-        var group = channelJson.subscribe['x-scs-group'];
+        var group = subscribe.ext(['x-scs-group']);
         if (group) {
             functionSpec.group = group;
         }
-        var dest = channelJson.subscribe['x-scs-destination'];
+        var dest = subscribe.ext(['x-scs-destination']);
         if (dest) {
             functionSpec.subscribeChannel = dest;
         } else {
@@ -532,15 +548,24 @@ module.exports = ({ Nunjucks }) => {
 
     return functionMap;
   }
+  
+  const getMethods = (obj) => {
+    let properties = new Set()
+    let currentObj = obj
+    do {
+      Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
+    } while ((currentObj = Object.getPrototypeOf(currentObj)))
+    return [...properties.keys()].filter(item => typeof obj[item] === 'function')
+  }
 
   function getPayloadClass(pubOrSub) {
     let ret;
 
-    if (pubOrSub && pubOrSub._json && pubOrSub._json.message && pubOrSub._json.message.payload) {
-      //console.log("getPayloadClass: "  + JSON.stringify(pubOrSub._json.message));
-      ret = _.upperFirst(pubOrSub._json.message.payload['x-parser-schema-id']);
+    if (pubOrSub) {
+      ret = pubOrSub.message().payload().ext('x-parser-schema-id');
+      //console.log("getPayloadClass: " + ret);
     }
-
+    
     return ret;
   }
 
@@ -569,10 +594,11 @@ module.exports = ({ Nunjucks }) => {
     //console.log("params: " + JSON.stringify(channel.parameters()));
     for (let name in channel.parameters()) {
       const nameWithBrackets = "{" + name + "}";
-      const schema = channel.parameter(name)['_json']['schema'];
-      //console.log("schema: " + dump(schema));
-      const type = schema.type;
+      const parameter = channel.parameter(name);
+      const schema = parameter.schema();
+      const type = schema.type();
       const param = { "name": _.lowerFirst(name) };
+      //console.log("name: " + name + " type: " + type);
       let sampleArg = 1;
 
       if (first) {
@@ -596,7 +622,7 @@ module.exports = ({ Nunjucks }) => {
         publishTopic = publishTopic.replace(nameWithBrackets, printfArg);
         sampleArg = sampleMap.get(type);
       } else {
-        const en = schema.enum;
+        const en = schema.enum();
         if (en) {
           //console.log("It's an enum: " + en);
           param.type = _.upperFirst(name);
