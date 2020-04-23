@@ -73,7 +73,7 @@ module.exports = register => {
 
     // This renames schema objects according to the title field. By default we won't do this, we might add this as an option.
 
-    ///const schemas = asyncapi._json.components.schemas;
+    //const schemas = asyncapi.components().schemas();
     //console.log("schemas: " + JSON.stringify(schemas));
 
     /*
