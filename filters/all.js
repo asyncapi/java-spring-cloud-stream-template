@@ -153,14 +153,40 @@ module.exports = ({ Nunjucks }) => {
     return scsLib.getParamOrDefault(info, params, 'artifactId', 'x-artifact-id', 'project-name');
   })
 
+  Nunjucks.addFilter('appExtraIncludes', (asyncapi) => {
+    let ret = {};
+    
+    for (let channelName in asyncapi.channels()) {
+      let channel = asyncapi.channels()[channelName];
+      let subscribe = channel.subscribe();
+      
+      if (subscribe && subscribe.hasMultipleMessages()) {
+        ret.hasMultipleMessages = true;
+        break;
+      }
+
+      let publish = channel.publish();
+      if (publish && publish.hasMultipleMessages()) {
+        ret.hasMultipleMessages = true;
+        break;
+      }
+    }
+  
+    return ret;
+  })
+
   Nunjucks.addFilter('camelCase', (str) => {
     return _.camelCase(str);
   })
 
-  Nunjucks.addFilter('checkPropertyNames', ([schemaName, schema]) => {
+  Nunjucks.addFilter('schemaExtraIncludes', ([schemaName, schema]) => {
     //console.log("checkPropertyNames " + schemaName + "  " + schema.type());
-    let ret =  checkPropertyNames(schemaName, schema);
-    //console.log("checkPropertyNames" + ret);
+    let ret = {};
+    if(checkPropertyNames(schemaName, schema)) {
+      ret.jsonProperty = true;
+    }
+//    console.log("checkPropertyNames:");
+//    console.log(ret);
     return ret;
   })
 
@@ -398,7 +424,7 @@ module.exports = ({ Nunjucks }) => {
       if (subscribe) {
         let functionName = getFunctionName(channelName, subscribe);
         let topicInfo = getTopicInfo(channelName, channel);
-        let queue = subscribe.ext(['x-scs-destination']);
+        let queue = subscribe.ext('x-scs-destination');
         if (topicInfo.hasParams || queue) {
           if (!ret) {
             ret = {};
@@ -440,7 +466,7 @@ module.exports = ({ Nunjucks }) => {
   function getFunctionName(channelName, operation) {
     let ret;
     //console.log('functionName operation: ' + JSON.stringify(operation));
-    let functionName = operation.ext(['x-scs-function-name']);
+    let functionName = operation.ext('x-scs-function-name');
     //console.log(getMethods(operation));
 
     if (!functionName) {
@@ -460,7 +486,7 @@ module.exports = ({ Nunjucks }) => {
   function getFunctionNameByChannel(channelName, channel) {
     let ret = _.camelCase(channelName);
     //console.log('functionName channel: ' + JSON.stringify(channelJson));
-    let functionName = channel.ext(['x-scs-function-name']);
+    let functionName = channel.ext('x-scs-function-name');
     //console.log('function name for channel ' + channelName + ': ' + functionName);
     if (functionName) {
       ret = functionName;
@@ -485,7 +511,8 @@ module.exports = ({ Nunjucks }) => {
     for (let channelName in asyncapi.channels()) {
       let channel = asyncapi.channels()[channelName];
       //console.log("=====================================");
-      //console.log("channelJson: " + JSON.stringify(channelJson));
+      //console.log("channelJson: " + JSON.stringify(channel._json));
+      //console.log("getFunctionSpecs: " + channelName);
       //console.log("=====================================");
       let functionSpec;
       let publish = channel.publish();
@@ -533,11 +560,11 @@ module.exports = ({ Nunjucks }) => {
           throw new Error("Channel " + channelName + ": no payload class has been defined.");
         }
         functionSpec.subscribePayload = payload;
-        var group = subscribe.ext(['x-scs-group']);
+        var group = subscribe.ext('x-scs-group');
         if (group) {
             functionSpec.group = group;
         }
-        var dest = subscribe.ext(['x-scs-destination']);
+        var dest = subscribe.ext('x-scs-destination');
         if (dest) {
             functionSpec.subscribeChannel = dest;
         } else {
@@ -562,8 +589,22 @@ module.exports = ({ Nunjucks }) => {
     let ret;
 
     if (pubOrSub) {
-      ret = pubOrSub.message().payload().ext('x-parser-schema-id');
-      //console.log("getPayloadClass: " + ret);
+      //console.log(pubOrSub);
+
+      if (pubOrSub.hasMultipleMessages()) {
+        ret = 'Message<?>';
+      } else {
+
+      let message = pubOrSub.message();
+      if (message) {
+        let payload = message.payload();
+
+        if (payload) {
+          ret = payload.ext('x-parser-schema-id');
+        }
+      }
+    }
+    //console.log("getPayloadClass: " + ret);
     }
     
     return ret;
