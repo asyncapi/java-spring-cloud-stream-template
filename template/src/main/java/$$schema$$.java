@@ -1,7 +1,7 @@
 {% include 'partials/java-package' -%}
-{% set differentPropNames = [schemaName, schema] | checkPropertyNames %}
+{% set extraIncludes = [schemaName, schema] | schemaExtraIncludes %}
 import com.fasterxml.jackson.annotation.JsonInclude;
-{% if differentPropNames -%}
+{% if extraIncludes.jsonProperty -%}
 import com.fasterxml.jackson.annotation.JsonProperty;
 {% endif %}
 {% from "partials/java-class" import javaClass -%}
