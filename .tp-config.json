@@ -68,5 +68,8 @@
       "description": "The type of artifact that will be generated, either library or application.",
       "required": false
     }
-  }
+  },
+  "filters": [
+    "@asyncapi/generator-filters"
+  ]
 }
