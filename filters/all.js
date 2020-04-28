@@ -531,7 +531,7 @@ module.exports = ({ Nunjucks }) => {
           functionSpec.reactive = reactive;
           functionMap.set(name, functionSpec);
         }
-        let payload = getPayloadClass(channel.publish());
+        let payload = getPayloadClass(publish);
         if (!payload) {
           throw new Error("Channel " + channelName + ": no payload class has been defined.");
         }
@@ -601,6 +601,8 @@ module.exports = ({ Nunjucks }) => {
 
         if (payload) {
           ret = payload.ext('x-parser-schema-id');
+          ret = _.camelCase(ret);
+          ret = _.upperFirst(ret);
         }
       }
     }
