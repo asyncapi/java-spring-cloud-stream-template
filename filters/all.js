@@ -599,20 +599,20 @@ function getPayloadClass(pubOrSub) {
 
   if (pubOrSub) {
     //console.log(pubOrSub);
-
     if (pubOrSub.hasMultipleMessages()) {
       ret = 'Message<?>';
     } else {
+      let message = pubOrSub.message();
+      if (message) {
+        let payload = message.payload();
 
-    let message = pubOrSub.message();
-    if (message) {
-      let payload = message.payload();
-
-      if (payload) {
-        ret = payload.ext('x-parser-schema-id');
+        if (payload) {
+          ret = payload.ext('x-parser-schema-id');
+          ret = _.camelCase(ret);
+          ret = _.upperFirst(ret);
+        }
       }
     }
-  }
   //console.log("getPayloadClass: " + ret);
   }
   

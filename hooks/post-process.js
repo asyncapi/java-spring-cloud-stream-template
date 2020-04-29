@@ -1,6 +1,7 @@
 // vim: set ts=2 sw=2 sts=2 expandtab :
 const fs = require('fs');
 const path = require('path');
+const _ = require('lodash');
 const ScsLib = require('../lib/ScsLib');
 
 const sourceHead = '/src/main/java/';
@@ -67,6 +68,24 @@ module.exports = register => {
         fs.renameSync(path.resolve(sourcePath, 'Application.java'), path.resolve(sourcePath, overrideClassName));
       }
     }
+
+        // This renames schema objects ensuring they're proper Java class names.
+
+    const schemas = asyncapi.components().schemas();
+    //console.log("schemas: " + JSON.stringify(schemas));
+    
+    for (let schema in schemas) {
+      let javaName = _.camelCase(schema);
+      javaName = _.upperFirst(javaName);
+
+      if (javaName !== schema) {
+        let oldPath = path.resolve(sourcePath, schema + ".java");
+        let newPath = path.resolve(sourcePath, javaName + ".java");
+        fs.renameSync(oldPath, newPath);
+        // console.log("Renamed class file "  + schema + " to " + javaName);
+      }
+    }
+
 
     // This renames schema objects according to the title field. By default we won't do this, we might add this as an option.
 

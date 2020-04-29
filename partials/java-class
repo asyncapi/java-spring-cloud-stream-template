@@ -1,5 +1,5 @@
 {%- macro javaClass(name, schema, properties, required, indentLevel, isStatic) %}
-{%- set className = name | upperFirst %}
+{%- set className = name | camelCase | upperFirst %}
 {% set indent1 = indentLevel | indent1 -%}
 {% set indent2 = indentLevel | indent2 -%}
 {% set indent3 = indentLevel | indent3 -%}
