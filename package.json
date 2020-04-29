@@ -22,9 +22,9 @@
   "author": "Michael Davis <michael@damaru.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "lodash": "^4.17.15",
+    "@asyncapi/generator-filters": "^1.0.0",
     "js-yaml": "^3.13.1",
-    "@asyncapi/generator-filters": "https://github.com/derberg/generator-filters#use-filters-lib"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "@semantic-release/commit-analyzer": "^8.0.1",
