@@ -1,21 +1,20 @@
 // vim: set ts=2 sw=2 sts=2 expandtab :
 const fs = require('fs');
 const path = require('path');
-const _ = require('lodash');
 const ScsLib = require('../lib/ScsLib');
 
 const sourceHead = '/src/main/java/';
 
 module.exports = register => {
   register('generate:after', generator => {
-	var scsLib = new ScsLib();
+    const scsLib = new ScsLib();
     const asyncapi = generator.asyncapi;
     let sourcePath = generator.targetDir + sourceHead;
     const info = asyncapi.info();
     let package = generator.templateParams['javaPackage'];
     let generateMessagingClass = false;
-    let gen = generator.templateParams['generateMessagingClass'];
-    let extensions = info.extensions();
+    const gen = generator.templateParams['generateMessagingClass'];
+    const extensions = info.extensions();
 
     if (gen === 'true') {
       generateMessagingClass = true;
@@ -27,7 +26,7 @@ module.exports = register => {
 
     if (package) {
       //console.log("package: " + package);
-      const overridePath = generator.targetDir + sourceHead + package.replace(/\./g, '/') + '/';
+      const overridePath = `${generator.targetDir + sourceHead + package.replace(/\./g, '/')  }/`;
       //console.log("Moving files from " + sourcePath + " to " + overridePath);
       let first = true;
       fs.readdirSync(sourcePath).forEach(file => {
@@ -42,32 +41,30 @@ module.exports = register => {
           //console.log("Copying " + file)
         }
         fs.unlinkSync(path.resolve(sourcePath, file));
-      })
+      });
       sourcePath = overridePath;
-    } else {
-      if (!generateMessagingClass) {
-        fs.unlinkSync(path.resolve(sourcePath, 'Messaging.java'));
-      }
+    } else if (!generateMessagingClass) {
+      fs.unlinkSync(path.resolve(sourcePath, 'Messaging.java'));
     }
 
     // Rename the pom file if necessary, and only include Application.java when an app is requested.
-    let artifactType = generator.templateParams['artifactType'];
+    const artifactType = generator.templateParams['artifactType'];
 
-    let mainClassName = "Application";
+    const mainClassName = 'Application';
 	  let overrideClassName = scsLib.getParamOrExtension(info, generator.templateParams, 'javaClass', 'x-java-class');
 
-    if (artifactType === "library") {
-      fs.renameSync(path.resolve(generator.targetDir, "pom.lib"), path.resolve(generator.targetDir, "pom.xml"));
-      fs.unlinkSync(path.resolve(generator.targetDir, "pom.app"));
-      fs.unlinkSync(path.resolve(sourcePath, "Application.java"));
+    if (artifactType === 'library') {
+      fs.renameSync(path.resolve(generator.targetDir, 'pom.lib'), path.resolve(generator.targetDir, 'pom.xml'));
+      fs.unlinkSync(path.resolve(generator.targetDir, 'pom.app'));
+      fs.unlinkSync(path.resolve(sourcePath, 'Application.java'));
       //fs.unlinkSync(path.resolve(sourcePath, "ApplicationWithMessaging.java"));
     } else {
-      fs.renameSync(path.resolve(generator.targetDir, "pom.app"), path.resolve(generator.targetDir, "pom.xml"));
-      fs.unlinkSync(path.resolve(generator.targetDir, "pom.lib"));
+      fs.renameSync(path.resolve(generator.targetDir, 'pom.app'), path.resolve(generator.targetDir, 'pom.xml'));
+      fs.unlinkSync(path.resolve(generator.targetDir, 'pom.lib'));
 
       if (overrideClassName) {
 		    overrideClassName += '.java';
-        fs.renameSync(path.resolve(sourcePath, "Application.java"), path.resolve(sourcePath, overrideClassName));
+        fs.renameSync(path.resolve(sourcePath, 'Application.java'), path.resolve(sourcePath, overrideClassName));
       }
     }
 
@@ -91,11 +88,6 @@ module.exports = register => {
       }
     }
     */
-  })
-}
+  });
+};
 
-function dump(obj) {
-  for (p in obj) {
-    console.log(p);
-  }
-}
