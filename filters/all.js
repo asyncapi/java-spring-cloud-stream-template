@@ -283,10 +283,10 @@ function fixType([name, javaName, property]) {
 }
 filter.fixType = fixType;
 
-function functions([asyncapi, params]) {
+function functionSpecs([asyncapi, params]) {
   return getFunctionSpecs(asyncapi, params);
 }
-filter.functions = functions;
+filter.functionSpecs = functionSpecs;
 
 function groupId([info, params]) {  
   return scsLib.getParamOrDefault(info, params, 'groupId', 'x-group-id', 'com.company');
@@ -473,7 +473,8 @@ function getBindings(asyncapi, params) {
 // This returns the base function name that SCSt will use to map functions with bindings.
 function getFunctionName(channelName, operation) {
   let ret;
-  //console.log('functionName operation: ' + JSON.stringify(operation));
+  //console.log('getFunctionName operation: ' + JSON.stringify(operation));
+  //console.log(operation);
   let functionName = operation.ext('x-scs-function-name');
   //console.log(getMethods(operation));
 

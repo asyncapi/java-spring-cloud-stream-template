@@ -32,8 +32,8 @@
     "@semantic-release/npm": "^7.0.3",
     "@semantic-release/release-notes-generator": "^9.0.1",
     "conventional-changelog-conventionalcommits": "^4.2.3",
-    "semantic-release": "^17.0.4",
-    "eslint": "^6.8.0"
+    "eslint": "^6.8.0",
+    "semantic-release": "^17.0.7"
   },
   "release": {
     "branches": [
