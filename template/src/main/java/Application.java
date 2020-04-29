@@ -13,7 +13,7 @@ import org.springframework.messaging.Message;
 {%- if params.reactive === 'true' %}
 import reactor.core.publisher.Flux;
 {%- endif -%}
-{%- set funcs = [asyncapi, params] | functions -%}
+{%- set funcs = [asyncapi, params] | functionSpecs -%}
 {%- set hasFunctions = false -%}
 {%- set hasConsumers = false -%}
 {%- set hasSuppliers = false -%}
