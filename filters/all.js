@@ -386,18 +386,18 @@ function checkPropertyNames(name, schema) {
       //console.log("Java name " + javaName + " is different from " + propName);
       return true;
     }
-    if (prop.type === 'object') {
+    if (prop.type() === 'object') {
       //console.log("Recursing into object");
       let check = checkPropertyNames(propName, prop);
       if (check) {
         return true;
       }
-    } else if (prop.type === 'array') {
+    } else if (prop.type() === 'array') {
       //console.log('checkPropertyNames: ' + JSON.stringify(prop));
       if (!prop.items) {
         throw new Error("Array named " + propName + " must have an 'items' property to indicate what type the array elements are.");
       }
-      let itemsType = prop.items.type;
+      let itemsType = prop.items.type();
       //console.log('checkPropertyNames: ' + JSON.stringify(prop.items));
       //console.log('array of : ' + itemsType);
       if (itemsType === 'object') {
