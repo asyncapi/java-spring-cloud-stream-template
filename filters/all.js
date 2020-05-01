@@ -1,4 +1,3 @@
-// vim: set ts=2 sw=2 sts=2 expandtab :
 const filter = module.exports;
 const yaml = require('js-yaml');
 const _ = require('lodash');
@@ -162,13 +161,13 @@ function appExtraIncludes(asyncapi) {
     let subscribe = channel.subscribe();
     
     if (subscribe && subscribe.hasMultipleMessages()) {
-      ret.hasMultipleMessages = true;
+      ret.needMessageInclude = true;
       break;
     }
 
     let publish = channel.publish();
     if (publish && publish.hasMultipleMessages()) {
-      ret.hasMultipleMessages = true;
+      ret.needMessageInclude = true;
       break;
     }
   }
@@ -179,13 +178,13 @@ filter.appExtraIncludes = appExtraIncludes;
 
 function schemaExtraIncludes([schemaName, schema]) {
 
-  //console.log("checkPropertyNames " + schemaName + "  " + schema.type());
+  console.log("checkPropertyNames " + schemaName + "  " + schema.type());
   let ret = {};
   if(checkPropertyNames(schemaName, schema)) {
-    ret.jsonProperty = true;
+    ret.needJsonPropertyInclude = true;
   }
-  //console.log("checkPropertyNames:");
-  //console.log(ret);
+  console.log("checkPropertyNames:");
+  console.log(ret);
   return ret;
 }
 filter.schemaExtraIncludes = schemaExtraIncludes;
@@ -386,18 +385,18 @@ function checkPropertyNames(name, schema) {
       //console.log("Java name " + javaName + " is different from " + propName);
       return true;
     }
-    if (prop.type === 'object') {
+    if (prop.type() === 'object') {
       //console.log("Recursing into object");
       let check = checkPropertyNames(propName, prop);
       if (check) {
         return true;
       }
-    } else if (prop.type === 'array') {
+    } else if (prop.type() === 'array') {
       //console.log('checkPropertyNames: ' + JSON.stringify(prop));
       if (!prop.items) {
         throw new Error("Array named " + propName + " must have an 'items' property to indicate what type the array elements are.");
       }
-      let itemsType = prop.items.type;
+      let itemsType = prop.items.type();
       //console.log('checkPropertyNames: ' + JSON.stringify(prop.items));
       //console.log('array of : ' + itemsType);
       if (itemsType === 'object') {

@@ -26,22 +26,24 @@ module.exports = register => {
     }
 
     if (package) {
-      //console.log("package: " + package);
-      const overridePath = `${generator.targetDir + sourceHead + package.replace(/\./g, '/')  }/`;
-      //console.log("Moving files from " + sourcePath + " to " + overridePath);
+      console.log("package: " + package);
+      const overridePath = `${generator.targetDir + sourceHead + package.replace(/\./g, '/')}/`;
+      console.log("Moving files from " + sourcePath + " to " + overridePath);
       let first = true;
       fs.readdirSync(sourcePath).forEach(file => {
-        if (first) {
-          first = false;
-          //console.log("Making " + overridePath);
-          fs.mkdirSync(overridePath, { recursive: true });
-        }
+        if (!fs.lstatSync(path.resolve(sourcePath, file)).isDirectory()) {
+          if (first) {
+            first = false;
+            console.log("Making " + overridePath);
+            fs.mkdirSync(overridePath, { recursive: true });
+          }
 
-        if ((file != 'Messaging.java') || generateMessagingClass) {
-          fs.copyFileSync(path.resolve(sourcePath, file), path.resolve(overridePath, file));
-          //console.log("Copying " + file)
+          if ((file != 'Messaging.java') || generateMessagingClass) {
+            console.log("Copying " + file)
+            fs.copyFileSync(path.resolve(sourcePath, file), path.resolve(overridePath, file));
+          }
+          fs.unlinkSync(path.resolve(sourcePath, file));
         }
-        fs.unlinkSync(path.resolve(sourcePath, file));
       });
       sourcePath = overridePath;
     } else if (!generateMessagingClass) {
@@ -52,7 +54,7 @@ module.exports = register => {
     const artifactType = generator.templateParams['artifactType'];
 
     const mainClassName = 'Application';
-	  let overrideClassName = scsLib.getParamOrExtension(info, generator.templateParams, 'javaClass', 'x-java-class');
+    let overrideClassName = scsLib.getParamOrExtension(info, generator.templateParams, 'javaClass', 'x-java-class');
 
     if (artifactType === 'library') {
       fs.renameSync(path.resolve(generator.targetDir, 'pom.lib'), path.resolve(generator.targetDir, 'pom.xml'));
@@ -64,16 +66,16 @@ module.exports = register => {
       fs.unlinkSync(path.resolve(generator.targetDir, 'pom.lib'));
 
       if (overrideClassName) {
-		    overrideClassName += '.java';
+        overrideClassName += '.java';
         fs.renameSync(path.resolve(sourcePath, 'Application.java'), path.resolve(sourcePath, overrideClassName));
       }
     }
 
-        // This renames schema objects ensuring they're proper Java class names.
+    // This renames schema objects ensuring they're proper Java class names.
 
     const schemas = asyncapi.components().schemas();
     //console.log("schemas: " + JSON.stringify(schemas));
-    
+
     for (let schema in schemas) {
       let javaName = _.camelCase(schema);
       javaName = _.upperFirst(javaName);

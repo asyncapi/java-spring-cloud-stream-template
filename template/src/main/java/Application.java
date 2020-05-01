@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-{% if extraIncludes.hasMultipleMessages %}
+{% if extraIncludes.needMessageInclude %}
 import org.springframework.messaging.Message;
 {% endif %}
 {%- if params.reactive === 'true' %}
