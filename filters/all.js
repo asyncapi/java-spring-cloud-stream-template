@@ -114,7 +114,7 @@ function appProperties([asyncapi, params]) {
   scs.bindings = getBindings(asyncapi, params);
 
   if (params.binder === 'solace') {
-    let additionalSubs = getAdditionalSubs(asyncapi);
+    let additionalSubs = getAdditionalSubs(asyncapi, params);
 
     if (additionalSubs) {
       scs.solace = additionalSubs;
@@ -178,18 +178,19 @@ filter.appExtraIncludes = appExtraIncludes;
 
 function schemaExtraIncludes([schemaName, schema]) {
 
-  console.log("checkPropertyNames " + schemaName + "  " + schema.type());
+  //console.log("checkPropertyNames " + schemaName + "  " + schema.type());
   let ret = {};
   if(checkPropertyNames(schemaName, schema)) {
     ret.needJsonPropertyInclude = true;
   }
-  console.log("checkPropertyNames:");
-  console.log(ret);
+  //console.log("checkPropertyNames:");
+  //console.log(ret);
   return ret;
 }
 filter.schemaExtraIncludes = schemaExtraIncludes;
 
 // This determines the base function name that we will use for the SCSt mapping between functions and bindings.
+// It is only used in the Messaging.java template.
 function functionName([channelName, channel]) {
 
   return getFunctionNameByChannel(channelName, channel);
@@ -283,9 +284,26 @@ function fixType([name, javaName, property]) {
 filter.fixType = fixType;
 
 function functionSpecs([asyncapi, params]) {
-  return getFunctionSpecs(asyncapi, params);
+  // If we're generating the messaging class, we don't want these in the application class.
+  let ret = null;
+  if (!params.generateMessagingClass) {
+    ret = getFunctionSpecs(asyncapi, params);
+  }
+  return ret;
 }
 filter.functionSpecs = functionSpecs;
+
+function getRealPublisher([info, params, channel]) {
+  let pub = scsLib.getRealPublisher(info, params, channel);
+  return pub
+}
+filter.getRealPublisher = getRealPublisher;
+
+function getRealSubscriber([info, params, channel]) {
+  let pub = scsLib.getRealSubscriber(info, params, channel);
+  return pub
+}
+filter.getRealSubscriber = getRealSubscriber;
 
 function groupId([info, params]) {  
   return scsLib.getParamOrDefault(info, params, 'groupId', 'x-group-id', 'com.company');
@@ -354,6 +372,7 @@ function stringify(obj) {
 filter.stringify = stringify;
 
 // This returns an object containing information the template needs to render topic strings.
+// Only used by the Messaging class.
 function topicInfo([channelName, channel]) {
   let p = channel.parameters();
   return getTopicInfo(channelName, channel);
@@ -421,15 +440,15 @@ function dump(obj) {
 }
 
 // For the Solace binder. This determines the topic that must be subscribed to on a queue, when the x-scs-destination is given (which is the queue name.)
-function getAdditionalSubs(asyncapi) {
+function getAdditionalSubs(asyncapi, params) {
   let ret;
 
   for (let channelName in asyncapi.channels()) {
     let channel = asyncapi.channels()[channelName];
-    let subscribe = channel.subscribe();
+    let subscribe = scsLib.getRealSubscriber(asyncapi.info(), params, channel);
     
     if (subscribe) {
-      let functionName = getFunctionName(channelName, subscribe);
+      let functionName = getFunctionName(channelName, subscribe, true);
       let topicInfo = getTopicInfo(channelName, channel);
       let queue = subscribe.ext('x-scs-destination');
       if (topicInfo.hasParams || queue) {
@@ -470,7 +489,7 @@ function getBindings(asyncapi, params) {
 }
 
 // This returns the base function name that SCSt will use to map functions with bindings.
-function getFunctionName(channelName, operation) {
+function getFunctionName(channelName, operation, isSubscriber) {
   let ret;
   //console.log('getFunctionName operation: ' + JSON.stringify(operation));
   //console.log(operation);
@@ -484,7 +503,7 @@ function getFunctionName(channelName, operation) {
   if (functionName) {
     ret = functionName;
   } else {
-    ret = _.camelCase(channelName) + (operation.isSubscribe() ? "Consumer" : "Supplier");
+    ret = _.camelCase(channelName) + (isSubscriber ? "Consumer" : "Supplier");
   }
   return ret;
 }
@@ -515,6 +534,7 @@ function getFunctionSpecs(asyncapi, params) {
   // This maps function names to SCS function definitions.
   const functionMap = new Map();
   const reactive = params.reactive === 'true';
+  const info = asyncapi.info();
 
   for (let channelName in asyncapi.channels()) {
     let channel = asyncapi.channels()[channelName];
@@ -523,9 +543,9 @@ function getFunctionSpecs(asyncapi, params) {
     //console.log("getFunctionSpecs: " + channelName);
     //console.log("=====================================");
     let functionSpec;
-    let publish = channel.publish();
+    let publish = scsLib.getRealPublisher(info, params, channel)
     if (publish) {
-      let name = getFunctionName(channelName, publish);
+      let name = getFunctionName(channelName, publish, false);
       functionSpec = functionMap.get(name);
       if (functionSpec) {
         if (functionSpec.type === 'supplier' || functionSpec === 'function') {
@@ -539,7 +559,7 @@ function getFunctionSpecs(asyncapi, params) {
         functionSpec.reactive = reactive;
         functionMap.set(name, functionSpec);
       }
-      let payload = getPayloadClass(channel.publish());
+      let payload = getPayloadClass(publish);
       if (!payload) {
         throw new Error("Channel " + channelName + ": no payload class has been defined.");
       }
@@ -547,9 +567,9 @@ function getFunctionSpecs(asyncapi, params) {
       functionSpec.publishChannel = channelName;
     }
 
-    let subscribe = channel.subscribe();
+    let subscribe = scsLib.getRealSubscriber(info, params, channel)
     if (subscribe) {
-      let name = getFunctionName(channelName, subscribe);
+      let name = getFunctionName(channelName, subscribe, true);
       functionSpec = functionMap.get(name);
       if (functionSpec) {
         if (functionSpec.type === 'consumer' || functionSpec === 'function') {
@@ -584,6 +604,7 @@ function getFunctionSpecs(asyncapi, params) {
   return functionMap;
 }
 
+// This returns the list of methods belonging to an object, just to help debugging.
 const getMethods = (obj) => {
   let properties = new Set()
   let currentObj = obj

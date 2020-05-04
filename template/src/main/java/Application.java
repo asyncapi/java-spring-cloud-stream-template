@@ -1,4 +1,3 @@
-{# vim: set ts=4 sw=4 sts=4 noexpandtab : #}
 {%- include 'partials/java-package' -%}
 {%- set extraIncludes = asyncapi | appExtraIncludes %}
 
@@ -7,10 +6,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-{% if extraIncludes.needMessageInclude %}
+{% if extraIncludes.needMessageInclude and not params.generateMessagingClass %}
 import org.springframework.messaging.Message;
 {% endif %}
-{%- if params.reactive === 'true' %}
+{%- if params.reactive === 'true' and not params.generateMessagingClass %}
 import reactor.core.publisher.Flux;
 {%- endif -%}
 {%- set funcs = [asyncapi, params] | functionSpecs -%}
@@ -38,6 +37,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 {%- endif %}
 
+{% if not params.generateMessagingClass %}
+// MESSAGING!
+{% endif %}
 {% set className = [asyncapi.info(), params] | mainClassName %}
 @SpringBootApplication
 public class {{ className }} {

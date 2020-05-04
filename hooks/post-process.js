@@ -26,20 +26,20 @@ module.exports = register => {
     }
 
     if (package) {
-      console.log("package: " + package);
+      //console.log("package: " + package);
       const overridePath = `${generator.targetDir + sourceHead + package.replace(/\./g, '/')}/`;
-      console.log("Moving files from " + sourcePath + " to " + overridePath);
+      //console.log("Moving files from " + sourcePath + " to " + overridePath);
       let first = true;
       fs.readdirSync(sourcePath).forEach(file => {
         if (!fs.lstatSync(path.resolve(sourcePath, file)).isDirectory()) {
           if (first) {
             first = false;
-            console.log("Making " + overridePath);
+            //console.log("Making " + overridePath);
             fs.mkdirSync(overridePath, { recursive: true });
           }
 
           if ((file != 'Messaging.java') || generateMessagingClass) {
-            console.log("Copying " + file)
+            //console.log("Copying " + file)
             fs.copyFileSync(path.resolve(sourcePath, file), path.resolve(overridePath, file));
           }
           fs.unlinkSync(path.resolve(sourcePath, file));
