@@ -8,8 +8,10 @@ The Spring Cloud Stream microservice generated using this template will be an _a
 
 Note that this template ignores the 'Servers' section of AsyncAPI documents. The main reason for this is because SCSt does not directly work with messaging protocols. Protocols are implementation details specific to binders, and SCSt applications need not know or care which protocol is being used.
 
-## How it works
-Note that this template interprets the AsyncAPI document from the perspective of an application, not an API. This means that when the template sees a subscribe operation, it generates code to subscribe to a topic, not publish to one.
+## Specification Conformance
+Note that this template interprets the AsyncAPI document in conformance with the [AsyncAPI Specification](https://www.asyncapi.com/docs/specifications/2.0.0/).
+This means that when the template sees a subscribe operation, it will generate code to publish to that operation's channel.
+It is possible to override this, see the 'view' parameter in the parameters section below.
 
 ### Which Methods are created
 The template works as follows:
@@ -94,6 +96,7 @@ springBootVersion | info.x-spring-boot-version | 2.2.6.RELEASE | The version of 
 springCloudVersion | info.x-spring-cloud-version | Hoxton.SR3 | The version of the spring-cloud-dependencies BOM dependency used when generating an application. 
 springCloudStreamVersion | info.x-spring-cloud-stream-version | 3.0.3.RELEASE | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead
 username | | default | The client username connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
+view | info.x-view | client | By default, this template generates publisher code for subscribe operations and vice versa. You can switch this by setting this parameter to 'provider'.
 
 ## Specification Extensions
 
@@ -109,6 +112,7 @@ info.x-solace-spring-cloud-version | solaceSpringCloudVersion | 1.0.0 | The vers
 info.x-spring-boot-version | info.x-spring-boot-version | 2.2.6.RELEASE | The version of the Spring Boot used when generating an application.
 info.x-spring-cloud-version | info.x-spring-cloud-version | Hoxton.SR3 | The version of the spring-cloud-dependencies BOM dependency used when generating an application.
 info.x-spring-cloud-stream-version | springCloudStreamVersion | 3.0.3.RELEASE | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead.
+info.x-view | view | client | By default, this template generates publisher code for subscribe operations and vice versa. You can switch this by setting this parameter to 'provider'.
 operation.x-scs-function-name | | | This specifies the base function name to use on a publish or subscribe operation. If the same name is used on one subscribe operation and one publish operation, a processor function will be generated.
 channel.subscription.x-scs-destination | | | This overrides the destination on an incoming binding. It can be used to specify, for example, the name of a queue to subscribe to instead of a topic.
 channel.subscription.x-scs-group | | | This is used to specify the group property of an incoming binding.

@@ -1,4 +1,3 @@
-{# vim: set ts=4 sw=4 sts=4 noexpandtab : #}
 {%- include 'partials/java-package' -%}
 
 import org.slf4j.Logger;
@@ -33,7 +32,8 @@ public class Messaging {
     public static enum {{ param.type }} { {{ param.enum }} }
 {% endif -%}
 {%- endfor -%}
-{%- if channel.hasPublish() %}
+{%- set pub = [asyncapi.info(), params, channel] | getRealPublisher -%}
+{%- if pub %}
 	// publisher
 {%- set emitterName = name + "EmitterProcessor" %}
 	EmitterProcessor<Message<{{payloadClass}}>> {{emitterName}} = EmitterProcessor.create();
@@ -78,7 +78,8 @@ public class Messaging {
 	}
 {% endif %}
 {% endif %}
-{%- if channel.hasSubscribe() %}
+{%- set sub = [asyncapi.info(), params, channel] | getRealSubscriber -%}
+{%- if sub %}
 	// subscriber
 {%- set callbackName = name + "Callback" %}
 {%- set upperCallbackName = callbackName | upperFirst %}
