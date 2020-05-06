@@ -33,16 +33,6 @@
       ]
     },
     {
-      "login": "derberg",
-      "name": "Lukasz Gornicki",
-      "avatar_url": "https://avatars1.githubusercontent.com/u/6995927?v=4",
-      "profile": "https://resume.github.io/?derberg",
-      "contributions": [
-        "infra",
-        "code"
-      ]
-    },
-    {
       "login": "fmvilas",
       "name": "Fran Méndez",
       "avatar_url": "https://avatars3.githubusercontent.com/u/242119?v=4",
@@ -50,6 +40,16 @@
       "contributions": [
         "code",
         "infra"
+      ]
+    },
+    {
+      "login": "derberg",
+      "name": "Lukasz Gornicki",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6995927?v=4",
+      "profile": "https://resume.github.io/?derberg",
+      "contributions": [
+        "infra",
+        "code"
       ]
     }
   ],
