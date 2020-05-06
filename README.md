@@ -52,12 +52,12 @@ npm install -g @asyncapi/generator
 
 Run the Generator using the Java Spring Cloud Stream Template
 ```
-ag ~/AsyncApiDocument.yaml https://github.com/asyncapi/java-spring-cloud-stream-template.git
+ag ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
 ```
 
 Run the Generator using the Java Spring Cloud Stream Template with Parameters
 ```
-ag -p binder=solace -p artifactId=ExampleArtifactId -p groupId=com.example -p javaPackage=com.example.foo -p solaceSpringCloudVersion=1.0.0 -p springCloudStreamVersion=Horsham.SR3 -p springCloudVersion=Hoxton.SR3 ~/AsyncApiDocument.yaml https://github.com/asyncapi/java-spring-cloud-stream-template.git
+ag -p binder=solace -p artifactId=ExampleArtifactId -p groupId=com.example -p javaPackage=com.example.foo -p solaceSpringCloudVersion=1.0.0 -p springCloudStreamVersion=Horsham.SR3 -p springCloudVersion=Hoxton.SR3 ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
 ```
 
 ## Configuration Options
@@ -117,6 +117,23 @@ operation.x-scs-function-name | | | This specifies the base function name to use
 channel.subscription.x-scs-destination | | | This overrides the destination on an incoming binding. It can be used to specify, for example, the name of a queue to subscribe to instead of a topic.
 channel.subscription.x-scs-group | | | This is used to specify the group property of an incoming binding.
 
+## Contributors
 
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="http://www.damaru.com"><img src="https://avatars1.githubusercontent.com/u/3926925?v=4" width="100px;" alt=""/><br /><sub><b>Michael Davis</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=damaru-inc" title="Code">💻</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=damaru-inc" title="Documentation">📖</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/pulls?q=is%3Apr+reviewed-by%3Adamaru-inc" title="Reviewed Pull Requests">👀</a> <a href="#question-damaru-inc" title="Answering Questions">💬</a></td>
+    <td align="center"><a href="https://marcd.dev"><img src="https://avatars0.githubusercontent.com/u/1815312?v=4" width="100px;" alt=""/><br /><sub><b>Marc DiPasquale</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=Mrc0113" title="Documentation">📖</a></td>
+    <td align="center"><a href="http://www.fmvilas.com"><img src="https://avatars3.githubusercontent.com/u/242119?v=4" width="100px;" alt=""/><br /><sub><b>Fran Méndez</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=fmvilas" title="Code">💻</a> <a href="#infra-fmvilas" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    <td align="center"><a href="https://resume.github.io/?derberg"><img src="https://avatars1.githubusercontent.com/u/6995927?v=4" width="100px;" alt=""/><br /><sub><b>Lukasz Gornicki</b></sub></a><br /><a href="#infra-derberg" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=derberg" title="Code">💻</a></td>
+  </tr>
+</table>
 
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
