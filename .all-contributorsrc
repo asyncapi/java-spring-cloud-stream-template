@@ -1,0 +1,27 @@
+{
+  "projectName": "java-spring-cloud-stream-template",
+  "projectOwner": "asyncapi",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "skipCi": true,
+  "contributorsPerLine": 3,
+  "contributors": [
+    {
+      "login": "damaru-inc",
+      "name": "Michael Davis",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/3926925?v=4",
+      "profile": "http://www.damaru.com",
+      "contributions": [
+        "code",
+        "doc",
+        "review"
+      ]
+    }
+  ],
+  "commitConvention": "none"
+}
