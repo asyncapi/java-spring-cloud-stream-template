@@ -19,7 +19,27 @@
       "contributions": [
         "code",
         "doc",
-        "review"
+        "review",
+        "question"
+      ]
+    },
+    {
+      "login": "Mrc0113",
+      "name": "Marc DiPasquale",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1815312?v=4",
+      "profile": "https://marcd.dev",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "derberg",
+      "name": "Lukasz Gornicki",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6995927?v=4",
+      "profile": "https://resume.github.io/?derberg",
+      "contributions": [
+        "infra",
+        "code"
       ]
     }
   ],
