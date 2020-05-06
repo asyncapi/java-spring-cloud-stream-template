@@ -7,9 +7,9 @@
     "README.md"
   ],
   "imageSize": 100,
-  "commit": true,
+  "commit": false,
   "skipCi": true,
-  "contributorsPerLine": 3,
+  "contributorsPerLine": 4,
   "contributors": [
     {
       "login": "damaru-inc",
