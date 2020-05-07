@@ -1,0 +1,57 @@
+{
+  "projectName": "java-spring-cloud-stream-template",
+  "projectOwner": "asyncapi",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "skipCi": true,
+  "contributorsPerLine": 4,
+  "contributors": [
+    {
+      "login": "damaru-inc",
+      "name": "Michael Davis",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/3926925?v=4",
+      "profile": "http://www.damaru.com",
+      "contributions": [
+        "code",
+        "doc",
+        "review",
+        "question"
+      ]
+    },
+    {
+      "login": "Mrc0113",
+      "name": "Marc DiPasquale",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1815312?v=4",
+      "profile": "https://marcd.dev",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "fmvilas",
+      "name": "Fran Méndez",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/242119?v=4",
+      "profile": "http://www.fmvilas.com",
+      "contributions": [
+        "code",
+        "infra"
+      ]
+    },
+    {
+      "login": "derberg",
+      "name": "Lukasz Gornicki",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6995927?v=4",
+      "profile": "https://resume.github.io/?derberg",
+      "contributions": [
+        "infra",
+        "code"
+      ]
+    }
+  ],
+  "commitConvention": "none"
+}
