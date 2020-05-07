@@ -17,6 +17,10 @@
 {{ indent3 }}this.{{ name }} = {{ name }};
 {{ indent2 }}}
 {{ indent2 }}private {{ arrayType }} {{ name }};
+
+{{ indent2 }}public {{ arrayType }} get{{ type }}() { return {{ name }}; }
+{{ indent2 }}public void set{{ type }}({{ arrayType }} {{ name }}) { this.{{ name }} = {{name}}; }
+
 {{ javaClass(type, null, schema.items().properties(), schema.items().required(), indentLevel+1, true) }}
 {%- else -%} {# not an array at the top level. #}
 {%- set first = true -%}
