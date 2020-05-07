@@ -68,6 +68,10 @@
     "artifactType": {
       "description": "The type of artifact that will be generated, either library or application.",
       "required": false
+    },
+    "view": {
+      "description": "The view that the template uses. By default it is the client view, which means that when the document says publish, we subscribe. In the case of the provider view, when the document says publish, we publish. Values are client or provider. The default is client.",
+      "required": false
     }
   },
   "filters": [
