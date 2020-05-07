@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
-const ScsLib = require('../lib/ScsLib');
+const ScsLib = require('../lib/scsLib.js');
 
 const sourceHead = '/src/main/java/';
 

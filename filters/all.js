@@ -1,7 +1,7 @@
 const filter = module.exports;
 const yaml = require('js-yaml');
 const _ = require('lodash');
-const ScsLib = require('../lib/ScsLib');
+const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
 	
 // Library versions
