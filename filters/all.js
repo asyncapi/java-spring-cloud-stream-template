@@ -234,17 +234,20 @@ function fixType([name, javaName, property]) {
     type = property.type();
   }
 
+  //console.log(`fixType: type: ${type} javaNamne ${javaName}` );
+  //console.log(property);
   // If a schema has a property that is a ref to another schema,
   // the type is undefined, and the title gives the title of the referenced schema.
-  let ret;
+  let typeName;
   if (type === undefined) {
     if (property.enum()) {
-      ret = _.upperFirst(javaName);
+      //console.log("It's an enum.");
+      typeName = _.upperFirst(javaName);
     } else {
       // check to see if it's a ref to another schema.
-      ret = property.ext('x-parser-schema-id');
+      typeName = property.ext('x-parser-schema-id');
 
-      if (!ret) {
+      if (!typeName) {
         throw new Error("Can't determine the type of property " + name);
       }
     }
@@ -270,16 +273,22 @@ function fixType([name, javaName, property]) {
         throw new Error("Array named " + name + ": can't determine the type of the items.");
       }
     }
-    ret = _.upperFirst(itemsType) + "[]";
+    typeName = _.upperFirst(itemsType) + "[]";
   } else if (type === 'object') {
-    ret = _.upperFirst(javaName);
+    typeName = _.upperFirst(javaName);
   } else {
-    ret = typeMap.get(type);
-    if (!ret) {
-      ret = type;
+    if (property.enum()) {
+      //console.log("It's an enum.");
+      typeName = _.upperFirst(javaName);
+    } else {
+
+      typeName = typeMap.get(type);
+      if (!typeName) {
+        typeName = type;
+      }
     }
   }
-  return [ret, isArrayOfObjects];
+  return [typeName, isArrayOfObjects];
 }
 filter.fixType = fixType;
 

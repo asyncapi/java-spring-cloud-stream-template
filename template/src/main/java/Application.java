@@ -37,9 +37,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 {%- endif %}
 
-{% if not params.generateMessagingClass %}
-// MESSAGING!
-{% endif %}
 {% set className = [asyncapi.info(), params] | mainClassName %}
 @SpringBootApplication
 public class {{ className }} {
