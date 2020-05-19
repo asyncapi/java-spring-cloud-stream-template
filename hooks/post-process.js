@@ -6,8 +6,8 @@ const ScsLib = require('../lib/scsLib.js');
 
 const sourceHead = '/src/main/java/';
 
-module.exports = register => {
-  register('generate:after', generator => {
+module.exports = {
+  'generate:after': generator => {
     const scsLib = new ScsLib();
     const asyncapi = generator.asyncapi;
     let sourcePath = generator.targetDir + sourceHead;
@@ -76,18 +76,17 @@ module.exports = register => {
     const schemas = asyncapi.components().schemas();
     //console.log("schemas: " + JSON.stringify(schemas));
 
-    for (let schema in schemas) {
+    for (const schema in schemas) {
       let javaName = _.camelCase(schema);
       javaName = _.upperFirst(javaName);
 
       if (javaName !== schema) {
-        let oldPath = path.resolve(sourcePath, schema + ".java");
-        let newPath = path.resolve(sourcePath, javaName + ".java");
+        const oldPath = path.resolve(sourcePath, `${schema  }.java`);
+        const newPath = path.resolve(sourcePath, `${javaName  }.java`);
         fs.renameSync(oldPath, newPath);
         // console.log("Renamed class file "  + schema + " to " + javaName);
       }
     }
-
 
     // This renames schema objects according to the title field. By default we won't do this, we might add this as an option.
 
@@ -109,6 +108,6 @@ module.exports = register => {
       }
     }
     */
-  });
+  }
 };
 
