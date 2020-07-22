@@ -5,10 +5,10 @@ const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
 	
 // Library versions
-const SOLACE_SPRING_CLOUD_VERSION = '1.0.0';
-const SPRING_BOOT_VERSION = '2.2.6.RELEASE';
-const SPRING_CLOUD_VERSION = 'Hoxton.SR3';
-const SPRING_CLOUD_STREAM_VERSION = '3.0.3.RELEASE';
+const SOLACE_SPRING_CLOUD_VERSION = '1.1.0';
+const SPRING_BOOT_VERSION = '2.3.1.RELEASE';
+const SPRING_CLOUD_VERSION = 'Hoxton.SR6';
+const SPRING_CLOUD_STREAM_VERSION = '3.0.6.RELEASE';
 
 // Connection defaults. SOLACE_DEFAULT applies to msgVpn, username and password.
 const SOLACE_HOST = 'tcp://localhost:55555';
