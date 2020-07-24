@@ -640,6 +640,10 @@ function getPayloadClass(pubOrSub) {
           ret = _.camelCase(ret);
           ret = _.upperFirst(ret);
         }
+      } else {
+        ret = pubOrSub._json.message.payload['x-parser-schema-id']
+        ret = _.camelCase(ret);
+        ret = _.upperFirst(ret);
       }
     }
   //console.log("getPayloadClass: " + ret);
