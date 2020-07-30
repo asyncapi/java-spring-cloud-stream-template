@@ -424,12 +424,12 @@ function checkPropertyNames(name, schema) {
       if (!prop.items) {
         throw new Error("Array named " + propName + " must have an 'items' property to indicate what type the array elements are.");
       }
-      let itemsType = prop.items.type();
+      let itemsType = prop.items().type();
       //console.log('checkPropertyNames: ' + JSON.stringify(prop.items));
       //console.log('array of : ' + itemsType);
       if (itemsType === 'object') {
         //console.log("Recursing into array");
-        let check = checkPropertyNames(propName, prop.items);
+        let check = checkPropertyNames(propName, prop.items());
         if (check) {
           return true;
         }
