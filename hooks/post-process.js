@@ -71,20 +71,30 @@ module.exports = {
       }
     }
 
-    // This renames schema objects ensuring they're proper Java class names.
+    // This renames schema objects ensuring they're proper Java class names. It also removes files that are schemas of simple types.
 
     const schemas = asyncapi.components().schemas();
     //console.log("schemas: " + JSON.stringify(schemas));
 
     for (const schema in schemas) {
-      let javaName = _.camelCase(schema);
-      javaName = _.upperFirst(javaName);
 
-      if (javaName !== schema) {
-        const oldPath = path.resolve(sourcePath, `${schema  }.java`);
-        const newPath = path.resolve(sourcePath, `${javaName  }.java`);
-        fs.renameSync(oldPath, newPath);
-        // console.log("Renamed class file "  + schema + " to " + javaName);
+      let schemaObj = schemas[schema];
+      let type = schemaObj.type();
+      const oldPath = path.resolve(sourcePath, `${schema}.java`);
+
+      //console.log(`postprocess schema ${schema} ${type}`);
+
+      if (type === 'object' || type === 'enum') {
+        let javaName = _.camelCase(schema);
+        javaName = _.upperFirst(javaName);
+
+        if (javaName !== schema) {
+          const newPath = path.resolve(sourcePath, `${javaName}.java`);
+          fs.renameSync(oldPath, newPath);
+          // console.log("Renamed class file "  + schema + " to " + javaName);
+        }
+      } else {
+        fs.unlinkSync(oldPath);
       }
     }
 
