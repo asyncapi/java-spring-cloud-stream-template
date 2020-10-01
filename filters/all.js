@@ -145,7 +145,7 @@ function appProperties([asyncapi, params]) {
   let ym = yaml.safeDump(doc, { lineWidth: 200 } );
   //console.log(ym);
   return ym;
-};
+}
 filter.appProperties = appProperties;
 
 function artifactId([info, params]) {
@@ -336,7 +336,7 @@ filter.lowerFirst = lowerFirst;
 
 function mainClassName([info, params]) {
   return scsLib.getParamOrDefault(info, params, 'javaClass', 'x-java-class', 'Application');
-};
+}
 filter.mainClassName = mainClassName;
 
 // This returns the Java class name of the payload.
@@ -353,8 +353,6 @@ function payloadClass([channelName, channel]) {
 filter.payloadClass = payloadClass;
 
 function solaceSpringCloudVersion([info, params]) {
-
-  var required = isApplication(params) && params.binder === 'solace';
   return scsLib.getParamOrDefault(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version', SOLACE_SPRING_CLOUD_VERSION);
 }
 filter.solaceSpringCloudVersion = solaceSpringCloudVersion;
@@ -383,7 +381,6 @@ filter.stringify = stringify;
 // This returns an object containing information the template needs to render topic strings.
 // Only used by the Messaging class.
 function topicInfo([channelName, channel]) {
-  let p = channel.parameters();
   return getTopicInfo(channelName, channel);
 }
 filter.topicInfo = topicInfo;
