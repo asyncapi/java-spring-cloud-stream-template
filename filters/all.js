@@ -7,7 +7,7 @@ const scsLib = new ScsLib();
 // Library versions
 const SOLACE_SPRING_CLOUD_VERSION = '1.1.1';
 const SPRING_BOOT_VERSION = '2.3.2.RELEASE';
-const SPRING_CLOUD_VERSION = 'Hoxton.SR7';
+const SPRING_CLOUD_VERSION = 'Hoxton.SR8';
 const SPRING_CLOUD_STREAM_VERSION = '3.0.7.RELEASE';
 
 // Connection defaults. SOLACE_DEFAULT applies to msgVpn, username and password.
@@ -107,10 +107,11 @@ function appProperties([asyncapi, params]) {
   let doc = {};
   doc.spring = {};
   doc.spring.cloud = {};
-  doc.spring.cloud.stream = {};
-  let scs = doc.spring.cloud.stream;
-  scs.function = {};
-  scs.function.definition = getFunctionDefinitions(asyncapi, params);
+  let cloud = doc.spring.cloud
+  cloud.function = {};
+  cloud.function.definition = getFunctionDefinitions(asyncapi, params);
+  cloud.stream = {};
+  let scs = cloud.stream;
   scs.bindings = getBindings(asyncapi, params);
 
   if (params.binder === 'solace') {
@@ -123,7 +124,12 @@ function appProperties([asyncapi, params]) {
 
   if (isApplication(params)) {
     if (params.binder === 'solace') {
-      doc.solace = getSolace(params);
+      scs.binders = {};
+      scs.binders['solace-binder'] = {};
+      let sb = scs.binders['solace-binder'];
+      sb.type = 'solace'
+      sb.environment = {};
+      sb.environment.solace = getSolace(params);
     }
 
     doc.logging = {};
