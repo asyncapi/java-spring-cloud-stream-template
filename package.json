@@ -1,12 +1,13 @@
 {
   "name": "@asyncapi/java-spring-cloud-stream-template",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Java Spring Cloud Stream template for AsyncAPI generator.",
   "scripts": {
     "release": "semantic-release",
     "lint": "eslint --config .eslintrc .",
-    "lint-fix": "eslint --fix --config .eslintrc .",
-    "get-version": "echo $npm_package_version"
+    "lint:fix": "eslint --fix --config .eslintrc .",
+    "generate:assets": "echo 'No additional assets need to be generated at the moment'",
+    "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION"
   },
   "keywords": [
     "asyncapi",
