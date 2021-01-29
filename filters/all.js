@@ -284,9 +284,6 @@ function fixType([name, javaName, property]) {
   } else if (property.enum()) {
     //console.log("It's an enum.");
     typeName = _.upperFirst(javaName);
-  } else if (property.enum()) {
-    //console.log("It's an enum.");
-    typeName = _.upperFirst(javaName);
   } else {
     typeName = getType(type,format).javaType;
     if (!typeName) {
