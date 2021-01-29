@@ -53,49 +53,40 @@ typeMap.set('number', numberMap);
 typeMap.set('string', stringMap);
 
 class SCSFunction {
-  name;
-  type;
-  group;
-  publishChannel;
-  subscribeChannel;
-  publishPayload;
-  subscribePayload;
-  reactive;
-
   get publishBindingName() {
-    return this.name + "-out-0";
+    return `${this.name  }-out-0`;
   }
 
   get subscribeBindingName() {
-    return this.name + "-in-0";
+    return `${this.name  }-in-0`;
   }
 
   get functionSignature() {
-    var ret = '';
-    switch(this.type) {
-      case 'function':
-        if (this.reactive) {
-          ret = `public Function<Flux<${this.subscribePayload}>, Flux<${this.publishPayload}>> ${this.name}()`;
-        } else {
-          ret = `public Function<${this.subscribePayload}, ${this.publishPayload}> ${this.name}()`;
-        }
-        break;
-      case 'supplier':
-        if (this.reactive) {
-          ret = `public Supplier<Flux<${this.publishPayload}>> ${this.name}()`;
-        } else {
-          ret = `public Supplier<${this.publishPayload}> ${this.name}()`;
-        }
-        break;
-      case 'consumer':
-        if (this.reactive) {
-          ret = `public Consumer<Flux<${this.subscribePayload}>> ${this.name}()`;
-        } else {
-          ret = `public Consumer<${this.subscribePayload}> ${this.name}()`;
-        }
-        break;
-      default:
-        throw new Error(`Can't determine the function signature for ${this.name} because the type is ${this.type}`);
+    let ret = '';
+    switch (this.type) {
+    case 'function':
+      if (this.reactive) {
+        ret = `public Function<Flux<${this.subscribePayload}>, Flux<${this.publishPayload}>> ${this.name}()`;
+      } else {
+        ret = `public Function<${this.subscribePayload}, ${this.publishPayload}> ${this.name}()`;
+      }
+      break;
+    case 'supplier':
+      if (this.reactive) {
+        ret = `public Supplier<Flux<${this.publishPayload}>> ${this.name}()`;
+      } else {
+        ret = `public Supplier<${this.publishPayload}> ${this.name}()`;
+      }
+      break;
+    case 'consumer':
+      if (this.reactive) {
+        ret = `public Consumer<Flux<${this.subscribePayload}>> ${this.name}()`;
+      } else {
+        ret = `public Consumer<${this.subscribePayload}> ${this.name}()`;
+      }
+      break;
+    default:
+      throw new Error(`Can't determine the function signature for ${this.name} because the type is ${this.type}`);
     }
     return ret;
   }
@@ -107,28 +98,27 @@ class SCSFunction {
   get isSubscriber() {
     return this.type === 'function' || this.type === 'consumer';
   }
-
 }
 
 // This generates the object that gets rendered in the application.yaml file.
 function appProperties([asyncapi, params]) {
   params.binder = params.binder || 'kafka';
-  if (params.binder != 'kafka' && params.binder != 'rabbit' && params.binder != 'solace') {
-    throw new Error("Please provide a parameter named 'binder' with the value kafka, rabbit or solace.");
+  if (params.binder !== 'kafka' && params.binder !== 'rabbit' && params.binder !== 'solace') {
+    throw new Error('Please provide a parameter named \'binder\' with the value kafka, rabbit or solace.');
   }
 
-  let doc = {};
+  const doc = {};
   doc.spring = {};
   doc.spring.cloud = {};
-  let cloud = doc.spring.cloud
+  const cloud = doc.spring.cloud;
   cloud.function = {};
   cloud.function.definition = getFunctionDefinitions(asyncapi, params);
   cloud.stream = {};
-  let scs = cloud.stream;
+  const scs = cloud.stream;
   scs.bindings = getBindings(asyncapi, params);
 
   if (params.binder === 'solace') {
-    let additionalSubs = getAdditionalSubs(asyncapi, params);
+    const additionalSubs = getAdditionalSubs(asyncapi, params);
 
     if (additionalSubs) {
       scs.solace = additionalSubs;
@@ -139,8 +129,8 @@ function appProperties([asyncapi, params]) {
     if (params.binder === 'solace') {
       scs.binders = {};
       scs.binders['solace-binder'] = {};
-      let sb = scs.binders['solace-binder'];
-      sb.type = 'solace'
+      const sb = scs.binders['solace-binder'];
+      sb.type = 'solace';
       sb.environment = {};
       sb.environment.solace = getSolace(params);
     }
@@ -161,7 +151,7 @@ function appProperties([asyncapi, params]) {
       doc.management.endpoints.web.exposure.include = '*';
     }
   }
-  let ym = yaml.safeDump(doc, { lineWidth: 200 } );
+  const ym = yaml.safeDump(doc, { lineWidth: 200 });
   //console.log(ym);
   return ym;
 }
@@ -173,18 +163,18 @@ function artifactId([info, params]) {
 filter.artifactId = artifactId;
 
 function appExtraIncludes(asyncapi) {
-  let ret = {};
+  const ret = {};
   
-  for (let channelName in asyncapi.channels()) {
-    let channel = asyncapi.channels()[channelName];
-    let subscribe = channel.subscribe();
+  for (const channelName in asyncapi.channels()) {
+    const channel = asyncapi.channels()[channelName];
+    const subscribe = channel.subscribe();
     
     if (subscribe && subscribe.hasMultipleMessages()) {
       ret.needMessageInclude = true;
       break;
     }
 
-    let publish = channel.publish();
+    const publish = channel.publish();
     if (publish && publish.hasMultipleMessages()) {
       ret.needMessageInclude = true;
       break;
@@ -196,10 +186,9 @@ function appExtraIncludes(asyncapi) {
 filter.appExtraIncludes = appExtraIncludes;
 
 function schemaExtraIncludes([schemaName, schema]) {
-
   //console.log("checkPropertyNames " + schemaName + "  " + schema.type());
-  let ret = {};
-  if(checkPropertyNames(schemaName, schema)) {
+  const ret = {};
+  if (checkPropertyNames(schemaName, schema)) {
     ret.needJsonPropertyInclude = true;
   }
   //console.log("checkPropertyNames:");
@@ -211,7 +200,6 @@ filter.schemaExtraIncludes = schemaExtraIncludes;
 // This determines the base function name that we will use for the SCSt mapping between functions and bindings.
 // It is only used in the Messaging.java template.
 function functionName([channelName, channel]) {
-
   return getFunctionNameByChannel(channelName, channel);
 }
 filter.functionName = functionName;
@@ -235,10 +223,8 @@ function indent3(numTabs) {
   return indent(numTabs + 2);
 }
 filter.indent3 = indent3;
-
-  // This returns the proper Java type for a schema property.
+// This returns the proper Java type for a schema property.
 function fixType([name, javaName, property]) {
-
   //console.log('fixType: ' + name + " " + dump(property));
   
   let isArrayOfObjects = false;
@@ -246,12 +232,12 @@ function fixType([name, javaName, property]) {
   // For message headers, type is a property.
   // For schema properties, type is a function.
   let type = property.type;
-  let format = property.format
+  let format = property.format;
   //console.log("fixType: " + property);
 
-  if (typeof type == "function") {
+  if (typeof type === 'function') {
     type = property.type();
-    format = property.format()
+    format = property.format();
   }
 
   //console.log(`fixType: type: ${type} javaNamne ${javaName}` );
@@ -268,17 +254,16 @@ function fixType([name, javaName, property]) {
       typeName = property.ext('x-parser-schema-id');
 
       if (!typeName) {
-        throw new Error("Can't determine the type of property " + name);
+        throw new Error(`Can't determine the type of property ${  name}`);
       }
     }
   } else if (type === 'array') {
     if (!property.items()) {
-      throw new Error("Array named " + name + " must have an 'items' property to indicate what type the array elements are.");
+      throw new Error(`Array named ${  name  } must have an 'items' property to indicate what type the array elements are.`);
     }
     let itemsType = property.items().type();
 
     if (itemsType) {
-
       if (itemsType === 'object') {
         isArrayOfObjects = true;
         itemsType = _.upperFirst(javaName);
@@ -290,21 +275,22 @@ function fixType([name, javaName, property]) {
       itemsType = property.items().ext('x-parser-schema-id');
 
       if (!itemsType) {
-        throw new Error("Array named " + name + ": can't determine the type of the items.");
+        throw new Error(`Array named ${  name  }: can't determine the type of the items.`);
       }
     }
-    typeName = _.upperFirst(itemsType) + "[]";
+    typeName = `${_.upperFirst(itemsType)  }[]`;
   } else if (type === 'object') {
     typeName = _.upperFirst(javaName);
+  } else if (property.enum()) {
+    //console.log("It's an enum.");
+    typeName = _.upperFirst(javaName);
+  } else if (property.enum()) {
+    //console.log("It's an enum.");
+    typeName = _.upperFirst(javaName);
   } else {
-    if (property.enum()) {
-      //console.log("It's an enum.");
-      typeName = _.upperFirst(javaName);
-    } else {
-      typeName = getType(type,format).javaType;
-      if (!typeName) {
-        typeName = type;
-      }
+    typeName = getType(type,format).javaType;
+    if (!typeName) {
+      typeName = type;
     }
   }
   return [typeName, isArrayOfObjects];
@@ -322,14 +308,14 @@ function functionSpecs([asyncapi, params]) {
 filter.functionSpecs = functionSpecs;
 
 function getRealPublisher([info, params, channel]) {
-  let pub = scsLib.getRealPublisher(info, params, channel);
-  return pub
+  const pub = scsLib.getRealPublisher(info, params, channel);
+  return pub;
 }
 filter.getRealPublisher = getRealPublisher;
 
 function getRealSubscriber([info, params, channel]) {
-  let pub = scsLib.getRealSubscriber(info, params, channel);
-  return pub
+  const pub = scsLib.getRealSubscriber(info, params, channel);
+  return pub;
 }
 filter.getRealSubscriber = getRealSubscriber;
 
@@ -337,6 +323,16 @@ function groupId([info, params]) {
   return scsLib.getParamOrDefault(info, params, 'groupId', 'x-group-id', 'com.company');
 }
 filter.groupId = groupId;
+
+// This returns the list of methods belonging to an object, just to help debugging.
+const getMethods = (obj) => {
+  const properties = new Set();
+  let currentObj = obj;
+  do {
+    Object.getOwnPropertyNames(currentObj).forEach(item => properties.add(item));
+  } while ((currentObj = Object.getPrototypeOf(currentObj)));
+  return [...properties.keys()].filter(item => typeof obj[item] === 'function');
+};
 
 function logFull(obj) {
   console.log(obj);
@@ -365,7 +361,7 @@ function payloadClass([channelName, channel]) {
     ret = getPayloadClass(channel.subscribe());
   }
   if (!ret) {
-    throw new Error("Channel " + channelName + ": no payload class has been defined.");
+    throw new Error(`Channel ${  channelName  }: no payload class has been defined.`);
   }
   return ret;
 }
@@ -392,7 +388,7 @@ function springCloudVersion([info, params]) {
 filter.springCloudVersion = springCloudVersion;
 
 function stringify(obj) {
-  var str = JSON.stringify(obj, null, 2);
+  const str = JSON.stringify(obj, null, 2);
   return str;
 }
 filter.stringify = stringify;
@@ -406,13 +402,12 @@ filter.topicInfo = topicInfo;
 
 // Returns true if any property names will be different between json and java.
 function checkPropertyNames(name, schema) {
-  let ret = false;
+  const ret = false;
 
   //console.log(JSON.stringify(schema));
   //console.log('checkPropertyNames: checking schema ' + name + getMethods(schema));
   
-  var properties = schema.properties();
-  
+  let properties = schema.properties();
 
   if (schema.type() === 'array') {
     properties = schema.items().properties();
@@ -420,9 +415,9 @@ function checkPropertyNames(name, schema) {
 
   //console.log("schema type: " + schema.type());
 
-  for (let propName in properties) {
-    let javaName = _.camelCase(propName);
-    let prop = properties[propName];
+  for (const propName in properties) {
+    const javaName = _.camelCase(propName);
+    const prop = properties[propName];
     //console.log('checking ' + propName + ' ' + prop.type());
 
     if (javaName !== propName) {
@@ -431,21 +426,21 @@ function checkPropertyNames(name, schema) {
     }
     if (prop.type() === 'object') {
       //console.log("Recursing into object");
-      let check = checkPropertyNames(propName, prop);
+      const check = checkPropertyNames(propName, prop);
       if (check) {
         return true;
       }
     } else if (prop.type() === 'array') {
       //console.log('checkPropertyNames: ' + JSON.stringify(prop));
       if (!prop.items) {
-        throw new Error("Array named " + propName + " must have an 'items' property to indicate what type the array elements are.");
+        throw new Error(`Array named ${  propName  } must have an 'items' property to indicate what type the array elements are.`);
       }
-      let itemsType = prop.items().type();
+      const itemsType = prop.items().type();
       //console.log('checkPropertyNames: ' + JSON.stringify(prop.items));
       //console.log('array of : ' + itemsType);
       if (itemsType === 'object') {
         //console.log("Recursing into array");
-        let check = checkPropertyNames(propName, prop.items());
+        const check = checkPropertyNames(propName, prop.items());
         if (check) {
           return true;
         }
@@ -457,8 +452,8 @@ function checkPropertyNames(name, schema) {
 
 function dump(obj) {
   let s = typeof obj;
-  for (let p in obj) {
-    s += " ";
+  for (const p in obj) {
+    s += ' ';
     s += p;
   }
   return s;
@@ -468,20 +463,20 @@ function dump(obj) {
 function getAdditionalSubs(asyncapi, params) {
   let ret;
 
-  for (let channelName in asyncapi.channels()) {
-    let channel = asyncapi.channels()[channelName];
-    let subscribe = scsLib.getRealSubscriber(asyncapi.info(), params, channel);
+  for (const channelName in asyncapi.channels()) {
+    const channel = asyncapi.channels()[channelName];
+    const subscribe = scsLib.getRealSubscriber(asyncapi.info(), params, channel);
     
     if (subscribe) {
-      let functionName = getFunctionName(channelName, subscribe, true);
-      let topicInfo = getTopicInfo(channelName, channel);
-      let queue = subscribe.ext('x-scs-destination');
+      const functionName = getFunctionName(channelName, subscribe, true);
+      const topicInfo = getTopicInfo(channelName, channel);
+      const queue = subscribe.ext('x-scs-destination');
       if (topicInfo.hasParams || queue) {
         if (!ret) {
           ret = {};
           ret.bindings = {};
         }
-        let bindingName = functionName + "-in-0";
+        const bindingName = `${functionName  }-in-0`;
         ret.bindings[bindingName] = {};
         ret.bindings[bindingName].consumer = {};
         ret.bindings[bindingName].consumer.queueAdditionalSubscriptions = topicInfo.subscribeTopic;
@@ -494,8 +489,8 @@ function getAdditionalSubs(asyncapi, params) {
 
 // This returns the SCSt bindings config that will appear in application.yaml.
 function getBindings(asyncapi, params) {
-  let ret = {};
-  let funcs = getFunctionSpecs(asyncapi, params);
+  const ret = {};
+  const funcs = getFunctionSpecs(asyncapi, params);
 
   funcs.forEach((spec, name, map) => {
     if (spec.isPublisher) {
@@ -528,17 +523,16 @@ function getFunctionName(channelName, operation, isSubscriber) {
   if (functionName) {
     ret = functionName;
   } else {
-    ret = _.camelCase(channelName) + (isSubscriber ? "Consumer" : "Supplier");
+    ret = _.camelCase(channelName) + (isSubscriber ? 'Consumer' : 'Supplier');
   }
   return ret;
 }
-
 
 // This returns the base function name that SCSt will use to map functions with bindings.
 function getFunctionNameByChannel(channelName, channel) {
   let ret = _.camelCase(channelName);
   //console.log('functionName channel: ' + JSON.stringify(channelJson));
-  let functionName = channel.ext('x-scs-function-name');
+  const functionName = channel.ext('x-scs-function-name');
   //console.log('function name for channel ' + channelName + ': ' + functionName);
   if (functionName) {
     ret = functionName;
@@ -548,10 +542,10 @@ function getFunctionNameByChannel(channelName, channel) {
 
 // This returns the string that gets rendered in the function.definition part of application.yaml.
 function getFunctionDefinitions(asyncapi, params) {
-  let ret = "";
-  let funcs = getFunctionSpecs(asyncapi, params);
-  let names = funcs.keys();
-  ret = Array.from(names).join(";");
+  let ret = '';
+  const funcs = getFunctionSpecs(asyncapi, params);
+  const names = funcs.keys();
+  ret = Array.from(names).join(';');
   return ret;
 }
 
@@ -561,16 +555,16 @@ function getFunctionSpecs(asyncapi, params) {
   const reactive = params.reactive === 'true';
   const info = asyncapi.info();
 
-  for (let channelName in asyncapi.channels()) {
-    let channel = asyncapi.channels()[channelName];
+  for (const channelName in asyncapi.channels()) {
+    const channel = asyncapi.channels()[channelName];
     //console.log("=====================================");
     //console.log("channelJson: " + JSON.stringify(channel._json));
     //console.log("getFunctionSpecs: " + channelName);
     //console.log("=====================================");
     let functionSpec;
-    let publish = scsLib.getRealPublisher(info, params, channel)
+    const publish = scsLib.getRealPublisher(info, params, channel);
     if (publish) {
-      let name = getFunctionName(channelName, publish, false);
+      const name = getFunctionName(channelName, publish, false);
       functionSpec = functionMap.get(name);
       if (functionSpec) {
         if (functionSpec.type === 'supplier' || functionSpec === 'function') {
@@ -584,23 +578,23 @@ function getFunctionSpecs(asyncapi, params) {
         functionSpec.reactive = reactive;
         functionMap.set(name, functionSpec);
       }
-      let payload = getPayloadClass(publish);
+      const payload = getPayloadClass(publish);
       if (!payload) {
-        throw new Error("Channel " + channelName + ": no payload class has been defined.");
+        throw new Error(`Channel ${  channelName  }: no payload class has been defined.`);
       }
       functionSpec.publishPayload = payload;
       functionSpec.publishChannel = channelName;
     }
 
-    let subscribe = scsLib.getRealSubscriber(info, params, channel)
+    const subscribe = scsLib.getRealSubscriber(info, params, channel);
     if (subscribe) {
-      let name = getFunctionName(channelName, subscribe, true);
+      const name = getFunctionName(channelName, subscribe, true);
       functionSpec = functionMap.get(name);
       if (functionSpec) {
         if (functionSpec.type === 'consumer' || functionSpec === 'function') {
           throw new Error(`Function ${name} can't subscribe to both channels {functionSpec.channel} and ${channelName}.`);
         }
-        functionSpec.type = 'function'
+        functionSpec.type = 'function';
       } else {
         functionSpec = new SCSFunction();
         functionSpec.name = name;
@@ -608,35 +602,25 @@ function getFunctionSpecs(asyncapi, params) {
         functionSpec.reactive = reactive;
         functionMap.set(name, functionSpec);
       }
-      let payload = getPayloadClass(subscribe);
+      const payload = getPayloadClass(subscribe);
       if (!payload) {
-        throw new Error("Channel " + channelName + ": no payload class has been defined.");
+        throw new Error(`Channel ${  channelName  }: no payload class has been defined.`);
       }
       functionSpec.subscribePayload = payload;
-      var group = subscribe.ext('x-scs-group');
+      const group = subscribe.ext('x-scs-group');
       if (group) {
-          functionSpec.group = group;
+        functionSpec.group = group;
       }
-      var dest = subscribe.ext('x-scs-destination');
+      const dest = subscribe.ext('x-scs-destination');
       if (dest) {
-          functionSpec.subscribeChannel = dest;
+        functionSpec.subscribeChannel = dest;
       } else {
-          functionSpec.subscribeChannel = channelName;
+        functionSpec.subscribeChannel = channelName;
       }
     }
   }
 
   return functionMap;
-}
-
-// This returns the list of methods belonging to an object, just to help debugging.
-const getMethods = (obj) => {
-  let properties = new Set()
-  let currentObj = obj
-  do {
-    Object.getOwnPropertyNames(currentObj).map(item => properties.add(item))
-  } while ((currentObj = Object.getPrototypeOf(currentObj)))
-  return [...properties.keys()].filter(item => typeof obj[item] === 'function')
 }
 
 function getPayloadClass(pubOrSub) {
@@ -647,9 +631,9 @@ function getPayloadClass(pubOrSub) {
     if (pubOrSub.hasMultipleMessages()) {
       ret = 'Message<?>';
     } else {
-      let message = pubOrSub.message();
+      const message = pubOrSub.message();
       if (message) {
-        let payload = message.payload();
+        const payload = message.payload();
 
         if (payload) {
           ret = payload.ext('x-parser-schema-id');
@@ -666,7 +650,7 @@ function getPayloadClass(pubOrSub) {
 
 // This returns the connection properties for a solace binder, for application.yaml.
 function getSolace(params) {
-  let ret = {};
+  const ret = {};
   ret.java = {};
   ret.java.host = params.host || SOLACE_HOST;
   ret.java.msgVpn = params.msgVpn || SOLACE_DEFAULT;
@@ -681,14 +665,14 @@ function getTopicInfo(channelName, channel) {
   let publishTopic = String(channelName);
   let subscribeTopic = String(channelName);
   const params = [];
-  let functionParamList = "";
-  let functionArgList = "";
-  let sampleArgList = "";
+  let functionParamList = '';
+  let functionArgList = '';
+  let sampleArgList = '';
   let first = true;
 
   //console.log("params: " + JSON.stringify(channel.parameters()));
-  for (let name in channel.parameters()) {
-    const nameWithBrackets = "{" + name + "}";
+  for (const name in channel.parameters()) {
+    const nameWithBrackets = `{${  name  }}`;
     const parameter = channel.parameter(name);
     const schema = parameter.schema();
     const type = getType(schema.type(), schema.format());
@@ -699,20 +683,20 @@ function getTopicInfo(channelName, channel) {
     if (first) {
       first = false;
     } else {
-      functionParamList += ", ";
-      functionArgList += ", ";
+      functionParamList += ', ';
+      functionArgList += ', ';
     }
 
-    sampleArgList += ", ";
+    sampleArgList += ', ';
 
     if (type) {
       //console.log("It's a type: " + type);
       const javaType = typeMap.get(type);
-      if (!javaType) throw new Error("topicInfo filter: type not found in typeMap: " + type);
+      if (!javaType) throw new Error(`topicInfo filter: type not found in typeMap: ${  type}`);
       param.type = javaType;
       const printfArg = type.printFormat;
       //console.log("printf: " + printfArg);
-      if (!printfArg) throw new Error("topicInfo filter: type not found in formatMap: " + type);
+      if (!printfArg) throw new Error(`topicInfo filter: type not found in formatMap: ${  type}`);
       //console.log("Replacing " + nameWithBrackets);
       publishTopic = publishTopic.replace(nameWithBrackets, printfArg);
       sampleArg = type.sample;
@@ -722,16 +706,16 @@ function getTopicInfo(channelName, channel) {
         //console.log("It's an enum: " + en);
         param.type = _.upperFirst(name);
         param.enum = en;
-        sampleArg = "Messaging." + param.type + "." + en[0];
+        sampleArg = `Messaging.${  param.type  }.${  en[0]}`;
         //console.log("Replacing " + nameWithBrackets);
-        publishTopic = publishTopic.replace(nameWithBrackets, "%s");
+        publishTopic = publishTopic.replace(nameWithBrackets, '%s');
       } else {
-        throw new Error("topicInfo filter: Unknown parameter type: " + JSON.stringify(schema));
+        throw new Error(`topicInfo filter: Unknown parameter type: ${  JSON.stringify(schema)}`);
       }
     }
 
-    subscribeTopic = subscribeTopic.replace(nameWithBrackets, "*");
-    functionParamList += param.type + " " + param.name;
+    subscribeTopic = subscribeTopic.replace(nameWithBrackets, '*');
+    functionParamList += `${param.type  } ${  param.name}`;
     functionArgList += param.name;
     sampleArgList += sampleArg;
     params.push(param);
@@ -748,10 +732,10 @@ function getTopicInfo(channelName, channel) {
 }
 
 function indent(numTabs) {
-  return "\t".repeat(numTabs);
+  return '\t'.repeat(numTabs);
 }
 
 function isApplication(params) {
-  var artifactType = params.artifactType;
-  return (!artifactType || artifactType === 'application')
+  const artifactType = params.artifactType;
+  return (!artifactType || artifactType === 'application');
 }

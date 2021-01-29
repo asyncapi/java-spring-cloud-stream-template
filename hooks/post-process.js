@@ -38,7 +38,7 @@ module.exports = {
             fs.mkdirSync(overridePath, { recursive: true });
           }
 
-          if ((file != 'Messaging.java') || generateMessagingClass) {
+          if ((file !== 'Messaging.java') || generateMessagingClass) {
             //console.log("Copying " + file)
             fs.copyFileSync(path.resolve(sourcePath, file), path.resolve(overridePath, file));
           }
@@ -53,7 +53,6 @@ module.exports = {
     // Rename the pom file if necessary, and only include Application.java when an app is requested.
     const artifactType = generator.templateParams['artifactType'];
 
-    const mainClassName = 'Application';
     let overrideClassName = scsLib.getParamOrExtension(info, generator.templateParams, 'javaClass', 'x-java-class');
 
     if (artifactType === 'library') {
@@ -77,9 +76,8 @@ module.exports = {
     //console.log("schemas: " + JSON.stringify(schemas));
 
     for (const schema in schemas) {
-
-      let schemaObj = schemas[schema];
-      let type = schemaObj.type();
+      const schemaObj = schemas[schema];
+      const type = schemaObj.type();
       const oldPath = path.resolve(sourcePath, `${schema}.java`);
 
       //console.log(`postprocess schema ${schema} ${type}`);
