@@ -14,14 +14,6 @@ const SPRING_CLOUD_STREAM_VERSION = '3.0.7.RELEASE';
 const SOLACE_HOST = 'tcp://localhost:55555';
 const SOLACE_DEFAULT = 'default';
 
-function getType(type, format){
-  let typeObject = typeMap.get(type).get(format);
-  if(typeObject === undefined){
-    typeObject = typeMap.get(type).get(undefined)
-  }
-  return typeObject
-}
-
 const stringMap = new Map();
 stringMap.set('date',{javaType: 'java.time.LocalDate', printFormat: '%s', sample: '2000-12-31'})
 stringMap.set('date-time',{javaType:'java.time.OffsetDateTime', printFormat:'%s', sample:'2000-12-31T23:59:59+01:00'})
@@ -51,6 +43,14 @@ typeMap.set('integer', integerMap);
 typeMap.set('null', nullMap);
 typeMap.set('number', numberMap);
 typeMap.set('string', stringMap);
+
+function getType(type, format){
+  let typeObject = typeMap.get(type).get(format);
+  if(typeObject === undefined){
+    typeObject = typeMap.get(type).get(undefined)
+  }
+  return typeObject
+}
 
 class SCSFunction {
   name;
@@ -236,78 +236,136 @@ function indent3(numTabs) {
 }
 filter.indent3 = indent3;
 
-  // This returns the proper Java type for a schema property.
+// This returns the proper Java type for a schema property.
 function fixType([name, javaName, property]) {
-
+function fixType([name, javaName, property]) {
+  //console.log('fixType: ' + name + " " + dump(property));
   //console.log('fixType: ' + name + " " + dump(property));
   
+  
   let isArrayOfObjects = false;
-
+  let isArrayOfObjects = false;
+  // For message headers, type is a property.
   // For message headers, type is a property.
   // For schema properties, type is a function.
+  // For schema properties, type is a function.
   let type = property.type;
-  let format = property.format
+  let type = property.type;
+
+  let format = property.format;
+  //console.log("fixType: " + property);
   //console.log("fixType: " + property);
 
-  if (typeof type == "function") {
+
+  if (typeof type === 'function') {
+  if (typeof type === 'function') {
     type = property.type();
-    format = property.format()
+    type = property.type();
+    format = property.format();
   }
+  }
+
 
   //console.log(`fixType: type: ${type} javaNamne ${javaName}` );
+  //console.log(`fixType: type: ${type} javaNamne ${javaName}` );
+  //console.log(property);
   //console.log(property);
   // If a schema has a property that is a ref to another schema,
+  // If a schema has a property that is a ref to another schema,
+  // the type is undefined, and the title gives the title of the referenced schema.
   // the type is undefined, and the title gives the title of the referenced schema.
   let typeName;
+  let typeName;
+  if (type === undefined) {
   if (type === undefined) {
     if (property.enum()) {
-      //console.log("It's an enum.");
-      typeName = _.upperFirst(javaName);
-    } else {
-      // check to see if it's a ref to another schema.
-      typeName = property.ext('x-parser-schema-id');
-
-      if (!typeName) {
-        throw new Error("Can't determine the type of property " + name);
-      }
-    }
-  } else if (type === 'array') {
-    if (!property.items()) {
-      throw new Error("Array named " + name + " must have an 'items' property to indicate what type the array elements are.");
-    }
-    let itemsType = property.items().type();
-
-    if (itemsType) {
-
-      if (itemsType === 'object') {
-        isArrayOfObjects = true;
-        itemsType = _.upperFirst(javaName);
-      } else {
-        itemsType = typeMap.get(itemsType);
-      }
-    }
-    if (!itemsType) {
-      itemsType = property.items().ext('x-parser-schema-id');
-
-      if (!itemsType) {
-        throw new Error("Array named " + name + ": can't determine the type of the items.");
-      }
-    }
-    typeName = _.upperFirst(itemsType) + "[]";
-  } else if (type === 'object') {
-    typeName = _.upperFirst(javaName);
-  } else {
     if (property.enum()) {
       //console.log("It's an enum.");
+      //console.log("It's an enum.");
+      typeName = _.upperFirst(javaName);
       typeName = _.upperFirst(javaName);
     } else {
-      typeName = getType(type,format).javaType;
+    } else {
+      // check to see if it's a ref to another schema.
+      // check to see if it's a ref to another schema.
+      typeName = property.ext('x-parser-schema-id');
+      typeName = property.ext('x-parser-schema-id');
       if (!typeName) {
-        typeName = type;
+      if (!typeName) {
+        throw new Error(`Can't determine the type of property ${  name}`);
+        throw new Error(`Can't determine the type of property ${  name}`);
+      }
       }
     }
+    }
+  } else if (type === 'array') {
+  } else if (type === 'array') {
+    if (!property.items()) {
+    if (!property.items()) {
+      throw new Error(`Array named ${  name  } must have an 'items' property to indicate what type the array elements are.`);
+      throw new Error(`Array named ${  name  } must have an 'items' property to indicate what type the array elements are.`);
+    }
+    }
+    let itemsType = property.items().type();
+    let itemsType = property.items().type();
+    if (itemsType) {
+    if (itemsType) {
+      if (itemsType === 'object') {
+      if (itemsType === 'object') {
+        isArrayOfObjects = true;
+        isArrayOfObjects = true;
+        itemsType = _.upperFirst(javaName);
+        itemsType = _.upperFirst(javaName);
+      } else {
+      } else {
+        itemsType = typeMap.get(itemsType);
+        itemsType = typeMap.get(itemsType);
+      }
+      }
+    }
+    }
+    if (!itemsType) {
+    if (!itemsType) {
+      itemsType = property.items().ext('x-parser-schema-id');
+      itemsType = property.items().ext('x-parser-schema-id');
+      if (!itemsType) {
+      if (!itemsType) {
+        throw new Error(`Array named ${  name  }: can't determine the type of the items.`);
+        throw new Error(`Array named ${  name  }: can't determine the type of the items.`);
+      }
+      }
+    }
+    }
+    typeName = `${_.upperFirst(itemsType)  }[]`;
+    typeName = `${_.upperFirst(itemsType)  }[]`;
+  } else if (type === 'object') {
+  } else if (type === 'object') {
+    typeName = _.upperFirst(javaName);
+    typeName = _.upperFirst(javaName);
+  } else if (property.enum()) {
+  } else if (property.enum()) {
+    //console.log("It's an enum.");
+    //console.log("It's an enum.");
+    typeName = _.upperFirst(javaName);
+    typeName = _.upperFirst(javaName);
+  } else if (property.enum()) {
+    //console.log("It's an enum.");
+    typeName = _.upperFirst(javaName);
+  } else {
+  } else {
+    typeName = typeMap.get(type);
+    typeName = getType(type,format).javaType;
+    if (!typeName) {
+    if (!typeName) {
+      typeName = type;
+      typeName = type;
+    }
+    }
+  }
   }
   return [typeName, isArrayOfObjects];
+  return [typeName, isArrayOfObjects];
+}
 }
 filter.fixType = fixType;
 
