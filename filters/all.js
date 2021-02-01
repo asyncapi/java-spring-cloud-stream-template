@@ -14,30 +14,43 @@ const SPRING_CLOUD_STREAM_VERSION = '3.0.7.RELEASE';
 const SOLACE_HOST = 'tcp://localhost:55555';
 const SOLACE_DEFAULT = 'default';
 
-// This maps json schema types to Java format strings.
-const formatMap = new Map();
-formatMap.set('boolean', '%s');
-formatMap.set('enum', '%s');
-formatMap.set('integer', '%d');
-formatMap.set('number', '%f');
-formatMap.set('null', '%s');
-formatMap.set('string', '%s');
+const stringMap = new Map();
+stringMap.set('date',{javaType: 'java.time.LocalDate', printFormat: '%s', sample: '2000-12-31'});
+stringMap.set('date-time',{javaType: 'java.time.OffsetDateTime', printFormat: '%s', sample: '2000-12-31T23:59:59+01:00'});
+stringMap.set('byte',{javaType: 'byte[]', printFormat: '%s', sample: 'U3dhZ2dlciByb2Nrcw=='});
+stringMap.set('binary',{javaType: 'byte[]', printFormat: '%s', sample: 'base64-encoded file contents'});
+stringMap.set(undefined,{javaType: 'String', printFormat: '%s', sample: '"string"'});
 
-// This maps json schema types to examples of values.
-const sampleMap = new Map();
-sampleMap.set('boolean', 'true');
-sampleMap.set('integer', '1');
-sampleMap.set('null', 'string');
-sampleMap.set('number', '1.1');
-sampleMap.set('string', '"string"');
+const integerMap = new Map();
+integerMap.set('int32',{javaType: 'Integer', printFormat: '%d', sample: '1'});
+integerMap.set('int64',{javaType: 'Long', printFormat: '%d', sample: '1L'});
+integerMap.set(undefined,{javaType: 'Integer', printFormat: '%d', sample: '1'});
 
-// This maps json schema types to Java types.
+const numberMap = new Map();
+numberMap.set('float',{javaType: 'Float', printFormat: '%f', sample: '1.1F'});
+numberMap.set('double',{javaType: 'Double', printFormat: '%f', sample: '1.1'});
+numberMap.set(undefined,{javaType: 'java.math.BigDecimal', printFormat: '%s', sample: '100.1'});
+
+const booleanMap = new Map();
+booleanMap.set(undefined,{javaType: 'Boolean', printFormat: '%s', sample: 'true'});
+
+const nullMap = new Map();
+nullMap.set(undefined,{javaType: 'String', printFormat: '%s', sample: 'null'});
+
 const typeMap = new Map();
-typeMap.set('boolean', 'Boolean');
-typeMap.set('integer', 'Integer');
-typeMap.set('null', 'String');
-typeMap.set('number', 'Double');
-typeMap.set('string', 'String');
+typeMap.set('boolean', booleanMap);
+typeMap.set('integer', integerMap);
+typeMap.set('null', nullMap);
+typeMap.set('number', numberMap);
+typeMap.set('string', stringMap);
+
+function getType(type, format) {
+  let typeObject = typeMap.get(type).get(format);
+  if (typeObject === undefined) {
+    typeObject = typeMap.get(type).get(undefined);
+  }
+  return typeObject;
+}
 
 class SCSFunction {
   get publishBindingName() {
@@ -210,7 +223,6 @@ function indent3(numTabs) {
   return indent(numTabs + 2);
 }
 filter.indent3 = indent3;
-
 // This returns the proper Java type for a schema property.
 function fixType([name, javaName, property]) {
   //console.log('fixType: ' + name + " " + dump(property));
@@ -220,11 +232,12 @@ function fixType([name, javaName, property]) {
   // For message headers, type is a property.
   // For schema properties, type is a function.
   let type = property.type;
-
+  let format = property.format;
   //console.log("fixType: " + property);
 
   if (typeof type === 'function') {
     type = property.type();
+    format = property.format();
   }
 
   //console.log(`fixType: type: ${type} javaNamne ${javaName}` );
@@ -272,7 +285,7 @@ function fixType([name, javaName, property]) {
     //console.log("It's an enum.");
     typeName = _.upperFirst(javaName);
   } else {
-    typeName = typeMap.get(type);
+    typeName = getType(type,format).javaType;
     if (!typeName) {
       typeName = type;
     }
@@ -659,7 +672,7 @@ function getTopicInfo(channelName, channel) {
     const nameWithBrackets = `{${  name  }}`;
     const parameter = channel.parameter(name);
     const schema = parameter.schema();
-    const type = schema.type();
+    const type = getType(schema.type(), schema.format());
     const param = { name: _.lowerFirst(name) };
     //console.log("name: " + name + " type: " + type);
     let sampleArg = 1;
@@ -678,12 +691,12 @@ function getTopicInfo(channelName, channel) {
       const javaType = typeMap.get(type);
       if (!javaType) throw new Error(`topicInfo filter: type not found in typeMap: ${  type}`);
       param.type = javaType;
-      const printfArg = formatMap.get(type);
+      const printfArg = type.printFormat;
       //console.log("printf: " + printfArg);
       if (!printfArg) throw new Error(`topicInfo filter: type not found in formatMap: ${  type}`);
       //console.log("Replacing " + nameWithBrackets);
       publishTopic = publishTopic.replace(nameWithBrackets, printfArg);
-      sampleArg = sampleMap.get(type);
+      sampleArg = type.sample;
     } else {
       const en = schema.enum();
       if (en) {
