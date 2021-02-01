@@ -125,15 +125,19 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="http://www.damaru.com"><img src="https://avatars1.githubusercontent.com/u/3926925?v=4" width="100px;" alt=""/><br /><sub><b>Michael Davis</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=damaru-inc" title="Code">💻</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=damaru-inc" title="Documentation">📖</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/pulls?q=is%3Apr+reviewed-by%3Adamaru-inc" title="Reviewed Pull Requests">👀</a> <a href="#question-damaru-inc" title="Answering Questions">💬</a></td>
-    <td align="center"><a href="https://marcd.dev"><img src="https://avatars0.githubusercontent.com/u/1815312?v=4" width="100px;" alt=""/><br /><sub><b>Marc DiPasquale</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=Mrc0113" title="Documentation">📖</a></td>
-    <td align="center"><a href="http://www.fmvilas.com"><img src="https://avatars3.githubusercontent.com/u/242119?v=4" width="100px;" alt=""/><br /><sub><b>Fran Méndez</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=fmvilas" title="Code">💻</a> <a href="#infra-fmvilas" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-    <td align="center"><a href="https://resume.github.io/?derberg"><img src="https://avatars1.githubusercontent.com/u/6995927?v=4" width="100px;" alt=""/><br /><sub><b>Lukasz Gornicki</b></sub></a><br /><a href="#infra-derberg" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=derberg" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.damaru.com"><img src="https://avatars1.githubusercontent.com/u/3926925?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Michael Davis</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=damaru-inc" title="Code">💻</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=damaru-inc" title="Documentation">📖</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/pulls?q=is%3Apr+reviewed-by%3Adamaru-inc" title="Reviewed Pull Requests">👀</a> <a href="#question-damaru-inc" title="Answering Questions">💬</a></td>
+    <td align="center"><a href="https://marcd.dev"><img src="https://avatars0.githubusercontent.com/u/1815312?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Marc DiPasquale</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=Mrc0113" title="Documentation">📖</a></td>
+    <td align="center"><a href="http://www.fmvilas.com"><img src="https://avatars3.githubusercontent.com/u/242119?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Fran Méndez</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=fmvilas" title="Code">💻</a> <a href="#infra-fmvilas" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    <td align="center"><a href="https://resume.github.io/?derberg"><img src="https://avatars1.githubusercontent.com/u/6995927?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lukasz Gornicki</b></sub></a><br /><a href="#infra-derberg" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=derberg" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/blzsaa"><img src="https://avatars.githubusercontent.com/u/17824588?v=4?s=100" width="100px;" alt=""/><br /><sub><b>blzsaa</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=blzsaa" title="Code">💻</a></td>
   </tr>
 </table>
 
-<!-- markdownlint-enable -->
+<!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
