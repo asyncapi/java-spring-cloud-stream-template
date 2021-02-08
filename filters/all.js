@@ -688,7 +688,7 @@ function getTopicInfo(channelName, channel) {
 
     if (type) {
       //console.log("It's a type: " + type);
-      const javaType = typeMap.get(type);
+      const javaType = type.javaType || typeMap.get(type);
       if (!javaType) throw new Error(`topicInfo filter: type not found in typeMap: ${  type}`);
       param.type = javaType;
       const printfArg = type.printFormat;
