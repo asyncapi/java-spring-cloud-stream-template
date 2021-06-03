@@ -304,6 +304,16 @@ function functionSpecs([asyncapi, params]) {
 }
 filter.functionSpecs = functionSpecs;
 
+// This returns the list of methods belonging to an object, just to help debugging.
+const getMethods = (obj) => {
+  const properties = new Set();
+  let currentObj = obj;
+  do {
+    Object.getOwnPropertyNames(currentObj).forEach(item => properties.add(item));
+  } while ((currentObj = Object.getPrototypeOf(currentObj)));
+  return [...properties.keys()].filter(item => typeof obj[item] === 'function');
+};
+
 function getRealPublisher([info, params, channel]) {
   const pub = scsLib.getRealPublisher(info, params, channel);
   return pub;
@@ -321,15 +331,14 @@ function groupId([info, params]) {
 }
 filter.groupId = groupId;
 
-// This returns the list of methods belonging to an object, just to help debugging.
-const getMethods = (obj) => {
-  const properties = new Set();
-  let currentObj = obj;
-  do {
-    Object.getOwnPropertyNames(currentObj).forEach(item => properties.add(item));
-  } while ((currentObj = Object.getPrototypeOf(currentObj)));
-  return [...properties.keys()].filter(item => typeof obj[item] === 'function');
-};
+function isEmpty(obj) {
+
+  if (!obj) {
+    return false;
+  }
+  return obj && Object.keys(obj).length === 0 && obj.constructor === Object;
+}
+filter.isEmpty = isEmpty;
 
 function logFull(obj) {
   console.log(obj);

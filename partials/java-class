@@ -25,6 +25,8 @@
 {%- else -%} {# not an array at the top level. #}
 {%- set first = true -%}
 {#- Constructor with all properties -#}
+{%- set hasNoProperties = properties | isEmpty -%}
+{%- if not hasNoProperties -%}
 {{ indent2 }}public {{ className }} (
 {%- for name, prop in properties -%}
 {%- set javaName = name | identifierName -%}
@@ -42,6 +44,7 @@
 {{ indent3 }}this.{{ javaName }} = {{ javaName }};
 {% endfor -%}
 {{ indent2 }}}
+{% endif -%}
 {% endif -%}
 
 {# Members #}
