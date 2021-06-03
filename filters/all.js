@@ -341,6 +341,11 @@ function logFull(obj) {
 }
 filter.logFull = logFull;
 
+function logIt(obj) {
+  console.log(obj);
+}
+filter.logIt = logIt;
+
 function lowerFirst(str) {
   return _.lowerFirst(str);
 }

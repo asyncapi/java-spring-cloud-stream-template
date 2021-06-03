@@ -70,10 +70,10 @@
 {{ indent3 }}return this;
 {{ indent2 }}}
 {# Inner classes #}
-{%- if indentLevel == 0 and  prop.type() === 'object' %}
+{%- if prop.type() === 'object' %}
 {{ javaClass(javaName, null, prop.properties(), prop.required(), indentLevel+1, true) }}
 {% endif -%}
-{%- if indentLevel > 0 and prop.type === 'object' %}
+{%- if prop.type === 'object' %}
 {{ javaClass(javaName, null, prop.properties, prop.required, indentLevel+1, true) }}
 {% endif -%}
 {%- if isArrayOfObjects %}
