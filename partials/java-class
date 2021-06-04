@@ -25,6 +25,8 @@
 {%- else -%} {# not an array at the top level. #}
 {%- set first = true -%}
 {#- Constructor with all properties -#}
+{%- set hasNoProperties = properties | isEmpty -%}
+{%- if not hasNoProperties -%}
 {{ indent2 }}public {{ className }} (
 {%- for name, prop in properties -%}
 {%- set javaName = name | identifierName -%}
@@ -42,6 +44,7 @@
 {{ indent3 }}this.{{ javaName }} = {{ javaName }};
 {% endfor -%}
 {{ indent2 }}}
+{% endif -%}
 {% endif -%}
 
 {# Members #}
@@ -70,11 +73,8 @@
 {{ indent3 }}return this;
 {{ indent2 }}}
 {# Inner classes #}
-{%- if indentLevel == 0 and  prop.type() === 'object' %}
+{%- if prop.type() === 'object' %}
 {{ javaClass(javaName, null, prop.properties(), prop.required(), indentLevel+1, true) }}
-{% endif -%}
-{%- if indentLevel > 0 and prop.type === 'object' %}
-{{ javaClass(javaName, null, prop.properties, prop.required, indentLevel+1, true) }}
 {% endif -%}
 {%- if isArrayOfObjects %}
 {{ javaClass(javaName, null, prop.items().properties(), prop.items().required(), indentLevel+1, true) }}
