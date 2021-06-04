@@ -262,13 +262,12 @@ function fixType([name, javaName, property]) {
       throw new Error(`Array named ${  name  } must have an 'items' property to indicate what type the array elements are.`);
     }
     let itemsType = property.items().type();
-
     if (itemsType) {
       if (itemsType === 'object') {
         isArrayOfObjects = true;
         itemsType = _.upperFirst(javaName);
       } else {
-        itemsType = typeMap.get(itemsType);
+        itemsType = getType(itemsType, format).javaType;
       }
     }
     if (!itemsType) {
