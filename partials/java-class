@@ -76,9 +76,6 @@
 {%- if prop.type() === 'object' %}
 {{ javaClass(javaName, null, prop.properties(), prop.required(), indentLevel+1, true) }}
 {% endif -%}
-{%- if prop.type === 'object' %}
-{{ javaClass(javaName, null, prop.properties, prop.required, indentLevel+1, true) }}
-{% endif -%}
 {%- if isArrayOfObjects %}
 {{ javaClass(javaName, null, prop.items().properties(), prop.items().required(), indentLevel+1, true) }}
 {% endif -%}

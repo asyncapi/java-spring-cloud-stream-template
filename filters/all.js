@@ -332,9 +332,8 @@ function groupId([info, params]) {
 filter.groupId = groupId;
 
 function isEmpty(obj) {
-
   if (!obj) {
-    return false;
+    return true;
   }
   return obj && Object.keys(obj).length === 0 && obj.constructor === Object;
 }
@@ -349,11 +348,6 @@ function logFull(obj) {
   return obj;
 }
 filter.logFull = logFull;
-
-function logIt(obj) {
-  console.log(obj);
-}
-filter.logIt = logIt;
 
 function lowerFirst(str) {
   return _.lowerFirst(str);
