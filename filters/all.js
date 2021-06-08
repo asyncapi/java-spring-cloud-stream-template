@@ -3,13 +3,12 @@ const yaml = require('js-yaml');
 const _ = require('lodash');
 const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
-// To enable debug logging, set the env var DEBUG=type function
+// To enable debug logging, set the env var DEBUG="type function" with whatever things you want to see.
 const debugFunction = require('debug')('function');
 const debugPayload = require('debug')('payload');
 const debugProperty = require('debug')('property');
 const debugTopic = require('debug')('topic');
 const debugType = require('debug')('type');
-
 
 // Library versions
 const SOLACE_SPRING_CLOUD_VERSION = '1.1.1';
@@ -192,7 +191,8 @@ function appExtraIncludes(asyncapi) {
 filter.appExtraIncludes = appExtraIncludes;
 
 function schemaExtraIncludes([schemaName, schema]) {
-  debugProperty('checkPropertyNames ' + schemaName + ' ' + schema.type());
+  debugProperty(`schemaExtraIncludes ${schemaName} ${schema.type()}`);
+
   const ret = {};
   if (checkPropertyNames(schemaName, schema)) {
     ret.needJsonPropertyInclude = true;
@@ -231,7 +231,8 @@ function indent3(numTabs) {
 filter.indent3 = indent3;
 // This returns the proper Java type for a schema property.
 function fixType([name, javaName, property]) {
-  debugType('fixType: ' + name + ' ' + dump(property));
+  debugType(`fixType: ${name}`);
+  debugType(property);
   
   let isArrayOfObjects = false;
 
@@ -239,14 +240,14 @@ function fixType([name, javaName, property]) {
   // For schema properties, type is a function.
   let type = property.type;
   let format = property.format;
-  debugType('fixType: ' + property);
+  debugType(`fixType: ${property}`);
 
   if (typeof type === 'function') {
     type = property.type();
     format = property.format();
   }
 
-  debugType(`fixType: type: ${type} javaName ${javaName}` );
+  debugType(`fixType: type: ${type} javaName ${javaName}`);
   debugType(property);
   // If a schema has a property that is a ref to another schema,
   // the type is undefined, and the title gives the title of the referenced schema.
@@ -414,9 +415,8 @@ filter.topicInfo = topicInfo;
 function checkPropertyNames(name, schema) {
   const ret = false;
 
-  debugProperty(JSON.stringify(schema));
-  debugProperty('checkPropertyNames: checking schema ' + name);
-  //debugProperty('checkPropertyNames: schema methods: ' + getMethods(schema));
+  debugProperty(`checkPropertyNames: checking schema ${name}`);
+  debugProperty(schema);
 
   let properties = schema.properties();
 
@@ -424,15 +424,15 @@ function checkPropertyNames(name, schema) {
     properties = schema.items().properties();
   }
 
-  debugProperty('schema type: ' + schema.type());
+  debugProperty(`schema type : ${schema.type()}`);
 
   for (const propName in properties) {
     const javaName = _.camelCase(propName);
     const prop = properties[propName];
-    debugProperty('checking ' + propName + ' ' + prop.type());
+    debugProperty(`checking ${propName} ${prop.type()}`);
 
     if (javaName !== propName) {
-      debugProperty('Java name ' + javaName + ' is different from ' + propName);
+      debugProperty(`Java name ${javaName} is different from ${propName}`);
       return true;
     }
     if (prop.type() === 'object') {
@@ -442,13 +442,13 @@ function checkPropertyNames(name, schema) {
         return true;
       }
     } else if (prop.type() === 'array') {
-      debugProperty('checkPropertyNames: ' + JSON.stringify(prop));
+      debugProperty(`checkPropertyNames: ${prop}`);
       if (!prop.items) {
         throw new Error(`Array named ${  propName  } must have an 'items' property to indicate what type the array elements are.`);
       }
       const itemsType = prop.items().type();
-      debugProperty('checkPropertyNames: ' + JSON.stringify(prop.items));
-      debugProperty('array of : ' + itemsType);
+      debugProperty(`checkPropertyNames: ${prop.items}`);
+      debugProperty(`array of ${itemsType}`);
       if (itemsType === 'object') {
         debugProperty('Recursing into array');
         const check = checkPropertyNames(propName, prop.items());
@@ -522,7 +522,7 @@ function getBindings(asyncapi, params) {
 // This returns the base function name that SCSt will use to map functions with bindings.
 function getFunctionName(channelName, operation, isSubscriber) {
   let ret;
-  debugFunction('getFunctionName operation: ' + JSON.stringify(operation));
+  debugFunction(`getFunctionName operation: ${operation}`);
   //debugFunction(operation);
   let functionName = operation.ext('x-scs-function-name');
   //debugFunction(getMethods(operation));
@@ -543,9 +543,8 @@ function getFunctionName(channelName, operation, isSubscriber) {
 // This returns the base function name that SCSt will use to map functions with bindings.
 function getFunctionNameByChannel(channelName, channel) {
   let ret = _.camelCase(channelName);
-  debugFunction('functionName channel: ' + JSON.stringify(channel));
   const functionName = channel.ext('x-scs-function-name');
-  debugFunction('function name for channel ' + channelName + ': ' + functionName);
+  debugFunction(`getFunctionNameByChannel ${channel} ${functionName}`);
   if (functionName) {
     ret = functionName;
   }
@@ -570,8 +569,8 @@ function getFunctionSpecs(asyncapi, params) {
   for (const channelName in asyncapi.channels()) {
     const channel = asyncapi.channels()[channelName];
     debugFunction('=====================================');
-    debugFunction('channelJson: ' + JSON.stringify(channel._json));
-    debugFunction('getFunctionSpecs: ' + channelName);
+    debugFunction(`getFunctionSpecs ${channelName}`);
+    debugFunction(channel._json);
     debugFunction('=====================================');
     let functionSpec;
     const publish = scsLib.getRealPublisher(info, params, channel);
@@ -658,7 +657,7 @@ function getPayloadClass(pubOrSub) {
         }
       }
     }
-    debugPayload('getPayloadClass: ' + ret);
+    debugPayload(`getPayloadClass: ${ret}`);
   }
   
   return ret;
@@ -686,14 +685,16 @@ function getTopicInfo(channelName, channel) {
   let sampleArgList = '';
   let first = true;
 
-  debugTopic('params: ' + JSON.stringify(channel.parameters()));
+  debugTopic('params:');
+  debugTopic(channel.parameters());
   for (const name in channel.parameters()) {
     const nameWithBrackets = `{${  name  }}`;
     const parameter = channel.parameter(name);
     const schema = parameter.schema();
     const type = getType(schema.type(), schema.format());
     const param = { name: _.lowerFirst(name) };
-    debugTopic('name: ' + name + ' type: ' + type);
+    debugTopic(`name: ${name} type:`);
+    debugTopic(type);
     let sampleArg = 1;
 
     if (first) {
@@ -706,24 +707,25 @@ function getTopicInfo(channelName, channel) {
     sampleArgList += ', ';
 
     if (type) {
-      debugTopic('Its a type: ' + type);
+      debugTopic('It is a type:');
+      debugTopic(type);
       const javaType = type.javaType || typeMap.get(type);
       if (!javaType) throw new Error(`topicInfo filter: type not found in typeMap: ${  type}`);
       param.type = javaType;
       const printfArg = type.printFormat;
-      debugTopic('printf: ' + printfArg);
+      debugTopic(`printf: ${printfArg}`);
       if (!printfArg) throw new Error(`topicInfo filter: type not found in formatMap: ${  type}`);
-      debugTopic('Replacing ' + nameWithBrackets);
+      debugTopic(`Replacing ${nameWithBrackets}`);
       publishTopic = publishTopic.replace(nameWithBrackets, printfArg);
       sampleArg = type.sample;
     } else {
       const en = schema.enum();
       if (en) {
-        debugTopic('It is an enum: ' + en);
+        debugTopic(`It is an enum: ${en}`);
         param.type = _.upperFirst(name);
         param.enum = en;
         sampleArg = `Messaging.${param.type}.${en[0]}`;
-        debugTopic('Replacing ' + nameWithBrackets);
+        debugTopic(`Replacing ${nameWithBrackets}`);
         publishTopic = publishTopic.replace(nameWithBrackets, '%s');
       } else {
         throw new Error(`topicInfo filter: Unknown parameter type: ${  JSON.stringify(schema)}`);
