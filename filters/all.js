@@ -192,12 +192,12 @@ function appExtraIncludes(asyncapi) {
 filter.appExtraIncludes = appExtraIncludes;
 
 function schemaExtraIncludes([schemaName, schema]) {
-  debugProperty("checkPropertyNames " + schemaName + "  " + schema.type());
+  debugProperty('checkPropertyNames ' + schemaName + ' ' + schema.type());
   const ret = {};
   if (checkPropertyNames(schemaName, schema)) {
     ret.needJsonPropertyInclude = true;
   }
-  debugProperty("checkPropertyNames:");
+  debugProperty('checkPropertyNames:');
   debugProperty(ret);
   return ret;
 }
@@ -231,7 +231,7 @@ function indent3(numTabs) {
 filter.indent3 = indent3;
 // This returns the proper Java type for a schema property.
 function fixType([name, javaName, property]) {
-  debugType('fixType: ' + name + " " + dump(property));
+  debugType('fixType: ' + name + ' ' + dump(property));
   
   let isArrayOfObjects = false;
 
@@ -239,7 +239,7 @@ function fixType([name, javaName, property]) {
   // For schema properties, type is a function.
   let type = property.type;
   let format = property.format;
-  debugType("fixType: " + property);
+  debugType('fixType: ' + property);
 
   if (typeof type === 'function') {
     type = property.type();
@@ -253,7 +253,7 @@ function fixType([name, javaName, property]) {
   let typeName;
   if (type === undefined) {
     if (property.enum()) {
-      debugType("It's an enum.");
+      debugType('It is an enum.');
       typeName = _.upperFirst(javaName);
     } else {
       // check to see if it's a ref to another schema.
@@ -287,7 +287,7 @@ function fixType([name, javaName, property]) {
   } else if (type === 'object') {
     typeName = _.upperFirst(javaName);
   } else if (property.enum()) {
-    debugType("It's an enum.");
+    debugType('It is an enum.');
     typeName = _.upperFirst(javaName);
   } else {
     typeName = getType(type,format).javaType;
@@ -424,7 +424,7 @@ function checkPropertyNames(name, schema) {
     properties = schema.items().properties();
   }
 
-  debugProperty("schema type: " + schema.type());
+  debugProperty('schema type: ' + schema.type());
 
   for (const propName in properties) {
     const javaName = _.camelCase(propName);
@@ -432,11 +432,11 @@ function checkPropertyNames(name, schema) {
     debugProperty('checking ' + propName + ' ' + prop.type());
 
     if (javaName !== propName) {
-      debugProperty("Java name " + javaName + " is different from " + propName);
+      debugProperty('Java name ' + javaName + ' is different from ' + propName);
       return true;
     }
     if (prop.type() === 'object') {
-      debugProperty("Recursing into object");
+      debugProperty('Recursing into object');
       const check = checkPropertyNames(propName, prop);
       if (check) {
         return true;
@@ -450,7 +450,7 @@ function checkPropertyNames(name, schema) {
       debugProperty('checkPropertyNames: ' + JSON.stringify(prop.items));
       debugProperty('array of : ' + itemsType);
       if (itemsType === 'object') {
-        debugProperty("Recursing into array");
+        debugProperty('Recursing into array');
         const check = checkPropertyNames(propName, prop.items());
         if (check) {
           return true;
@@ -569,10 +569,10 @@ function getFunctionSpecs(asyncapi, params) {
 
   for (const channelName in asyncapi.channels()) {
     const channel = asyncapi.channels()[channelName];
-    debugFunction("=====================================");
-    debugFunction("channelJson: " + JSON.stringify(channel._json));
-    debugFunction("getFunctionSpecs: " + channelName);
-    debugFunction("=====================================");
+    debugFunction('=====================================');
+    debugFunction('channelJson: ' + JSON.stringify(channel._json));
+    debugFunction('getFunctionSpecs: ' + channelName);
+    debugFunction('=====================================');
     let functionSpec;
     const publish = scsLib.getRealPublisher(info, params, channel);
     if (publish) {
@@ -632,7 +632,7 @@ function getFunctionSpecs(asyncapi, params) {
       }
     }
 
-    debugFunction("functionSpec:");
+    debugFunction('functionSpec:');
     debugFunction(functionSpec);
   }
 
@@ -658,7 +658,7 @@ function getPayloadClass(pubOrSub) {
         }
       }
     }
-    debugPayload("getPayloadClass: " + ret);
+    debugPayload('getPayloadClass: ' + ret);
   }
   
   return ret;
@@ -686,14 +686,14 @@ function getTopicInfo(channelName, channel) {
   let sampleArgList = '';
   let first = true;
 
-  debugTopic("params: " + JSON.stringify(channel.parameters()));
+  debugTopic('params: ' + JSON.stringify(channel.parameters()));
   for (const name in channel.parameters()) {
     const nameWithBrackets = `{${  name  }}`;
     const parameter = channel.parameter(name);
     const schema = parameter.schema();
     const type = getType(schema.type(), schema.format());
     const param = { name: _.lowerFirst(name) };
-    debugTopic("name: " + name + " type: " + type);
+    debugTopic('name: ' + name + ' type: ' + type);
     let sampleArg = 1;
 
     if (first) {
@@ -706,24 +706,24 @@ function getTopicInfo(channelName, channel) {
     sampleArgList += ', ';
 
     if (type) {
-      debugTopic("It's a type: " + type);
+      debugTopic('Its a type: ' + type);
       const javaType = type.javaType || typeMap.get(type);
       if (!javaType) throw new Error(`topicInfo filter: type not found in typeMap: ${  type}`);
       param.type = javaType;
       const printfArg = type.printFormat;
-      debugTopic("printf: " + printfArg);
+      debugTopic('printf: ' + printfArg);
       if (!printfArg) throw new Error(`topicInfo filter: type not found in formatMap: ${  type}`);
-      debugTopic("Replacing " + nameWithBrackets);
+      debugTopic('Replacing ' + nameWithBrackets);
       publishTopic = publishTopic.replace(nameWithBrackets, printfArg);
       sampleArg = type.sample;
     } else {
       const en = schema.enum();
       if (en) {
-        debugTopic("It's an enum: " + en);
+        debugTopic('It is an enum: ' + en);
         param.type = _.upperFirst(name);
         param.enum = en;
         sampleArg = `Messaging.${param.type}.${en[0]}`;
-        debugTopic("Replacing " + nameWithBrackets);
+        debugTopic('Replacing ' + nameWithBrackets);
         publishTopic = publishTopic.replace(nameWithBrackets, '%s');
       } else {
         throw new Error(`topicInfo filter: Unknown parameter type: ${  JSON.stringify(schema)}`);
