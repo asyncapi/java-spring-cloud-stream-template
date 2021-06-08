@@ -627,7 +627,8 @@ function getFunctionSpecs(asyncapi, params) {
       if (dest) {
         functionSpec.subscribeChannel = dest;
       } else {
-        functionSpec.subscribeChannel = channelName;
+        const topicInfo = getTopicInfo(channelName, channel);
+        functionSpec.subscribeChannel = topicInfo.subscribeTopic;
       }
     }
 
