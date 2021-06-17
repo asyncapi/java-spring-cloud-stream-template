@@ -62,7 +62,6 @@ function getType(type, format) {
 }
 
 class SCSFunction {
-
   get isPublisher() {
     return this.type === 'function' || this.type === 'supplier';
   }
@@ -108,13 +107,11 @@ class SCSFunction {
     }
     return ret;
   }
-
-
 }
 
 // This generates the object that gets rendered in the application.yaml file.
 function appProperties([asyncapi, params]) {
-  debugProperty("appProperties start");
+  debugProperty('appProperties start');
   params.binder = params.binder || 'kafka';
   if (params.binder !== 'kafka' && params.binder !== 'rabbit' && params.binder !== 'solace') {
     throw new Error('Please provide a parameter named \'binder\' with the value kafka, rabbit or solace.');
@@ -125,20 +122,20 @@ function appProperties([asyncapi, params]) {
   doc.spring.cloud = {};
   const cloud = doc.spring.cloud;
   cloud.function = {};
-  debugProperty("appProperties getFunctionDefinitions");
+  debugProperty('appProperties getFunctionDefinitions');
   cloud.function.definition = getFunctionDefinitions(asyncapi, params);
   cloud.stream = {};
   const scs = cloud.stream;
-  debugProperty("appProperties getBindings");
+  debugProperty('appProperties getBindings');
   scs.bindings = getBindings(asyncapi, params);
 
   if (params.binder === 'solace') {
-   debugProperty("appProperties getAdditionalSubs");
-   const additionalSubs = getAdditionalSubs(asyncapi, params);
+    debugProperty('appProperties getAdditionalSubs');
+    const additionalSubs = getAdditionalSubs(asyncapi, params);
 
-   if (additionalSubs) {
-       scs.solace = additionalSubs;
-     }
+    if (additionalSubs) {
+      scs.solace = additionalSubs;
+    }
   }
 
   if (isApplication(params)) {
@@ -168,7 +165,7 @@ function appProperties([asyncapi, params]) {
     }
   }
   const ym = yaml.safeDump(doc, { lineWidth: 200 });
-  debugProperty("appProperties end");
+  debugProperty('appProperties end');
   return ym;
 }
 filter.appProperties = appProperties;
@@ -322,10 +319,10 @@ function getDynamicFunctions([asyncapi, params]) {
       debugDynamic(publisher);
       const topicInfo = getTopicInfo(channelName, channel);
       if (topicInfo.hasParams) {
-        let spec = {};
+        const spec = {};
         spec.topicInfo = topicInfo;
         spec.payloadClass = getPayloadClass(publisher);
-        spec.functionName = "send" + _.upperFirst(getFunctionName(channelName, publisher, undefined));
+        spec.functionName = `send${_.upperFirst(getFunctionName(channelName, publisher, undefined))}`;
         functionMap.set(spec.functionName, spec);
       }
     }
@@ -519,7 +516,7 @@ function getAdditionalSubs(asyncapi, params) {
   let ret;
   const funcs = getFunctionSpecs(asyncapi, params);
   funcs.forEach((spec, name, map) => {
-    debugAppProperties(`getAdditionalSubs: ${spec.name} ${spec.isQueueWithSubscription} ${spec.additionalSubscriptions}` );
+    debugAppProperties(`getAdditionalSubs: ${spec.name} ${spec.isQueueWithSubscription} ${spec.additionalSubscriptions}`);
     // The first additional subscription will be the destination. If there is more than one the rest go here.
     if (spec.isQueueWithSubscription && spec.additionalSubscriptions.length > 1) {
       if (!ret) {
@@ -565,9 +562,9 @@ function getFunctionName(channelName, operation, isSubscriber) {
     functionName = operation.id();
 
     if (!functionName) {
-      let smfBinding = operation.binding("smf");
+      const smfBinding = operation.binding('smf');
       if (smfBinding) {
-        let queueName = smfBinding.queueName;
+        const queueName = smfBinding.queueName;
         if (queueName && smfBinding.topicSubscriptions) {
           functionName = queueName;
         }
@@ -625,7 +622,7 @@ function getFunctionSpecs(asyncapi, params) {
         functionSpec.reactive = reactive;
         functionMap.set(name, functionSpec);
       }
-      debugFunction("calling getPayloadClass");
+      debugFunction('calling getPayloadClass');
       const payload = getPayloadClass(publish);
       if (!payload) {
         throw new Error(`Channel ${channelName}: no payload class has been defined.`);
@@ -634,13 +631,13 @@ function getFunctionSpecs(asyncapi, params) {
       functionSpec.publishChannel = channelName;
     }
 
-    debugFunction("subscribe:");
+    debugFunction('subscribe:');
     const subscribe = scsLib.getRealSubscriber(info, params, channel);
     debugFunction(subscribe);
 
     if (subscribe) {
       const name = getFunctionName(channelName, subscribe, true);
-      let smfBinding = subscribe.binding("smf");
+      const smfBinding = subscribe.binding('smf');
       debugFunction('smfBinding:');
       debugFunction(smfBinding);
       functionSpec = functionMap.get(name);
@@ -667,7 +664,7 @@ function getFunctionSpecs(asyncapi, params) {
           }
           debugFunction(`The queue ${functionSpec.name} has multiple subs: ${functionSpec.multipleMessages}`);
           if (functionSpec.multipleMessages) {
-            functionSpec.subscribePayload = "Message<?>";
+            functionSpec.subscribePayload = 'Message<?>';
           }
           debugFunction('Updated function spec:');
           debugFunction(functionSpec);
@@ -694,7 +691,7 @@ function getFunctionSpecs(asyncapi, params) {
       }
 
       if (functionSpec.multipleMessages) {
-        functionSpec.subscribePayload = "Message<?>";
+        functionSpec.subscribePayload = 'Message<?>';
       } else {
         const payload = getPayloadClass(subscribe);
         if (!payload) {
@@ -716,7 +713,6 @@ function getFunctionSpecs(asyncapi, params) {
         const topicInfo = getTopicInfo(channelName, channel);
         functionSpec.subscribeChannel = topicInfo.subscribeTopic;
       }
-
     }
 
     debugFunction('functionSpec:');
