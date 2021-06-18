@@ -403,7 +403,7 @@ function payloadClass([channelName, channel]) {
   }
 
   if (!ret && channel.subscribe()) {
-    ret = getPayloadClass(channel.subscribe())
+    ret = getPayloadClass(channel.subscribe());
   }
 
   if (!ret) {
@@ -561,7 +561,6 @@ function getBindings(asyncapi, params) {
 
 // This returns the base function name that SCSt will use to map functions with bindings.
 function getFunctionName(channelName, operation, isSubscriber) {
-
   if (operation.ext('x-scs-function-name')) {
     return operation.ext('x-scs-function-name');
   }
@@ -722,7 +721,6 @@ function getFunctionSpecs(asyncapi, params) {
 }
 
 function getPayloadClass(pubOrSub) {
-
   let ret;
 
   debugPayload(pubOrSub);
