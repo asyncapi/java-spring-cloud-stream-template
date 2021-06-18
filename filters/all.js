@@ -396,10 +396,16 @@ filter.mainClassName = mainClassName;
 
 // This returns the Java class name of the payload.
 function payloadClass([channelName, channel]) {
-  let ret = getPayloadClass(channel.publish());
-  if (!ret) {
-    ret = getPayloadClass(channel.subscribe());
+  let ret;
+
+  if (channel.publish()) {
+    ret = getPayloadClass(channel.publish());
   }
+
+  if (!ret && channel.subscribe()) {
+    ret = getPayloadClass(channel.subscribe())
+  }
+
   if (!ret) {
     throw new Error(`Channel ${  channelName  }: no payload class has been defined.`);
   }
@@ -555,34 +561,27 @@ function getBindings(asyncapi, params) {
 
 // This returns the base function name that SCSt will use to map functions with bindings.
 function getFunctionName(channelName, operation, isSubscriber) {
-  let ret;
-  let functionName = operation.ext('x-scs-function-name');
 
-  if (!functionName) {
-    functionName = operation.id();
-
-    if (!functionName) {
-      const smfBinding = operation.binding('smf');
-      if (smfBinding) {
-        const queueName = smfBinding.queueName;
-        if (queueName && smfBinding.topicSubscriptions) {
-          functionName = queueName;
-        }
-      }
-
-      if (!functionName) {
-        functionName = channelName;
-      }
-    }
-
-    if (isSubscriber === undefined) {
-      ret = _.camelCase(functionName);
-    } else {
-      ret = _.camelCase(functionName) + (isSubscriber ? 'Consumer' : 'Supplier');
-    }
+  if (operation.ext('x-scs-function-name')) {
+    return operation.ext('x-scs-function-name');
   }
 
-  debugFunction(`getFunctionName ${channelName} isSubscriber: ${isSubscriber} returning ${ret}`);
+  let ret;
+  let functionName;
+  const smfBinding = operation.binding('smf');
+
+  if (smfBinding && smfBinding.queueName && smfBinding.topicSubscriptions) {
+    functionName = smfBinding.queueName;
+  } else {
+    functionName = channelName;
+  }
+
+  if (isSubscriber === undefined) {
+    ret = _.camelCase(functionName);
+  } else {
+    ret = _.camelCase(functionName) + (isSubscriber ? 'Consumer' : 'Supplier');
+  }
+
   return ret;
 }
 
@@ -723,37 +722,36 @@ function getFunctionSpecs(asyncapi, params) {
 }
 
 function getPayloadClass(pubOrSub) {
+
   let ret;
 
-  if (pubOrSub) {
-    debugPayload(pubOrSub);
-    if (pubOrSub.hasMultipleMessages()) {
-      ret = 'Message<?>';
-    } else {
-      const message = pubOrSub.message();
-      if (message) {
-        const payload = message.payload();
-        debugPayload('payload:');
-        debugPayload(payload);
+  debugPayload(pubOrSub);
+  if (pubOrSub.hasMultipleMessages()) {
+    ret = 'Message<?>';
+  } else {
+    const message = pubOrSub.message();
+    if (message) {
+      const payload = message.payload();
+      debugPayload('payload:');
+      debugPayload(payload);
 
-        if (payload) {
-          const type = payload.type();
-          debugPayload('type:');
-          debugPayload(type);
+      if (payload) {
+        const type = payload.type();
+        debugPayload('type:');
+        debugPayload(type);
 
-          if (type === 'object') {
-            ret = payload.ext('x-parser-schema-id');
-            ret = _.camelCase(ret);
-            ret = _.upperFirst(ret);
-          } else {
-            ret = getType(type, payload.format()).javaType;
-          }
+        if (type === 'object') {
+          ret = payload.ext('x-parser-schema-id');
+          ret = _.camelCase(ret);
+          ret = _.upperFirst(ret);
+        } else {
+          ret = getType(type, payload.format()).javaType;
         }
       }
     }
-    debugPayload(`getPayloadClass: ${ret}`);
   }
-  
+  debugPayload(`getPayloadClass: ${ret}`);
+
   return ret;
 }
 
