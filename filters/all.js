@@ -452,13 +452,6 @@ function stringify(obj) {
 }
 filter.stringify = stringify;
 
-// This returns an object containing information the template needs to render topic strings.
-// Only used by the Messaging class.
-function topicInfo([channelName, channel]) {
-  return getTopicInfo(channelName, channel);
-}
-filter.topicInfo = topicInfo;
-
 // Returns true if any property names will be different between json and java.
 function checkPropertyNames(name, schema) {
   const ret = false;
