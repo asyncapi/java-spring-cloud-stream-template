@@ -86,27 +86,6 @@ module.exports = {
         fs.unlinkSync(oldPath);
       }
     }
-
-    // This renames schema objects according to the title field. By default we won't do this, we might add this as an option.
-
-    //const schemas = asyncapi.components().schemas();
-    //console.log('schemas: ' + JSON.stringify(schemas));
-
-    /*
-    for (let schema in schemas) {
-      let schemaObject = schemas[schema];
-      let title = _.upperFirst(schemaObject.title);
-      console.log('schema '  + schema + ' title: ' + title);
-      if (title && title != schema) {
-        let pathBySchema = path.resolve(sourcePath, schema + '.java');
-        let pathByTitle = path.resolve(sourcePath, title + '.java');
-
-        if (fs.existsSync(pathBySchema) && !fs.existsSync(pathByTitle)) {
-          fs.renameSync(pathBySchema, pathByTitle);
-        }
-      }
-    }
-    */
   }
 };
 
