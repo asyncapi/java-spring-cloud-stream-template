@@ -8,7 +8,6 @@
     "lint:fix": "eslint --fix --config .eslintrc.yaml .",
     "generate:assets": "echo 'No additional assets need to be generated at the moment'",
     "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
-    "prepare": "husky install",
     "test": "jest --maxWorkers=50%",
     "test:ci": "jest --ci --runInBand --forceExit --detectOpenHandles",
     "test:watch": "npm run test -- --watch",
