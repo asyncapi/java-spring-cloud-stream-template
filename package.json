@@ -1,6 +1,6 @@
 {
   "name": "@asyncapi/java-spring-cloud-stream-template",
-  "version": "0.6.9",
+  "version": "0.7.0",
   "description": "Java Spring Cloud Stream template for AsyncAPI generator.",
   "scripts": {
     "release": "semantic-release",
@@ -84,10 +84,6 @@
       },
       "binder": {
         "description": "The name of the binder implementation, one of kafka, rabbit or solace. Default: kafka. If you need other binders to be supported, please let us know!",
-        "required": false
-      },
-      "generateMessagingClass": {
-        "description": "By default the Messaging.java class is generated. If you don't want it, set this parameter to 'false'.",
         "required": false
       },
       "groupId": {
