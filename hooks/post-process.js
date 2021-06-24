@@ -12,7 +12,7 @@ module.exports = {
     const asyncapi = generator.asyncapi;
     let sourcePath = generator.targetDir + sourceHead;
     const info = asyncapi.info();
-    let package = generator.templateParams['javaPackage'];
+    let javaPackage = generator.templateParams['javaPackage'];
     let generateMessagingClass = false;
     const gen = generator.templateParams['generateMessagingClass'];
     const extensions = info.extensions();
@@ -21,13 +21,13 @@ module.exports = {
       generateMessagingClass = true;
     }
 
-    if (!package && info && extensions) {
-      package = extensions['x-java-package'];
+    if (!javaPackage && info && extensions) {
+      javaPackage = extensions['x-java-package'];
     }
 
-    if (package) {
-      //console.log("package: " + package);
-      const overridePath = `${generator.targetDir + sourceHead + package.replace(/\./g, '/')}/`;
+    if (javaPackage) {
+      //console.log("javaPackage: " + javaPackage);
+      const overridePath = `${generator.targetDir + sourceHead + javaPackage.replace(/\./g, '/')}/`;
       //console.log("Moving files from " + sourcePath + " to " + overridePath);
       let first = true;
       fs.readdirSync(sourcePath).forEach(file => {
