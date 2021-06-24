@@ -18,7 +18,7 @@ module.exports = {
     const extensions = info.extensions();
 
     if (!javaPackage && info && extensions) {
-      package = extensions['x-java-package'];
+      javaPackage = extensions['x-java-package'];
     }
 
     if (javaPackage) {
