@@ -4,7 +4,7 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const { test } = require('@jest/globals');
 
-describe('tests', () => {
+describe('template integration tests using the generator', () => {
   const OUTPUT_FOLDER = 'test_output';
 
   const fileExists = (file) => {
