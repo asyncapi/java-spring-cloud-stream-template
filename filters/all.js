@@ -509,7 +509,7 @@ function getAdditionalSubs(asyncapi, params) {
 function getBrokerSettings(asyncapi,params){
  let ret;
 
- if(params.useServer === 'true'){
+ if(params.useServers === 'true'){
     brokers = "";
      for ( server in asyncapi.servers() ){
        let url = ""

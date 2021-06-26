@@ -97,7 +97,7 @@ springCloudVersion | info.x-spring-cloud-version | Hoxton.SR3 | The version of t
 springCloudStreamVersion | info.x-spring-cloud-stream-version | 3.0.3.RELEASE | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead
 username | | default | The client username connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
 view | info.x-view | client | By default, this template generates publisher code for subscribe operations and vice versa. You can switch this by setting this parameter to 'provider'.
-useServer | | false | This parameter only works when the binder is kafka. It takes all the hosts under the server section and concatinates them to a set of brokers.
+useServers | | false | This parameter only works when the binder is kafka. It takes all the urls under the server section and concatenates them to a set of brokers.
 
 ## Specification Extensions
 
