@@ -37,7 +37,7 @@ describe('template integration tests using the generator', () => {
       `src/main/java/${PACKAGE_PATH}/MySchema.java`,
       'src/main/resources/application.yml'
     ];
-    for (let index in expectedFiles) {
+    for (const index in expectedFiles) {
       const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
       expect(file).toMatchSnapshot();
     }
