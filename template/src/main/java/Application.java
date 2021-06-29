@@ -51,14 +51,14 @@ import java.util.function.Supplier;
 {% set className = [asyncapi.info(), params] | mainClassName %}
 @SpringBootApplication
 public class {{ className }} {
-	{%- if dynamicFuncs.size %}
-private static final String DYNAMIC_BINDING = "dynamic";
+{%- if dynamicFuncs.size %}
+	private static final String DYNAMIC_BINDING = "dynamic";
 {%- endif %}
-private static final Logger logger = LoggerFactory.getLogger({{ className }}.class);
-	{%- if dynamicFuncs.size %}
-@Autowired
-private StreamBridge streamBridge;
-	{%- endif %}
+	private static final Logger logger = LoggerFactory.getLogger({{ className }}.class);
+{%- if dynamicFuncs.size %}
+	@Autowired
+	private StreamBridge streamBridge;
+{%- endif %}
 
 	public static void main(String[] args) {
 		SpringApplication.run({{ className }}.class);
@@ -66,12 +66,21 @@ private StreamBridge streamBridge;
 {% for funcName, funcSpec in funcs %}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
-		// Add business logic here.
-		return null;
+		{%- if funcSpec.isSubscriber %}
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+		{%- else %}
+		return () -> {
+			// Add business logic here.
+			return new {{ funcSpec.publishPayload | safe }}();
+		}
+		{%- endif %}
 	}
-{%- endfor %}
+{% endfor %}
 
-{% for dynFuncName, dynFuncSpec in dynamicFuncs %}
+{%- for dynFuncName, dynFuncSpec in dynamicFuncs %}
 	public void {{ dynFuncName }}(
 		{{ dynFuncSpec.payloadClass }} payload, {{ dynFuncSpec.topicInfo.functionParamList }}
 		) {
