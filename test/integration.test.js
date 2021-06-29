@@ -37,9 +37,9 @@ describe('template integration tests using the generator', () => {
       `src/main/java/${PACKAGE_PATH}/MySchema.java`,
       'src/main/resources/application.yml'
     ];
-    for (const index in expectedFiles) {
-      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
-      expect(file).toMatchSnapshot();
-    }
+    expectedFiles.forEach(async fileName => {
+		const file = await readFile(path.join(OUTPUT_DIR, fileName), 'utf8');
+		expect(file).toMatchSnapshot();
+	});
   });
 });
