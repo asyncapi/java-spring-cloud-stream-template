@@ -1,6 +1,6 @@
 {
   "name": "@asyncapi/java-spring-cloud-stream-template",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Java Spring Cloud Stream template for AsyncAPI generator.",
   "scripts": {
     "release": "semantic-release",
@@ -27,7 +27,7 @@
   "author": "Michael Davis <michael@damaru.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@asyncapi/generator-filters": "^1.0.0",
+    "@asyncapi/generator-filters": "^2.0.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15"
   },
