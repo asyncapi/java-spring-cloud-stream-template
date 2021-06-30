@@ -75,7 +75,7 @@ public class {{ className }} {
 		return () -> {
 			// Add business logic here.
 			return new {{ funcSpec.publishPayload | safe }}();
-		}
+		};
 		{%- endif %}
 	}
 {% endfor %}
