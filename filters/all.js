@@ -142,7 +142,7 @@ function appProperties([asyncapi, params]) {
       const brokerSettings = getBrokerSettings(asyncapi, params);
 
       if (brokerSettings) {
-        scs.kafka = additionalSubs;
+        scs.kafka = brokerSettings;
       }
     }
 
@@ -552,7 +552,7 @@ function getBrokerSettings(asyncapi,params){
        } else {
          url = server.url();
        }
-       brokers = brokers + url + ",";
+       brokers += `${url},`;
      }
      brokers = brokers.substring(0, brokers.length - 2);
      ret = {};
