@@ -546,7 +546,7 @@ function getBrokerSettings(asyncapi,params){
     brokers = "";
      for ( server in asyncapi.servers() ){
        let url = ""
-       if (server.variable.port)) {
+       if (server.variable.port) {
          url = server.url();
          url = url.replace('{port}', server.port.default);
        } else {
