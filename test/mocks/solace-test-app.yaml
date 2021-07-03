@@ -1,0 +1,44 @@
+components:
+  schemas:
+    mySchema:
+      title: MySchema
+      type: object
+      properties:
+        prop1:
+          default: default string
+          title: PropertyTitle
+          type: string
+  messages:
+    myEvent:
+      payload:
+        $ref: '#/components/schemas/mySchema'
+      schemaFormat: application/vnd.aai.asyncapi+json;version=2.0.0
+      contentType: application/json
+channels:
+  'testLevel1/{messageId}/{operation}':
+    subscribe:
+      message:
+        $ref: '#/components/messages/myEvent'
+    publish:
+      bindings:
+        smf:
+          topicSubscriptions:
+            - testLevel1/*/*
+          channelType: clientEndpoint
+          bindingVersion: 0.1.0
+      message:
+        $ref: '#/components/messages/myEvent'
+    parameters:
+      messageId:
+        schema:
+          type: string
+      operation:
+        schema:
+          type: string
+          enum:
+            - POST
+            - DELETE
+asyncapi: 2.0.0
+info:
+  title: solace-test-app
+  version: 0.0.1

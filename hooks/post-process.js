@@ -14,16 +14,16 @@ module.exports = {
     const asyncapi = generator.asyncapi;
     let sourcePath = generator.targetDir + sourceHead;
     const info = asyncapi.info();
-    let package = generator.templateParams['javaPackage'];
+    let javaPackage = generator.templateParams['javaPackage'];
     const extensions = info.extensions();
 
-    if (!package && info && extensions) {
-      package = extensions['x-java-package'];
+    if (!javaPackage && info && extensions) {
+      javaPackage = extensions['x-java-package'];
     }
 
-    if (package) {
-      debugPostProcess(`package: ${package}`);
-      const overridePath = `${generator.targetDir + sourceHead + package.replace(/\./g, '/')}/`;
+    if (javaPackage) {
+      debugPostProcess(`package: ${javaPackage}`);
+      const overridePath = `${generator.targetDir + sourceHead + javaPackage.replace(/\./g, '/')}/`;
       debugPostProcess(`Moving files from ${sourcePath} to ${overridePath}`);
       let first = true;
       fs.readdirSync(sourcePath).forEach(file => {

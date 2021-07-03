@@ -1,9 +1,13 @@
 env:
   node: true
   es6: true
+  jest/globals: true
 
 parserOptions:
   ecmaVersion: 2018
+
+plugins:
+  - jest
 
 rules:
   # Ignore Rules
