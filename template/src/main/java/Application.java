@@ -66,7 +66,7 @@ public class {{ className }} {
 {% for funcName, funcSpec in funcs %}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
-		{%- if funcSpec.isSubscriber && funcSpec.type !== 'function' %}
+		{%- if funcSpec.isSubscriber and funcSpec.type !== 'function' %}
 		return data -> {
 			// Add business logic here.	
 			logger.info(data.toString());
