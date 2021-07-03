@@ -66,13 +66,13 @@ public class {{ className }} {
 {% for funcName, funcSpec in funcs %}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
-		{%- if funcSpec.isSubscriber %}
+		{%- if funcSpec.isSubscriber && funcSpec.type !== 'function' %}
 		return data -> {
 			// Add business logic here.	
 			logger.info(data.toString());
 		};
 		{%- else %}
-		return () -> {
+		return data -> {
 			// Add business logic here.
 			return new {{ funcSpec.publishPayload | safe }}();
 		};
