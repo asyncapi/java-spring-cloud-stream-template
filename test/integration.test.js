@@ -38,8 +38,24 @@ describe('template integration tests using the generator', () => {
       'src/main/resources/application.yml'
     ];
     expectedFiles.forEach(async fileName => {
-		const file = await readFile(path.join(OUTPUT_DIR, fileName), 'utf8');
-		expect(file).toMatchSnapshot();
-	});
+		  const file = await readFile(path.join(OUTPUT_DIR, fileName), 'utf8');
+		  expect(file).toMatchSnapshot();
+	  });
+  });
+
+  it('should return payload when using x-scs-function-name instead of logging the message', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    const params = {};
+    
+    const generator = new Generator('./', OUTPUT_DIR, { forceWrite: true, templateParams: params });
+    await generator.generateFromFile(path.resolve('test', 'mocks/test-scs-function-name.yaml'));
+  
+    const expectedFiles = [
+      `src/main/java/Application.java`
+    ];
+    expectedFiles.forEach(async fileName => {
+      const file = await readFile(path.join(OUTPUT_DIR, fileName), 'utf8');
+      expect(file).toMatchSnapshot();
+    });
   });
 });
