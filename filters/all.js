@@ -540,7 +540,7 @@ function getAdditionalSubs(asyncapi, params) {
 }
 
 function getBrokerSettings(asyncapi,params){
- let ret;
+ let brokerSettings;
 
  if(params.useServers === 'true'){
     brokers = "";
@@ -555,11 +555,11 @@ function getBrokerSettings(asyncapi,params){
        brokers += `${url},`;
      }
      brokers = brokers.substring(0, brokers.length - 2);
-     ret = {};
-     ret.binder = {};
-     ret.binder.brokers = brokers;
+     brokerSettings = {};
+     brokerSettings.binder = {};
+     brokerSettings.binder.brokers = brokers;
  }
- return ret;
+ return brokerSettings;
 }
 
 // This returns the SCSt bindings config that will appear in application.yaml.
