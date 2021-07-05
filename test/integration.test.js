@@ -16,7 +16,7 @@ describe('template integration tests using the generator', () => {
   it('should generate application files using the solace binder', async () => {
     const OUTPUT_DIR = generateFolderName();
     const PACKAGE = 'com.acme';
-    const PACKAGE_PATH = PACKAGE.replace('.', '/');
+    const PACKAGE_PATH = 'com/acme';
     const params = {
       binder: 'solace',
       javaPackage: PACKAGE,
