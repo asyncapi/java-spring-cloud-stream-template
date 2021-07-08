@@ -3,7 +3,7 @@ const Generator = require('@asyncapi/generator');
 const { readFile } = require('fs').promises;
 const crypto = require('crypto');
 
-const MAIN_TEST_RESULT_PATH = 'test/temp/integrationTestResult';
+const MAIN_TEST_RESULT_PATH = path.join('test', 'temp', 'integrationTestResult');
 
 describe('template integration tests using the generator', () => {
   const generateFolderName = () => {
@@ -16,7 +16,7 @@ describe('template integration tests using the generator', () => {
   it('should generate application files using the solace binder', async () => {
     const OUTPUT_DIR = generateFolderName();
     const PACKAGE = 'com.acme';
-    const PACKAGE_PATH = 'com/acme';
+    const PACKAGE_PATH = path.join(...PACKAGE.split('.'));
     const params = {
       binder: 'solace',
       javaPackage: PACKAGE,
@@ -27,7 +27,7 @@ describe('template integration tests using the generator', () => {
       artifactId: 'asyncApiFileName'
     };
     
-    const generator = new Generator('./', OUTPUT_DIR, { forceWrite: true, templateParams: params });
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true, templateParams: params });
     await generator.generateFromFile(path.resolve('test', 'mocks/solace-test-app.yaml'));
 
     const expectedFiles = [
