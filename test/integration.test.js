@@ -50,7 +50,7 @@ describe('template integration tests using the generator', () => {
     await generator.generateFromFile(path.resolve('test', 'mocks/test-scs-function-name.yaml'));
   
     const expectedFiles = [
-      `src/main/java/Application.java`
+      'src/main/java/Application.java'
     ];
     for (const index in expectedFiles) {
       const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
