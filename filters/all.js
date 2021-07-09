@@ -138,6 +138,14 @@ function appProperties([asyncapi, params]) {
     }
   }
 
+  if (params.binder === 'kafka') {
+      const brokerSettings = getBrokerSettings(asyncapi, params);
+
+      if (brokerSettings) {
+        scs.kafka = brokerSettings;
+      }
+    }
+
   if (isApplication(params)) {
     if (params.binder === 'solace') {
       scs.binders = {};
@@ -529,6 +537,29 @@ function getAdditionalSubs(asyncapi, params) {
     }
   });
   return ret;
+}
+
+function getBrokerSettings(asyncapi,params){
+ let brokerSettings;
+
+ if(params.useServers === 'true'){
+    brokers = "";
+     for ( server in asyncapi.servers() ){
+       let url = ""
+       if (server.variable.port) {
+         url = server.url();
+         url = url.replace('{port}', server.port.default);
+       } else {
+         url = server.url();
+       }
+       brokers += `${url},`;
+     }
+     brokers = brokers.substring(0, brokers.length - 2);
+     brokerSettings = {};
+     brokerSettings.binder = {};
+     brokerSettings.binder.brokers = brokers;
+ }
+ return brokerSettings;
 }
 
 // This returns the SCSt bindings config that will appear in application.yaml.
