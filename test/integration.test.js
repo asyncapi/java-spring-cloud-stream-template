@@ -42,4 +42,19 @@ describe('template integration tests using the generator', () => {
       expect(file).toMatchSnapshot();
     }
   });
+
+  it('should return payload when using x-scs-function-name instead of logging the message', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true });
+    await generator.generateFromFile(path.resolve('test', 'mocks/test-scs-function-name.yaml'));
+  
+    const expectedFiles = [
+      'src/main/java/Application.java'
+    ];
+    for (const index in expectedFiles) {
+      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
+      expect(file).toMatchSnapshot();
+    }
+  });
 });

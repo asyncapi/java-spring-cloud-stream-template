@@ -70,10 +70,19 @@ public class {{ className }} {
 {% for funcName, funcSpec in funcs %}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
-		// Add business logic here.
-		return null;
+		{%- if funcSpec.isSubscriber and funcSpec.type !== 'function' %}
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+		{%- else %}
+		return data -> {
+			// Add business logic here.
+			return new {{ funcSpec.publishPayload | safe }}();
+		};
+		{%- endif %}
 	}
-{%- endfor %}
+{% endfor %}
 
 {% if dynamicFuncs.size %}
 /* Here is an example of how to send a message to a dynamic topic:
