@@ -18,7 +18,9 @@ The template works as follows:
 * By default for each channel in the AsyncAPI document, if there is a _subscribe_ operation a _Supplier_ method will be generated, and for a _publish_ operation a _Consumer_ method will get generated.
 * To customize this default behavior you can make use of the `x-scs-function-name` extension. If one _publish_ operation and one _subscribe_ operation share a `x-scs-function-name` attribute then a _java.util.function.Function_ method will be created which uses the _subscribe_ operation's message as the input and the _publish_ operation's message as the output to the generated Function method. It will also wire up the proper channel information in the generated application.yaml file.
 * Note that at this time the generator does not support the creation of functions that have more than one _publish_ and/or more than one _subscribe_ operation with the same ```x-scs-function-name``` attribute. This scenario will result in error.
-* Additionally, if a channel has parameters and a _subscribe_ operation, a method will be generated that takes the payload and the parameters as function arguments, formats the topic from the parameters, and sends the message using the StreamBridge as described in the [Spring Cloud Steam](https://docs.spring.io/spring-cloud-stream/docs/3.1.3/reference/html/spring-cloud-stream.html#_streambridge_and_dynamic_destinations) documentation.
+* Additionally, if a channel has parameters and a _subscribe_ operation, a _send method_ will be generated that takes the payload and the parameters as function arguments, formats the topic from the parameters, and sends the message using the StreamBridge as described in the [Spring Cloud Steam](https://docs.spring.io/spring-cloud-stream/docs/3.1.3/reference/html/spring-cloud-stream.html#_streambridge_and_dynamic_destinations) documentation. If you use `x-scs-function-name` to combine a _subscribe_ and a _publish_ operation and the _subscribe_ operation has parameters, then this template will render a _Consumer_ method that will receive a message and then call the generated _send method_ to send out a new message through the StreamBridge.
+
+This behaviour may be modified by setting the _dynamicType_ parameter to 'header'. This is to support binders that can route messages by putting the topic into a message header. In this case, a _Supplier_ and a _Function_ will set the header on the message rather than use the StreamBridge, however _send methods_ will still be rendered for convenience.
 
 
 ### Method Naming
@@ -88,17 +90,17 @@ actuator    |              | false | If true, it adds the dependencies for sprin
 artifactId  |  info.x-artifact-id | project-name | The Maven artifact id.
 artifactType | | application | The type of project to generate, application or library. When generating an application, the pom.xml file will contain the complete set of dependencies required to run an app, and it will contain an Application class with a main function. Otherwise the pom file will include only the dependencies required to compile a library.
 binder | | kafka | The name of the binder implementation, one of kafka, rabbit or solace. Default: kafka. If you need other binders to be supported, please let us know!
+dynamicType | | streamBridge | If you publish to a channel with parameters, i.e. a topic that can change with every message, the standard way to do this is to use StreamBridge. But some binders such as Solace can do the dynamic routing using just a message header. If you use such a binder, then you can set this value to 'header' and the generated code will set the topic on the header rather than use StreamBridge.
 groupId | info.x-group-id | com.company | The Maven group id.
 host | | tcp://localhost:55555 | The host connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
-javaClass | info.x-java-class | Application | The name of the main class. Only used when artifactType is 'application'.
 javaPackage | info.x-java-package | | The Java package of the generated classes. If not set then the classes will be in the default package.
 msgVpn | | default | The message vpn connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
 password | | default | The client password connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
 reactive | | false | If true, the generated functions will use the Reactive style and use the Flux class.
-solaceSpringCloudVersion | info.x-solace-spring-cloud-version | 1.0.0 | The version of the solace-spring-cloud-bom dependency used when generating an application.
-springBootVersion | info.x-spring-boot-version | 2.2.6.RELEASE | The version of Spring Boot used when generating an application. 
-springCloudVersion | info.x-spring-cloud-version | Hoxton.SR3 | The version of the spring-cloud-dependencies BOM dependency used when generating an application.
-springCloudStreamVersion | info.x-spring-cloud-stream-version | 3.0.3.RELEASE | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead
+solaceSpringCloudVersion | info.x-solace-spring-cloud-version | 2.1.0 | The version of the solace-spring-cloud-bom dependency used when generating an application.
+springBootVersion | info.x-spring-boot-version | 2.4.7 | The version of Spring Boot used when generating an application. 
+springCloudVersion | info.x-spring-cloud-version | 2020.0.3 | The version of the spring-cloud-dependencies BOM dependency used when generating an application.
+springCloudStreamVersion | info.x-spring-cloud-stream-version | 3.1.3 | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead
 username | | default | The client username connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
 view | info.x-view | client | By default, this template generates publisher code for subscribe operations and vice versa. You can switch this by setting this parameter to 'provider'.
 
@@ -110,7 +112,6 @@ Extension | Parameter | Default | Description
 ----------|-----------|---------|-------------
 info.x-artifact-id | artifactId | project-name | The Maven artifact id.
 info.x-group-id | groupId | com.company | The Maven group id.
-info.x-java-class | javaClass | Application | The name of the main class. Only used when artifactType is 'application'.
 info.x-java-package | javaPackage | | The Java package of the generated classes. If not set then the classes will be in the default package.
 info.x-solace-spring-cloud-version | solaceSpringCloudVersion | 1.0.0 | The version of the solace-spring-cloud BOM dependency used when generating an application.
 info.x-spring-boot-version | info.x-spring-boot-version | 2.2.6.RELEASE | The version of the Spring Boot used when generating an application.

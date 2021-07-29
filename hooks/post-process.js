@@ -45,8 +45,6 @@ module.exports = {
     // Rename the pom file if necessary, and only include Application.java when an app is requested.
     const artifactType = generator.templateParams['artifactType'];
 
-    let overrideClassName = scsLib.getParamOrExtension(info, generator.templateParams, 'javaClass', 'x-java-class');
-
     if (artifactType === 'library') {
       fs.renameSync(path.resolve(generator.targetDir, 'pom.lib'), path.resolve(generator.targetDir, 'pom.xml'));
       fs.unlinkSync(path.resolve(generator.targetDir, 'pom.app'));
@@ -54,11 +52,6 @@ module.exports = {
     } else {
       fs.renameSync(path.resolve(generator.targetDir, 'pom.app'), path.resolve(generator.targetDir, 'pom.xml'));
       fs.unlinkSync(path.resolve(generator.targetDir, 'pom.lib'));
-
-      if (overrideClassName) {
-        overrideClassName += '.java';
-        fs.renameSync(path.resolve(sourcePath, 'Application.java'), path.resolve(sourcePath, overrideClassName));
-      }
     }
 
     // This renames schema objects ensuring they're proper Java class names. It also removes files that are schemas of simple types.
