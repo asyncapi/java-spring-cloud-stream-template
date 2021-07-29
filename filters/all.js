@@ -83,32 +83,48 @@ class SCSFunction {
         ret = `public Consumer<${this.subscribePayload}> ${this.name}()`;
       }
     } else if (this.type === 'supplier') {
-      if (this.dynamic) {
-        if (this.reactive) {
-          ret = `public Supplier<Flux<Message<${this.publishPayload}>>> ${this.name}()`;
-        } else {
-          ret = `public Supplier<Message<${this.publishPayload}>> ${this.name}()`;
-        }
-      } else if (this.reactive) {
-        ret = `public Supplier<Flux<${this.publishPayload}>> ${this.name}()`;
-      } else {
-        ret = `public Supplier<${this.publishPayload}> ${this.name}()`;
-      }
+      ret = this.getSupplierFunctionSignature();
     } else if (this.type === 'function') {
-      if (this.dynamic) {
-        if (this.reactive) {
-          ret = `public Function<Flux<${this.subscribePayload}>, Flux<Message<${this.publishPayload}>>> ${this.name}()`;
-        } else {
-          ret = `public Function<${this.subscribePayload}, Message<${this.publishPayload}>> ${this.name}()`;
-        }
-      } else if (this.reactive) {
-        ret = `public Function<Flux<${this.subscribePayload}>, Flux<${this.publishPayload}>> ${this.name}()`;
-      } else {
-        ret = `public Function<${this.subscribePayload}, ${this.publishPayload}> ${this.name}()`;
-      }
+      ret = this.getFunctionMethodSignature();
     } else {
       throw new Error(`Can't determine the function signature for ${this.name} because the type is ${this.type}`);
     }
+    return ret;
+  }
+
+  getSupplierFunctionSignature() {
+    let ret = '';
+
+    if (this.dynamic) {
+      if (this.reactive) {
+        ret = `public Supplier<Flux<Message<${this.publishPayload}>>> ${this.name}()`;
+      } else {
+        ret = `public Supplier<Message<${this.publishPayload}>> ${this.name}()`;
+      }
+    } else if (this.reactive) {
+      ret = `public Supplier<Flux<${this.publishPayload}>> ${this.name}()`;
+    } else {
+      ret = `public Supplier<${this.publishPayload}> ${this.name}()`;
+    }
+
+    return ret;
+  }
+
+  getFunctionMethodSignature() {
+    let ret = '';
+
+    if (this.dynamic) {
+      if (this.reactive) {
+        ret = `public Function<Flux<${this.subscribePayload}>, Flux<Message<${this.publishPayload}>>> ${this.name}()`;
+      } else {
+        ret = `public Function<${this.subscribePayload}, Message<${this.publishPayload}>> ${this.name}()`;
+      }
+    } else if (this.reactive) {
+      ret = `public Function<Flux<${this.subscribePayload}>, Flux<${this.publishPayload}>> ${this.name}()`;
+    } else {
+      ret = `public Function<${this.subscribePayload}, ${this.publishPayload}> ${this.name}()`;
+    }
+
     return ret;
   }
 }
@@ -179,46 +195,52 @@ function artifactId([info, params]) {
 }
 filter.artifactId = artifactId;
 
+function addtoExtraIncludesFromFunctionSpecs(asyncapi, params, extraIncludes) {
+  const funcs = getFunctionSpecs(asyncapi, params);
+
+  funcs.forEach((spec, name, map) => {
+    if (spec.dynamic) {
+      extraIncludes.dynamic = true;
+    }
+    if (spec.multipleMessages || spec.dynamic) {
+      extraIncludes.needMessage = true;
+    }
+    if (spec.type === 'function' && !spec.functionAsConsumer) {
+      extraIncludes.needBean = true;
+      extraIncludes.needFunction = true;
+    }
+    if ((spec.type === 'supplier' && !(spec.dynamic && spec.dynamicType === 'streamBridge')) || spec.functionAsConsumer) {
+      extraIncludes.needBean = true;
+      extraIncludes.needSupplier = true;
+    }
+    if (spec.type === 'consumer') {
+      extraIncludes.needBean = true;
+      extraIncludes.needConsumer = true;
+    }
+  });
+}
+
 function appExtraIncludes([asyncapi, params]) {
-  const ret = {};
+  const extraIncludes = {};
   
   for (const channelName in asyncapi.channels()) {
     const channel = asyncapi.channels()[channelName];
     const subscribe = channel.subscribe();
 
     if (subscribe && (subscribe.hasMultipleMessages())) {
-      ret.needMessage = true;
+      extraIncludes.needMessage = true;
     }
 
     const publish = channel.publish();
     if (publish && publish.hasMultipleMessages()) {
-      ret.needMessage = true;
+      extraIncludes.needMessage = true;
     }
   }
 
-  const funcs = getFunctionSpecs(asyncapi, params);
-  funcs.forEach((spec, name, map) => {
-    if (spec.dynamic) {
-      ret.dynamic = true;
-    }
-    if (spec.multipleMessages || spec.dynamic) {
-      ret.needMessage = true;
-    }
-    if (spec.type === 'function' && !spec.functionAsConsumer) {
-      ret.needBean = true;
-      ret.needFunction = true;
-    }
-    if ((spec.type === 'supplier' && !(spec.dynamic && spec.dynamicType === 'streamBridge')) || spec.functionAsConsumer) {
-      ret.needBean = true;
-      ret.needSupplier = true;
-    }
-    if (spec.type === 'consumer') {
-      ret.needBean = true;
-      ret.needConsumer = true;
-    }
-  });
-  return ret;
+  addtoExtraIncludesFromFunctionSpecs(asyncapi, params, extraIncludes);
+  return extraIncludes;
 }
+
 filter.appExtraIncludes = appExtraIncludes;
 
 function identifierName(str) {

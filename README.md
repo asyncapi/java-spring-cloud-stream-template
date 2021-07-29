@@ -122,6 +122,13 @@ operation.x-scs-function-name | | | This specifies the base function name to use
 channel.subscription.x-scs-destination | | | This overrides the destination on an incoming binding. It can be used to specify, for example, the name of a queue to subscribe to instead of a topic.
 channel.subscription.x-scs-group | | | This is used to specify the group property of an incoming binding.
 
+## Development
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+If you do contribute, please run ```npm run lint``` and ```npm test``` before you submit your code.
+
+
 ## Contributors
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
@@ -144,10 +151,4 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
-
-If you do contribute, please run ```npm run lint``` and ```npm test``` before you submit your code.
-
-
 
