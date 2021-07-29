@@ -132,7 +132,7 @@ class SCSFunction {
 // This generates the object that gets rendered in the application.yaml file.
 function appProperties([asyncapi, params]) {
   debugProperty('appProperties start');
-  params.binder = params.binder;
+
   if (params.binder !== 'kafka' && params.binder !== 'rabbit' && params.binder !== 'solace') {
     throw new Error('Please provide a parameter named \'binder\' with the value kafka, rabbit or solace.');
   }
