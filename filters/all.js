@@ -89,12 +89,10 @@ class SCSFunction {
         } else {
           ret = `public Supplier<Message<${this.publishPayload}>> ${this.name}()`;
         }
+      } else if (this.reactive) {
+        ret = `public Supplier<Flux<${this.publishPayload}>> ${this.name}()`;
       } else {
-        if (this.reactive) {
-          ret = `public Supplier<Flux<${this.publishPayload}>> ${this.name}()`;
-        } else {
-          ret = `public Supplier<${this.publishPayload}> ${this.name}()`;
-        }
+        ret = `public Supplier<${this.publishPayload}> ${this.name}()`;
       }
     } else if (this.type === 'function') {
       if (this.dynamic) {
@@ -103,12 +101,10 @@ class SCSFunction {
         } else {
           ret = `public Function<${this.subscribePayload}, Message<${this.publishPayload}>> ${this.name}()`;
         }
+      } else if (this.reactive) {
+        ret = `public Function<Flux<${this.subscribePayload}>, Flux<${this.publishPayload}>> ${this.name}()`;
       } else {
-        if (this.reactive) {
-          ret = `public Function<Flux<${this.subscribePayload}>, Flux<${this.publishPayload}>> ${this.name}()`;
-        } else {
-          ret = `public Function<${this.subscribePayload}, ${this.publishPayload}> ${this.name}()`;
-        }
+        ret = `public Function<${this.subscribePayload}, ${this.publishPayload}> ${this.name}()`;
       }
     } else {
       throw new Error(`Can't determine the function signature for ${this.name} because the type is ${this.type}`);
@@ -120,7 +116,7 @@ class SCSFunction {
 // This generates the object that gets rendered in the application.yaml file.
 function appProperties([asyncapi, params]) {
   debugProperty('appProperties start');
-  params.binder = params.binder || 'kafka';
+  params.binder = params.binder;
   if (params.binder !== 'kafka' && params.binder !== 'rabbit' && params.binder !== 'solace') {
     throw new Error('Please provide a parameter named \'binder\' with the value kafka, rabbit or solace.');
   }
@@ -633,7 +629,7 @@ function getFunctionSpecs(asyncapi, params) {
           throw new Error(`Function ${name} can't publish to both channels ${name} and ${channelName}.`);
         }
         functionSpec.type = 'function';
-        debugFunction('Found existing subscriber, so this is a function.')
+        debugFunction('Found existing subscriber, so this is a function.');
       } else {
         const topicInfo = getTopicInfo(channelName, channel);
         functionSpec = new SCSFunction();
@@ -787,7 +783,7 @@ function getSolace(params) {
   const ret = {};
   ret.java = {};
   ret.java.host = params.host;
-  ret.java.msgVpn = params.msgVpn ;
+  ret.java.msgVpn = params.msgVpn;
   ret.java.clientUsername = params.username;
   ret.java.clientPassword = params.password;
   return ret;

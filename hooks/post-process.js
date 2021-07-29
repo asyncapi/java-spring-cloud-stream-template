@@ -2,7 +2,6 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
-const ScsLib = require('../lib/scsLib.js');
 // To enable debug logging, set the env var DEBUG="postProcess" with whatever things you want to see.
 const debugPostProcess = require('debug')('postProcess');
 
@@ -10,7 +9,6 @@ const sourceHead = '/src/main/java/';
 
 module.exports = {
   'generate:after': generator => {
-    const scsLib = new ScsLib();
     const asyncapi = generator.asyncapi;
     let sourcePath = generator.targetDir + sourceHead;
     const info = asyncapi.info();
