@@ -317,7 +317,7 @@ function fixType([name, javaName, property]) {
         throw new Error(`Array named ${  name  }: can't determine the type of the items.`);
       }
     }
-    typeName = `${_.upperFirst(itemsType)  }[]`;
+    typeName = `${itemsType}[]`;
   } else if (type === 'object') {
     typeName = _.upperFirst(javaName);
   } else if (property.enum()) {
