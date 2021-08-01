@@ -539,27 +539,68 @@ function getAdditionalSubs(asyncapi, params) {
   return ret;
 }
 
-function getBrokerSettings(asyncapi,params){
+function getBrokerSettings(asyncapi, params){
  let brokerSettings;
 
  if(params.useServers === 'true'){
     brokers = "";
-     for ( server in asyncapi.servers() ){
-       let url = ""
-       if (server.variable.port) {
-         url = server.url();
-         url = url.replace('{port}', server.port.default);
-       } else {
-         url = server.url();
+
+
+    for ( serverName in asyncapi.servers() ){
+       server = asyncapi.servers()[serverName];
+       let url = server.url()
+       if (server.variables()) {
+         url = replaceVariablesWithValues(url, server.variables());
        }
        brokers += `${url},`;
      }
-     brokers = brokers.substring(0, brokers.length - 2);
+     console.info("brokers ->"+ brokers)
+     brokers = brokers.substring(0, brokers.length - 1);
      brokerSettings = {};
      brokerSettings.binder = {};
      brokerSettings.binder.brokers = brokers;
  }
  return brokerSettings;
+}
+
+
+function replaceVariablesWithValues(url, serverVariables) {
+  const getVariablesNamesFromUrl = (url) => {
+    let result = [],
+      array;
+    const regEx = /{([^}]+)}/g;
+
+    while ((array = regEx.exec(url)) !== null) {
+      result.push([array[0], array[1]]);
+    }
+
+    return result;
+  }
+
+  const getVariableValue = (object, variable) => {
+    const keyValue = object[variable]._json;
+
+    if (keyValue) return keyValue.default || (keyValue.enum && keyValue.enum[0]);
+  }
+
+  const urlVariables = getVariablesNamesFromUrl(url);
+  const declaredVariables =
+    urlVariables.filter(el => serverVariables.hasOwnProperty(el[1]))
+
+  if (urlVariables.length !== 0 && declaredVariables.length !== 0) {
+    let value;
+    let newUrl = url;
+
+    urlVariables.forEach(el => {
+      value = getVariableValue(serverVariables, el[1]);
+
+      if (value) {
+        newUrl = newUrl.replace(el[0], value);
+      }
+    });
+    return newUrl;
+  }
+  return url;
 }
 
 // This returns the SCSt bindings config that will appear in application.yaml.
