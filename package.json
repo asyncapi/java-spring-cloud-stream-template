@@ -1,13 +1,17 @@
 {
   "name": "@asyncapi/java-spring-cloud-stream-template",
-  "version": "0.7.1",
+  "version": "0.7.4",
   "description": "Java Spring Cloud Stream template for AsyncAPI generator.",
   "scripts": {
     "release": "semantic-release",
     "lint": "eslint --config .eslintrc .",
     "lint:fix": "eslint --fix --config .eslintrc .",
     "generate:assets": "echo 'No additional assets need to be generated at the moment'",
-    "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION"
+    "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
+    "test": "jest --maxWorkers=50% --detectOpenHandles",
+    "test:watch": "npm run test -- --watch",
+    "test:watchAll": "npm run test -- --watchAll",
+    "test:coverage": "npm run test -- --coverage"
   },
   "keywords": [
     "asyncapi",
@@ -28,13 +32,16 @@
     "lodash": "^4.17.15"
   },
   "devDependencies": {
+    "@asyncapi/generator": "^1.7.2",
     "@semantic-release/commit-analyzer": "^8.0.1",
     "@semantic-release/github": "^7.0.4",
-    "@semantic-release/npm": "^7.0.3",
+    "@semantic-release/npm": "^7.1.3",
     "@semantic-release/release-notes-generator": "^9.0.1",
-    "conventional-changelog-conventionalcommits": "^4.2.3",
+    "conventional-changelog-conventionalcommits": "^4.6.0",
     "eslint": "^6.8.0",
-    "semantic-release": "^17.0.7"
+    "eslint-plugin-jest": "^24.3.6",
+    "jest": "^27.0.4",
+    "semantic-release": "^17.4.4"
   },
   "release": {
     "branches": [

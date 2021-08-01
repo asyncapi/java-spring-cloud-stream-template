@@ -1,0 +1,281 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`template integration tests using the generator should generate application files using the solace binder 1`] = `
+"<?xml version=\\"1.0\\" encoding=\\"UTF-8\\"?>
+<project xmlns=\\"http://maven.apache.org/POM/4.0.0\\" xmlns:xsi=\\"http://www.w3.org/2001/XMLSchema-instance\\" xsi:schemaLocation=\\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\\">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.company</groupId>
+    <artifactId>asyncApiFileName</artifactId>
+    <version>0.0.1</version>
+    <packaging>jar</packaging>
+    <name>asyncApiFileName</name>
+    <description>Auto-generated Spring Cloud Stream AsyncAPI application</description>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.4.7</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <properties>
+        <spring-cloud.version>2020.0.3</spring-cloud.version>
+        <solace-spring-cloud-bom.version>2.1.0</solace-spring-cloud-bom.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>\${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.solace.spring.cloud</groupId>
+                <artifactId>solace-spring-cloud-bom</artifactId>
+                <version>\${solace-spring-cloud-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.solace.spring.cloud</groupId>
+            <artifactId>spring-cloud-starter-stream-solace</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+"
+`;
+
+exports[`template integration tests using the generator should generate application files using the solace binder 2`] = `
+"# solace-test-app
+
+## Version 0.0.1
+
+
+
+"
+`;
+
+exports[`template integration tests using the generator should generate application files using the solace binder 3`] = `
+"
+package com.acme;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+// Uncomment this if you want to use one of the sample functions commented out below.
+/*
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.binder.BinderHeaders;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+*/
+
+
+
+@SpringBootApplication
+public class Application {
+
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
+//Uncomment this if you want to use one of the sample functions commented out below.
+/*
+    private static final String DYNAMIC_BINDING = \\"dynamic\\";
+    @Autowired
+    private StreamBridge streamBridge;
+*/
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class);
+	}
+
+	@Bean
+	public Supplier<MySchema> testLevel1MessageIdOperationSupplier() {
+		return data -> {
+			// Add business logic here.
+			return new MySchema();
+		};
+	}
+
+	@Bean
+	public Consumer<MySchema> testLevel1MessageIdOperationConsumer() {
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+	}
+
+
+
+/* Here is an example of how to send a message to a dynamic topic:
+
+	public void sendTestLevel1MessageIdOperation(
+		MySchema payload, String messageId, String operation
+		) {
+		String topic = String.format(\\"testLevel1/%s/%s\\",
+			messageId, operation);
+		Message message = MessageBuilder
+			.withPayload(payload)
+			.setHeader(BinderHeaders.TARGET_DESTINATION, topic)
+			.build();
+		streamBridge.send(DYNAMIC_BINDING, message);
+	}
+*/
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate application files using the solace binder 4`] = `
+"
+package com.acme;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class MySchema {
+
+	public MySchema () {
+	}
+	public MySchema (
+		String prop1) {
+		this.prop1 = prop1;
+	}
+
+
+	private String prop1;
+
+	public String getProp1() {
+		return prop1;
+	}
+
+	public MySchema setProp1(String prop1) {
+		this.prop1 = prop1;
+		return this;
+	}
+
+
+	public String toString() {
+		return \\"MySchema [\\"
+		+ \\" prop1: \\" + prop1
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
+exports[`template integration tests using the generator should generate application files using the solace binder 5`] = `
+"spring:
+  cloud:
+    function:
+      definition: testLevel1MessageIdOperationSupplier;testLevel1MessageIdOperationConsumer
+    stream:
+      bindings:
+        testLevel1MessageIdOperationSupplier-out-0:
+          destination: 'testLevel1/{messageId}/{operation}'
+        testLevel1MessageIdOperationConsumer-in-0:
+          destination: testLevel1/*/*
+      binders:
+        solace-binder:
+          type: solace
+          environment:
+            solace:
+              java:
+                host: testVmrUri
+                msgVpn: vpnName
+                clientUsername: user
+                clientPassword: test
+logging:
+  level:
+    root: info
+    org:
+      springframework: info
+
+"
+`;
+
+exports[`template integration tests using the generator should return payload when using x-scs-function-name instead of logging the message 1`] = `
+"import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import java.util.function.Function;
+
+// Uncomment this if you want to use one of the sample functions commented out below.
+/*
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.binder.BinderHeaders;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+*/
+
+
+
+@SpringBootApplication
+public class Application {
+
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
+//Uncomment this if you want to use one of the sample functions commented out below.
+/*
+    private static final String DYNAMIC_BINDING = \\"dynamic\\";
+    @Autowired
+    private StreamBridge streamBridge;
+*/
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class);
+	}
+
+	@Bean
+	public Function<MySchema, MyOtherSchema> sameFunctionName() {
+		return data -> {
+			// Add business logic here.
+			return new MyOtherSchema();
+		};
+	}
+
+
+
+/* Here is an example of how to send a message to a dynamic topic:
+
+	public void sendSameFunctionName(
+		MyOtherSchema payload, String messageId, String operation
+		) {
+		String topic = String.format(\\"testLevel1/%s/%s\\",
+			messageId, operation);
+		Message message = MessageBuilder
+			.withPayload(payload)
+			.setHeader(BinderHeaders.TARGET_DESTINATION, topic)
+			.build();
+		streamBridge.send(DYNAMIC_BINDING, message);
+	}
+*/
+}
+"
+`;

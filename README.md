@@ -75,6 +75,9 @@ There are two specification extentions you can use to shape how the bindings are
 
 ```x-scs-group``` : This will add the group value on a binding which configures your microservice to use [Consumer Groups](https://cloud.spring.io/spring-cloud-static/spring-cloud-stream/current/reference/html/spring-cloud-stream.html#consumer-groups)
 
+### Limitations
+Currently any schemas that are used must be in the components/schemas part of the document. We do not support anonymous object-type schemas in the message/payload sections.
+
 ### Parameters
 
 Parameters can be passed to the generator using command line arguments in the form ```-p param=value -p param2=value2```. Here is a list of the parameters that can be used with this template. In some cases these can be put into the AsyncAPI documents using the specification extensions feature. In those cases, the 'info' prefix means that it belongs in the info section of the document.
