@@ -554,7 +554,6 @@ function getBrokerSettings(asyncapi, params){
        }
        brokers += `${url},`;
      }
-     console.info("brokers ->"+ brokers)
      brokers = brokers.substring(0, brokers.length - 1);
      brokerSettings = {};
      brokerSettings.binder = {};
