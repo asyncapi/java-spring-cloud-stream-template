@@ -543,11 +543,10 @@ function getBrokerSettings(asyncapi, params){
  let brokerSettings;
 
  if(params.useServers === 'true'){
-    brokers = "";
+    let brokers = "";
 
-
-    for ( serverName in asyncapi.servers() ){
-       server = asyncapi.servers()[serverName];
+    for (let serverName in asyncapi.servers() ){
+       let server = asyncapi.servers()[serverName];
        let url = server.url()
        if (server.variables()) {
          url = replaceVariablesWithValues(url, server.variables());
