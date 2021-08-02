@@ -13,16 +13,6 @@ const debugProperty = require('debug')('property');
 const debugTopic = require('debug')('topic');
 const debugType = require('debug')('type');
 
-// Library versions
-const SOLACE_SPRING_CLOUD_VERSION = '2.1.0';
-const SPRING_BOOT_VERSION = '2.4.7';
-const SPRING_CLOUD_VERSION = '2020.0.3';
-const SPRING_CLOUD_STREAM_VERSION = '3.1.3.RELEASE';
-
-// Connection defaults. SOLACE_DEFAULT applies to msgVpn, username and password.
-const SOLACE_HOST = 'tcp://localhost:55555';
-const SOLACE_DEFAULT = 'default';
-
 const stringMap = new Map();
 stringMap.set('date',{javaType: 'java.time.LocalDate', printFormat: '%s', sample: '2000-12-31'});
 stringMap.set('date-time',{javaType: 'java.time.OffsetDateTime', printFormat: '%s', sample: '2000-12-31T23:59:59+01:00'});
@@ -78,33 +68,63 @@ class SCSFunction {
     return `${this.name  }-in-0`;
   }
 
+  // This returns true if this is a function, but we need to render it as a consumer
+  // because we need to call streamBridge to send out the message.
+  get functionAsConsumer() {
+    return this.type === 'function' && this.dynamic && this.dynamicType === 'streamBridge';
+  }
+
   get functionSignature() {
     let ret = '';
-    switch (this.type) {
-    case 'function':
-      if (this.reactive) {
-        ret = `public Function<Flux<${this.subscribePayload}>, Flux<${this.publishPayload}>> ${this.name}()`;
-      } else {
-        ret = `public Function<${this.subscribePayload}, ${this.publishPayload}> ${this.name}()`;
-      }
-      break;
-    case 'supplier':
-      if (this.reactive) {
-        ret = `public Supplier<Flux<${this.publishPayload}>> ${this.name}()`;
-      } else {
-        ret = `public Supplier<${this.publishPayload}> ${this.name}()`;
-      }
-      break;
-    case 'consumer':
+    if (this.type === 'consumer' || (this.type === 'function' && this.dynamic && this.dynamicType === 'streamBridge')) {
       if (this.reactive) {
         ret = `public Consumer<Flux<${this.subscribePayload}>> ${this.name}()`;
       } else {
         ret = `public Consumer<${this.subscribePayload}> ${this.name}()`;
       }
-      break;
-    default:
+    } else if (this.type === 'supplier') {
+      ret = this.getSupplierFunctionSignature();
+    } else if (this.type === 'function') {
+      ret = this.getFunctionMethodSignature();
+    } else {
       throw new Error(`Can't determine the function signature for ${this.name} because the type is ${this.type}`);
     }
+    return ret;
+  }
+
+  getSupplierFunctionSignature() {
+    let ret = '';
+
+    if (this.dynamic) {
+      if (this.reactive) {
+        ret = `public Supplier<Flux<Message<${this.publishPayload}>>> ${this.name}()`;
+      } else {
+        ret = `public Supplier<Message<${this.publishPayload}>> ${this.name}()`;
+      }
+    } else if (this.reactive) {
+      ret = `public Supplier<Flux<${this.publishPayload}>> ${this.name}()`;
+    } else {
+      ret = `public Supplier<${this.publishPayload}> ${this.name}()`;
+    }
+
+    return ret;
+  }
+
+  getFunctionMethodSignature() {
+    let ret = '';
+
+    if (this.dynamic) {
+      if (this.reactive) {
+        ret = `public Function<Flux<${this.subscribePayload}>, Flux<Message<${this.publishPayload}>>> ${this.name}()`;
+      } else {
+        ret = `public Function<${this.subscribePayload}, Message<${this.publishPayload}>> ${this.name}()`;
+      }
+    } else if (this.reactive) {
+      ret = `public Function<Flux<${this.subscribePayload}>, Flux<${this.publishPayload}>> ${this.name}()`;
+    } else {
+      ret = `public Function<${this.subscribePayload}, ${this.publishPayload}> ${this.name}()`;
+    }
+
     return ret;
   }
 }
@@ -112,7 +132,7 @@ class SCSFunction {
 // This generates the object that gets rendered in the application.yaml file.
 function appProperties([asyncapi, params]) {
   debugProperty('appProperties start');
-  params.binder = params.binder || 'kafka';
+
   if (params.binder !== 'kafka' && params.binder !== 'rabbit' && params.binder !== 'solace') {
     throw new Error('Please provide a parameter named \'binder\' with the value kafka, rabbit or solace.');
   }
@@ -171,42 +191,56 @@ function appProperties([asyncapi, params]) {
 filter.appProperties = appProperties;
 
 function artifactId([info, params]) {
-  return scsLib.getParamOrDefault(info, params, 'artifactId', 'x-artifact-id', 'project-name');
+  return scsLib.getParamOrDefault(info, params, 'artifactId', 'x-artifact-id');
 }
 filter.artifactId = artifactId;
 
+function addtoExtraIncludesFromFunctionSpecs(asyncapi, params, extraIncludes) {
+  const funcs = getFunctionSpecs(asyncapi, params);
+
+  funcs.forEach((spec, name, map) => {
+    if (spec.dynamic) {
+      extraIncludes.dynamic = true;
+    }
+    if (spec.multipleMessages || spec.dynamic) {
+      extraIncludes.needMessage = true;
+    }
+    if (spec.type === 'function' && !spec.functionAsConsumer) {
+      extraIncludes.needBean = true;
+      extraIncludes.needFunction = true;
+    }
+    if ((spec.type === 'supplier' && !(spec.dynamic && spec.dynamicType === 'streamBridge')) || spec.functionAsConsumer) {
+      extraIncludes.needBean = true;
+      extraIncludes.needSupplier = true;
+    }
+    if (spec.type === 'consumer') {
+      extraIncludes.needBean = true;
+      extraIncludes.needConsumer = true;
+    }
+  });
+}
+
 function appExtraIncludes([asyncapi, params]) {
-  const ret = {};
+  const extraIncludes = {};
   
   for (const channelName in asyncapi.channels()) {
     const channel = asyncapi.channels()[channelName];
     const subscribe = channel.subscribe();
 
     if (subscribe && (subscribe.hasMultipleMessages())) {
-      ret.needMessageInclude = true;
+      extraIncludes.needMessage = true;
     }
 
     const publish = channel.publish();
     if (publish && publish.hasMultipleMessages()) {
-      ret.needMessageInclude = true;
-    }
-
-    const pub  = scsLib.getRealPublisher(asyncapi.info(), params, channel);
-    const topicInfo = getTopicInfo(channelName, channel);
-    if (pub && topicInfo.hasParams) {
-      ret.dynamicTopics = true;
+      extraIncludes.needMessage = true;
     }
   }
 
-  const funcs = getFunctionSpecs(asyncapi, params);
-  funcs.forEach((spec, name, map) => {
-    if (spec.multipleMessages) {
-      ret.needMessageInclude = true;
-    }
-  });
-
-  return ret;
+  addtoExtraIncludesFromFunctionSpecs(asyncapi, params, extraIncludes);
+  return extraIncludes;
 }
+
 filter.appExtraIncludes = appExtraIncludes;
 
 function identifierName(str) {
@@ -313,7 +347,6 @@ function getDynamicFunctions([asyncapi, params]) {
     debugDynamic(`getDynamicFunctions channelName ${channelName}`);
     debugDynamic(channel);
     const publisher = scsLib.getRealPublisher(asyncapi.info(), params, channel);
-    debugDynamic('start: 3');
     if (publisher) {
       debugDynamic('found publisher:');
       debugDynamic(publisher);
@@ -322,8 +355,8 @@ function getDynamicFunctions([asyncapi, params]) {
         const spec = {};
         spec.topicInfo = topicInfo;
         spec.payloadClass = getPayloadClass(publisher);
-        spec.functionName = `send${_.upperFirst(getFunctionName(channelName, publisher, undefined))}`;
-        functionMap.set(spec.functionName, spec);
+        spec.sendMethodName = getSendFunctionName(channelName, publisher);
+        functionMap.set(spec.sendMethodName, spec);
       }
     }
   }
@@ -356,7 +389,7 @@ function getRealSubscriber([info, params, channel]) {
 filter.getRealSubscriber = getRealSubscriber;
 
 function groupId([info, params]) {  
-  return scsLib.getParamOrDefault(info, params, 'groupId', 'x-group-id', 'com.company');
+  return scsLib.getParamOrDefault(info, params, 'groupId', 'x-group-id');
 }
 filter.groupId = groupId;
 
@@ -427,22 +460,22 @@ function schemaExtraIncludes([schemaName, schema]) {
 filter.schemaExtraIncludes = schemaExtraIncludes;
 
 function solaceSpringCloudVersion([info, params]) {
-  return scsLib.getParamOrDefault(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version', SOLACE_SPRING_CLOUD_VERSION);
+  return scsLib.getParamOrDefault(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version');
 }
 filter.solaceSpringCloudVersion = solaceSpringCloudVersion;
 
 function springBootVersion([info, params]) {
-  return scsLib.getParamOrDefault(info, params, 'springBootVersion', 'x-spring-boot-version', SPRING_BOOT_VERSION);
+  return scsLib.getParamOrDefault(info, params, 'springBootVersion', 'x-spring-boot-version');
 }
 filter.springBootVersion = springBootVersion;
 
 function springCloudStreamVersion([info, params]) {
-  return scsLib.getParamOrDefault(info, params, 'springCloudStreamVersion', 'x-spring-cloud-stream-version', SPRING_CLOUD_STREAM_VERSION);
+  return scsLib.getParamOrDefault(info, params, 'springCloudStreamVersion', 'x-spring-cloud-stream-version');
 }
 filter.springCloudStreamVersion = springCloudStreamVersion;
 
 function springCloudVersion([info, params]) {
-  return scsLib.getParamOrDefault(info, params, 'springCloudVersion', 'x-spring-cloud-version', SPRING_CLOUD_VERSION);
+  return scsLib.getParamOrDefault(info, params, 'springCloudVersion', 'x-spring-cloud-version');
 }
 filter.springCloudVersion = springCloudVersion;
 
@@ -565,6 +598,9 @@ function getFunctionName(channelName, operation, isSubscriber) {
   if (smfBinding && smfBinding.queueName && smfBinding.topicSubscriptions) {
     functionName = smfBinding.queueName;
   } else {
+    if (operation.id()) {
+      return operation.id();
+    }
     functionName = channelName;
   }
 
@@ -588,6 +624,13 @@ function getFunctionDefinitions(asyncapi, params) {
 
 function getFunctionSpecs(asyncapi, params) {
   // This maps function names to SCS function definitions.
+
+  debugFunction('--------------------------- getFunctionSpecs -------------------');
+
+  if (params.dynamicType !== 'header' && params.dynamicType !== 'streamBridge') {
+    throw new Error(`The dynamicType parameter must be either 'header' or 'streamBridge. Given: ${params.dynamicType}`);
+  }
+
   const functionMap = new Map();
   const reactive = params.reactive === 'true';
   const info = asyncapi.info();
@@ -597,23 +640,30 @@ function getFunctionSpecs(asyncapi, params) {
     debugFunction(`getFunctionSpecs channelName ${channelName}`);
     debugFunction(channel);
     let functionSpec;
+
     const publish = scsLib.getRealPublisher(info, params, channel);
     if (publish) {
       const name = getFunctionName(channelName, publish, false);
+      debugFunction(`We have a real publisher named ${name}`);
       functionSpec = functionMap.get(name);
       if (functionSpec) {
         if (functionSpec.isPublisher) {
           throw new Error(`Function ${name} can't publish to both channels ${name} and ${channelName}.`);
         }
         functionSpec.type = 'function';
+        debugFunction('Found existing subscriber, so this is a function.');
       } else {
+        const topicInfo = getTopicInfo(channelName, channel);
         functionSpec = new SCSFunction();
         functionSpec.name = name;
         functionSpec.type = 'supplier';
         functionSpec.reactive = reactive;
+        functionSpec.dynamic = topicInfo.hasParams;
+        functionSpec.topicInfo = topicInfo;
+        functionSpec.sendMethodName = getSendFunctionName(channelName, publish);
+        functionSpec.dynamicType = params.dynamicType;
         functionMap.set(name, functionSpec);
       }
-      debugFunction('calling getPayloadClass');
       const payload = getPayloadClass(publish);
       if (!payload) {
         throw new Error(`Channel ${channelName}: no payload class has been defined.`);
@@ -622,12 +672,11 @@ function getFunctionSpecs(asyncapi, params) {
       functionSpec.publishChannel = channelName;
     }
 
-    debugFunction('subscribe:');
     const subscribe = scsLib.getRealSubscriber(info, params, channel);
-    debugFunction(subscribe);
 
     if (subscribe) {
       const name = getFunctionName(channelName, subscribe, true);
+      debugFunction(`We have a real subscriber named ${name}`);
       const smfBinding = subscribe.binding('smf');
       debugFunction('smfBinding:');
       debugFunction(smfBinding);
@@ -665,6 +714,7 @@ function getFunctionSpecs(asyncapi, params) {
             throw new Error(`Function ${name} can't subscribe to both channels ${functionSpec.channel} and ${channelName}.`);
           }
           functionSpec.type = 'function';
+          functionSpec.dynamicType = params.dynamicType;
         }
       } else {
         debugFunction('This is a new one.');
@@ -731,7 +781,7 @@ function getPayloadClass(pubOrSub) {
         debugPayload('type:');
         debugPayload(type);
 
-        if (type === 'object') {
+        if (!type || type === 'object') {
           ret = payload.ext('x-parser-schema-id');
           ret = _.camelCase(ret);
           ret = _.upperFirst(ret);
@@ -746,14 +796,18 @@ function getPayloadClass(pubOrSub) {
   return ret;
 }
 
+function getSendFunctionName(channelName, operation) {
+  return `send${_.upperFirst(getFunctionName(channelName, operation, undefined))}`;
+}
+
 // This returns the connection properties for a solace binder, for application.yaml.
 function getSolace(params) {
   const ret = {};
   ret.java = {};
-  ret.java.host = params.host || SOLACE_HOST;
-  ret.java.msgVpn = params.msgVpn || SOLACE_DEFAULT;
-  ret.java.clientUsername = params.username || SOLACE_DEFAULT;
-  ret.java.clientPassword = params.password || SOLACE_DEFAULT;
+  ret.java.host = params.host;
+  ret.java.msgVpn = params.msgVpn;
+  ret.java.clientUsername = params.username;
+  ret.java.clientPassword = params.password;
   return ret;
 }
 
@@ -775,7 +829,7 @@ function getTopicInfo(channelName, channel) {
     const parameter = channel.parameter(name);
     const schema = parameter.schema();
     const type = getType(schema.type(), schema.format());
-    const param = { name: _.lowerFirst(name) };
+    const param = { name: _.camelCase(name) };
     debugTopic(`name: ${name} type:`);
     debugTopic(type);
     let sampleArg = 1;
@@ -815,6 +869,7 @@ function getTopicInfo(channelName, channel) {
       }
     }
 
+    param.sampleArg = sampleArg;
     subscribeTopic = subscribeTopic.replace(nameWithBrackets, '*');
     functionParamList += `${param.type} ${param.name}`;
     functionArgList += param.name;
@@ -837,6 +892,5 @@ function indent(numTabs) {
 }
 
 function isApplication(params) {
-  const artifactType = params.artifactType;
-  return (!artifactType || artifactType === 'application');
+  return params.artifactType === 'application';
 }
