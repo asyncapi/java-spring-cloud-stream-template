@@ -67,7 +67,7 @@ describe('template integration tests using the generator', () => {
       javaPackage: PACKAGE,
       host: 'testVmrUri',
       username: 'user',
-      password: 'test',
+      password: 'test', //NOSONAR
       msgVpn: 'vpnName',
       artifactId: 'asyncApiFileName',
       parametersToHeaders: true

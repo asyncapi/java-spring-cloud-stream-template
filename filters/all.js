@@ -147,24 +147,7 @@ function appProperties([asyncapi, params]) {
   // See if we have dynamic functions, and if the parametersToHeaders param is set.
   // If so, add the input-header-mapping-expression config to consumers which consume dynamic topics.
   if (params.parametersToHeaders) {
-    const dynamicFuncs = getDynamicFunctions([asyncapi, params]);
-
-    if (dynamicFuncs) {
-      cloud.function.configuration = {};
-      const funcs = getFunctionSpecs(asyncapi, params);
-
-      funcs.forEach((spec, name, map) => {
-        if (spec.dynamic && spec.type === 'consumer') {
-          cloud.function.configuration[name] = {};
-          cloud.function.configuration[name]['input-header-mapping-expression'] = {};
-          const headerConfig = cloud.function.configuration[name]['input-header-mapping-expression'];
-
-          for (const param of spec.topicInfo.params) {
-            headerConfig[param.name] = `headers.solace_destination.getName.split("/")[${param.position}]`;
-          }
-        }
-      });   
-    }
+    handleParametersToHeaders(asyncapi, params, cloud);
   }
 
   debugProperty('appProperties getFunctionDefinitions');
@@ -214,6 +197,27 @@ function appProperties([asyncapi, params]) {
   return ym;
 }
 filter.appProperties = appProperties;
+
+function handleParametersToHeaders(asyncapi, params, cloud) {
+  const dynamicFuncs = getDynamicFunctions([asyncapi, params]);
+
+  if (dynamicFuncs) {
+    cloud.function.configuration = {};
+    const funcs = getFunctionSpecs(asyncapi, params);
+
+    funcs.forEach((spec, name, map) => {
+      if (spec.dynamic && spec.type === 'consumer') {
+        cloud.function.configuration[name] = {};
+        cloud.function.configuration[name]['input-header-mapping-expression'] = {};
+        const headerConfig = cloud.function.configuration[name]['input-header-mapping-expression'];
+
+        for (const param of spec.topicInfo.params) {
+          headerConfig[param.name] = `headers.solace_destination.getName.split("/")[${param.position}]`;
+        }
+      }
+    });   
+  }
+}
 
 function artifactId([info, params]) {
   return scsLib.getParamOrDefault(info, params, 'artifactId', 'x-artifact-id');
