@@ -192,6 +192,91 @@ logging:
 "
 `;
 
+exports[`template integration tests using the generator should generate extra config when using the paramatersToHeaders parameter 1`] = `
+"package com.acme;
+
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.context.annotation.Bean;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+
+@SpringBootApplication
+public class Application {
+
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+
+	@Autowired
+	private StreamBridge streamBridge;
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class);
+	}
+
+
+	@Bean
+	public Consumer<Message<MySchema>> testLevel1MessageIdOperationConsumer() {
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+	}
+
+	public void sendTestLevel1MessageIdOperation(
+		MySchema payload, String messageId, String operation
+		) {
+		String topic = String.format(\\"testLevel1/%s/%s\\",
+			messageId, operation);
+		Message message = MessageBuilder
+			.withPayload(payload)
+			.build();
+		streamBridge.send(topic, message);
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate extra config when using the paramatersToHeaders parameter 2`] = `
+"spring:
+  cloud:
+    function:
+      configuration:
+        testLevel1MessageIdOperationConsumer:
+          input-header-mapping-expression:
+            messageId: 'headers.solace_destination.getName.split(\\"/\\")[1]'
+            operation: 'headers.solace_destination.getName.split(\\"/\\")[2]'
+      definition: testLevel1MessageIdOperationSupplier;testLevel1MessageIdOperationConsumer
+    stream:
+      bindings:
+        testLevel1MessageIdOperationSupplier-out-0:
+          destination: 'testLevel1/{messageId}/{operation}'
+        testLevel1MessageIdOperationConsumer-in-0:
+          destination: testLevel1/*/*
+      binders:
+        solace-binder:
+          type: solace
+          environment:
+            solace:
+              java:
+                host: testVmrUri
+                msgVpn: vpnName
+                clientUsername: user
+                clientPassword: test
+logging:
+  level:
+    root: info
+    org:
+      springframework: info
+
+"
+`;
+
 exports[`template integration tests using the generator should return payload when using x-scs-function-name instead of logging the message 1`] = `
 "
 import java.util.function.Supplier;

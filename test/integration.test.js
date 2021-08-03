@@ -57,4 +57,32 @@ describe('template integration tests using the generator', () => {
       expect(file).toMatchSnapshot();
     }
   });
+
+  it('should generate extra config when using the paramatersToHeaders parameter', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    const PACKAGE = 'com.acme';
+    const PACKAGE_PATH = path.join(...PACKAGE.split('.'));
+    const params = {
+      binder: 'solace',
+      javaPackage: PACKAGE,
+      host: 'testVmrUri',
+      username: 'user',
+      password: 'test',
+      msgVpn: 'vpnName',
+      artifactId: 'asyncApiFileName',
+      parametersToHeaders: true
+    };
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true, templateParams: params });
+    await generator.generateFromFile(path.resolve('test', 'mocks/solace-test-app.yaml'));
+
+    const expectedFiles = [
+      `src/main/java/${PACKAGE_PATH}/Application.java`,
+      'src/main/resources/application.yml'
+    ];
+    for (const index in expectedFiles) {
+      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
+      expect(file).toMatchSnapshot();
+    }
+  });
 });

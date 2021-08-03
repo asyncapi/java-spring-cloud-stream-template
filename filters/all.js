@@ -4,7 +4,6 @@ const _ = require('lodash');
 const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
 // To enable debug logging, set the env var DEBUG="type function" with whatever things you want to see.
-const debugAppProperties = require('debug')('appProperties');
 const debugDynamic = require('debug')('dynamic');
 const debugFunction = require('debug')('function');
 const debugJavaClass = require('debug')('javaClass');
@@ -79,6 +78,8 @@ class SCSFunction {
     if (this.type === 'consumer' || (this.type === 'function' && this.dynamic && this.dynamicType === 'streamBridge')) {
       if (this.reactive) {
         ret = `public Consumer<Flux<${this.subscribePayload}>> ${this.name}()`;
+      } else if (this.dynamic && this.parametersToHeaders) {
+        ret = `public Consumer<Message<${this.subscribePayload}>> ${this.name}()`;
       } else {
         ret = `public Consumer<${this.subscribePayload}> ${this.name}()`;
       }
@@ -142,6 +143,30 @@ function appProperties([asyncapi, params]) {
   doc.spring.cloud = {};
   const cloud = doc.spring.cloud;
   cloud.function = {};
+
+  // See if we have dynamic functions, and if the parametersToHeaders param is set.
+  // If so, add the input-header-mapping-expression config to consumers which consume dynamic topics.
+  if (params.parametersToHeaders) {
+    const dynamicFuncs = getDynamicFunctions([asyncapi, params]);
+
+    if (dynamicFuncs) {
+      cloud.function.configuration = {};
+      const funcs = getFunctionSpecs(asyncapi, params);
+
+      funcs.forEach((spec, name, map) => {
+        if (spec.dynamic && spec.type === 'consumer') {
+          cloud.function.configuration[name] = {};
+          cloud.function.configuration[name]['input-header-mapping-expression'] = {};
+          const headerConfig = cloud.function.configuration[name]['input-header-mapping-expression'];
+
+          for (const param of spec.topicInfo.params) {
+            headerConfig[param.name] = `headers.solace_destination.getName.split("/")[${param.position}]`;
+          }
+        }
+      });   
+    }
+  }
+
   debugProperty('appProperties getFunctionDefinitions');
   cloud.function.definition = getFunctionDefinitions(asyncapi, params);
   cloud.stream = {};
@@ -548,7 +573,7 @@ function getAdditionalSubs(asyncapi, params) {
   let ret;
   const funcs = getFunctionSpecs(asyncapi, params);
   funcs.forEach((spec, name, map) => {
-    debugAppProperties(`getAdditionalSubs: ${spec.name} ${spec.isQueueWithSubscription} ${spec.additionalSubscriptions}`);
+    debugProperty(`getAdditionalSubs: ${spec.name} ${spec.isQueueWithSubscription} ${spec.additionalSubscriptions}`);
     // The first additional subscription will be the destination. If there is more than one the rest go here.
     if (spec.isQueueWithSubscription && spec.additionalSubscriptions.length > 1) {
       if (!ret) {
@@ -662,6 +687,7 @@ function getFunctionSpecs(asyncapi, params) {
         functionSpec.topicInfo = topicInfo;
         functionSpec.sendMethodName = getSendFunctionName(channelName, publish);
         functionSpec.dynamicType = params.dynamicType;
+        functionSpec.parametersToHeaders = params.parametersToHeaders;
         functionMap.set(name, functionSpec);
       }
       const payload = getPayloadClass(publish);
@@ -718,10 +744,15 @@ function getFunctionSpecs(asyncapi, params) {
         }
       } else {
         debugFunction('This is a new one.');
+        const topicInfo = getTopicInfo(channelName, channel);
         functionSpec = new SCSFunction();
         functionSpec.name = name;
         functionSpec.type = 'consumer';
         functionSpec.reactive = reactive;
+        functionSpec.dynamic = topicInfo.hasParams;
+        functionSpec.topicInfo = topicInfo;
+        functionSpec.dynamicType = params.dynamicType;
+        functionSpec.parametersToHeaders = params.parametersToHeaders;
         functionMap.set(name, functionSpec);
         if (smfBinding && smfBinding.queueName && smfBinding.topicSubscriptions) {
           debugFunction(`A new one with subscriptions: ${smfBinding.topicSubscriptions}`);
@@ -814,6 +845,7 @@ function getSolace(params) {
 // This returns an object containing information the template needs to render topic strings.
 function getTopicInfo(channelName, channel) {
   const ret = {};
+  const topicParts = channelName.split('/'); // yes, we assume this is the delimiter. This is just for the parameterToHeader feature.
   let publishTopic = String(channelName);
   let subscribeTopic = String(channelName);
   const params = [];
@@ -825,7 +857,7 @@ function getTopicInfo(channelName, channel) {
   debugTopic('params:');
   debugTopic(channel.parameters());
   for (const name in channel.parameters()) {
-    const nameWithBrackets = `{${  name  }}`;
+    const nameWithBrackets = `{${name}}`;
     const parameter = channel.parameter(name);
     const schema = parameter.schema();
     const type = getType(schema.type(), schema.format());
@@ -833,6 +865,14 @@ function getTopicInfo(channelName, channel) {
     debugTopic(`name: ${name} type:`);
     debugTopic(type);
     let sampleArg = 1;
+
+    // If this topic has the slash delimiter, figure out what position it's in. This is just for the parameterToHeader feature.
+    for (let i = 0; i < topicParts.length; i++) {
+      if (topicParts[i] === nameWithBrackets) {
+        param.position = i;
+        break;
+      }
+    }
 
     if (first) {
       first = false;
