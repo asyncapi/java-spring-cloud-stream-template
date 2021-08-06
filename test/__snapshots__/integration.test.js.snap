@@ -114,10 +114,7 @@ public class Application {
 		) {
 		String topic = String.format(\\"testLevel1/%s/%s\\",
 			messageId, operation);
-		Message message = MessageBuilder
-			.withPayload(payload)
-			.build();
-		streamBridge.send(topic, message);
+		streamBridge.send(topic, payload);
 	}
 }
 "
@@ -233,10 +230,7 @@ public class Application {
 		) {
 		String topic = String.format(\\"testLevel1/%s/%s\\",
 			messageId, operation);
-		Message message = MessageBuilder
-			.withPayload(payload)
-			.build();
-		streamBridge.send(topic, message);
+		streamBridge.send(topic, payload);
 	}
 }
 "
@@ -320,10 +314,7 @@ public class Application {
 		) {
 		String topic = String.format(\\"testLevel1/%s/%s\\",
 			messageId, operation);
-		Message message = MessageBuilder
-			.withPayload(payload)
-			.build();
-		streamBridge.send(topic, message);
+		streamBridge.send(topic, payload);
 	}
 }
 "
