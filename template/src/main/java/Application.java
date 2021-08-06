@@ -60,11 +60,11 @@ public class {{ className }} {
 		return data -> {
 			// Add business logic here.
 			logger.info(data.toString());
-			{% for param in funcSpec.topicInfo.params -%}
+			{% for param in funcSpec.channelInfo.parameters -%}
 			{{ param.type }} {{ param.name }} = {{ param.sampleArg | safe }};
 			{% endfor -%}
-			String topic = String.format("{{ funcSpec.topicInfo.publishTopic }}",
-				{{ funcSpec.topicInfo.functionArgList }});
+			String topic = String.format("{{ funcSpec.channelInfo.publishChannel }}",
+				{{ funcSpec.channelInfo.functionArgList }});
 			{{ funcSpec.publishPayload | safe }} payload = new {{ funcSpec.publishPayload | safe }}();
 			Message message = MessageBuilder
 				.withPayload(payload)
@@ -75,16 +75,16 @@ public class {{ className }} {
 		};
 	}
 			{%- else %}{# streamBridge, we need a consumer to call our func. #}
-	// This is a consumer that calls a send method, instead of a function, because it has a dynamic topic and we need streamBridge.
+	// This is a consumer that calls a send method, instead of a function, because it has a dynamic channel and we need streamBridge.
 	{{ funcSpec.functionSignature | safe }} {
 		return data -> {
 			// Add business logic here.
 			logger.info(data.toString());
-			{% for param in funcSpec.topicInfo.params -%}
+			{% for param in funcSpec.channelInfo.parameters -%}
 			{{ param.type }} {{ param.name }} = {{ param.sampleArg | safe }};
 			{% endfor -%}
 			{{ funcSpec.publishPayload | safe }} payload = new {{ funcSpec.publishPayload | safe }}();
-			{{ funcSpec.sendMethodName }}(payload, {{ funcSpec.topicInfo.functionArgList }});
+			{{ funcSpec.sendMethodName }}(payload, {{ funcSpec.channelInfo.functionArgList }});
 		};
 	}
 			{%- endif %}
@@ -114,11 +114,11 @@ public class {{ className }} {
 		return () -> {
 			// Add business logic here.
 			{{ funcSpec.publishPayload | safe }} payload = new {{ funcSpec.publishPayload | safe }}();
-			{% for param in funcSpec.topicInfo.params -%}
+			{% for param in funcSpec.channelInfo.parameters -%}
 			{{ param.type }} {{ param.name }} = {{ param.sampleArg | safe }};
 			{% endfor -%}
-			String topic = String.format("{{ funcSpec.topicInfo.publishTopic }}",
-				{{ funcSpec.topicInfo.functionArgList }});
+			String topic = String.format("{{ funcSpec.channelInfo.publishChannel }}",
+				{{ funcSpec.channelInfo.functionArgList }});
 			Message message = MessageBuilder
 				.withPayload(payload)
 				.setHeader(BinderHeaders.TARGET_DESTINATION, topic)
@@ -145,10 +145,10 @@ public class {{ className }} {
 {%- for sendMethodName, dynFuncSpec in dynamicFuncs %}
 	{%- if funcSpec.type === 'supplier' or params.dynamicType === 'streamBridge' %}
 	public void {{ sendMethodName }}(
-		{{ dynFuncSpec.payloadClass }} payload, {{ dynFuncSpec.topicInfo.functionParamList }}
+		{{ dynFuncSpec.payloadClass }} payload, {{ dynFuncSpec.channelInfo.functionParamList }}
 		) {
-		String topic = String.format("{{ dynFuncSpec.topicInfo.publishTopic }}",
-			{{ dynFuncSpec.topicInfo.functionArgList }});
+		String topic = String.format("{{ dynFuncSpec.channelInfo.publishChannel }}",
+			{{ dynFuncSpec.channelInfo.functionArgList }});
 			{%- if params.dynamicType === 'header' -%}
 		Message message = MessageBuilder
 			.withPayload(payload)
