@@ -149,13 +149,15 @@ public class {{ className }} {
 		) {
 		String topic = String.format("{{ dynFuncSpec.topicInfo.publishTopic }}",
 			{{ dynFuncSpec.topicInfo.functionArgList }});
+			{%- if params.dynamicType === 'header' -%}
 		Message message = MessageBuilder
 			.withPayload(payload)
-      {%- if params.dynamicType === 'header' -%}
 			.setHeader(BinderHeaders.TARGET_DESTINATION, topic)
-      {%- endif %}
 			.build();
 		streamBridge.send(topic, message);
+      {%- else %}
+		streamBridge.send(topic, payload);
+      {%- endif %}
 	}
 	{%- endif %}
 {%- endfor %}
