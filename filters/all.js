@@ -210,16 +210,19 @@ function handleParametersToHeaders(asyncapi, params, cloud) {
         cloud.function.configuration[name] = {};
         cloud.function.configuration[name]['input-header-mapping-expression'] = {};
         const headerConfig = cloud.function.configuration[name]['input-header-mapping-expression'];
-
-        for (const param of spec.channelInfo.parameters) {
-          if (params.binder === 'solace') {
-            headerConfig[param.name] = `headers.solace_destination.getName.split("/")[${param.position}]`;
-          } else if (params.binder === 'rabbit') {
-            headerConfig[param.name] = `headers.amqp_receivedRoutingKey.getName.split("/")[${param.position}]`;
-          }
-        }
+        addHeaderConfigs(params, spec.channelInfo, headerConfig);
       }
     });   
+  }
+}
+
+function addHeaderConfigs(params, channelInfo, headerConfig) {
+  for (const param of channelInfo.parameters) {
+    if (params.binder === 'solace') {
+      headerConfig[param.name] = `headers.solace_destination.getName.split("/")[${param.position}]`;
+    } else if (params.binder === 'rabbit') {
+      headerConfig[param.name] = `headers.amqp_receivedRoutingKey.getName.split("/")[${param.position}]`;
+    }
   }
 }
 
@@ -894,34 +897,7 @@ function getChannelInfo(params, channelName, channel) {
     }
 
     sampleArgList += ', ';
-
-    if (type) {
-      debugChannel('It is a type:');
-      debugChannel(type);
-      const javaType = type.javaType || typeMap.get(type);
-      if (!javaType) throw new Error(`channelInfo filter: type not found in typeMap: ${type}`);
-      param.type = javaType;
-      const printfArg = type.printFormat;
-      debugChannel(`printf: ${printfArg}`);
-      if (!printfArg) throw new Error(`channelInfo filter: printFormat not found in formatMap: ${type}`);
-      debugChannel(`Replacing ${nameWithBrackets}`);
-      publishChannel = publishChannel.replace(nameWithBrackets, printfArg);
-      sampleArg = type.sample;
-    } else {
-      const en = schema.enum();
-      if (en) {
-        debugChannel(`It is an enum: ${en}`);
-        param.type = _.upperFirst(name);
-        param.enum = en;
-        sampleArg = `Messaging.${param.type}.${en[0]}`;
-        debugChannel(`Replacing ${nameWithBrackets}`);
-        publishChannel = publishChannel.replace(nameWithBrackets, '%s');
-      } else {
-        throw new Error(`channelInfo filter: Unknown parameter type: ${  JSON.stringify(schema)}`);
-      }
-    }
-
-    param.sampleArg = sampleArg;
+    [publishChannel, sampleArg] = handleParameterType(name, param, type, publishChannel, schema, nameWithBrackets);
     subscribeChannel = subscribeChannel.replace(nameWithBrackets, '*');
     functionParamList += `${param.type} ${param.name}`;
     functionArgList += param.name;
@@ -937,6 +913,37 @@ function getChannelInfo(params, channelName, channel) {
   ret.subscribeChannel = subscribeChannel;
   ret.hasParams = parameters.length > 0;
   return ret;
+}
+
+function handleParameterType(name, param, type, publishChannel, schema, nameWithBrackets) {
+  let sampleArg = 1;
+  if (type) {
+    debugChannel('It is a type:');
+    debugChannel(type);
+    const javaType = type.javaType || typeMap.get(type);
+    if (!javaType) throw new Error(`channelInfo filter: type not found in typeMap: ${type}`);
+    param.type = javaType;
+    const printfArg = type.printFormat;
+    debugChannel(`printf: ${printfArg}`);
+    if (!printfArg) throw new Error(`channelInfo filter: printFormat not found in formatMap: ${type}`);
+    debugChannel(`Replacing ${nameWithBrackets}`);
+    publishChannel = publishChannel.replace(nameWithBrackets, printfArg);
+    sampleArg = type.sample;
+  } else {
+    const en = schema.enum();
+    if (en) {
+      debugChannel(`It is an enum: ${en}`);
+      param.type = _.upperFirst(name);
+      param.enum = en;
+      sampleArg = `Messaging.${param.type}.${en[0]}`;
+      debugChannel(`Replacing ${nameWithBrackets}`);
+      publishChannel = publishChannel.replace(nameWithBrackets, '%s');
+    } else {
+      throw new Error(`channelInfo filter: Unknown parameter type: ${  JSON.stringify(schema)}`);
+    }
+  }
+  param.sampleArg = sampleArg;
+  return [publishChannel, sampleArg];
 }
 
 function indent(numTabs) {
