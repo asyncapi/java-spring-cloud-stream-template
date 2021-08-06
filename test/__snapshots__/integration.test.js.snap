@@ -297,7 +297,7 @@ public class Application {
 		SpringApplication.run(Application.class);
 	}
 
-	// This is a consumer that calls a send method, instead of a function, because it has a dynamic topic and we need streamBridge.
+	// This is a consumer that calls a send method, instead of a function, because it has a dynamic channel and we need streamBridge.
 	public Consumer<MySchema> sameFunctionName() {
 		return data -> {
 			// Add business logic here.

@@ -96,7 +96,7 @@ host | | tcp://localhost:55555 | The host connection property. Currently this on
 javaPackage | info.x-java-package | | The Java package of the generated classes. If not set then the classes will be in the default package.
 msgVpn | | default | The message vpn connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
 password | | default | The client password connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
-parametersToHeaders | | false | If true, this will create headers on the incoming messages for each channel parameter. Currently this only works with messages originating from Solace, which have the solace_destination header set. RabbitMQ support is coming soon.
+parametersToHeaders | | false | If true, this will create headers on the incoming messages for each channel parameter. Currently this only works with messages originating from Solace (using the solace_destination header) and RabbitMQ (using the amqp_receivedRoutingKey header.)
 reactive | | false | If true, the generated functions will use the Reactive style and use the Flux class.
 solaceSpringCloudVersion | info.x-solace-spring-cloud-version | 2.1.0 | The version of the solace-spring-cloud-bom dependency used when generating an application.
 springBootVersion | info.x-spring-boot-version | 2.4.7 | The version of Spring Boot used when generating an application. 
