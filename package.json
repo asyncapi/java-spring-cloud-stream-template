@@ -111,6 +111,11 @@
         "required": false,
         "default": "default"
       },
+      "parametersToHeaders": {
+        "description": "If true, this will create headers on the incoming messages for each channel parameter. Currently this only works with messages originating from Solace (using the solace_destination header) and RabbitMQ (using the amqp_receivedRoutingKey header.)",
+        "required": false,
+        "default": false
+      },
       "password": {
         "description": "The client password connection property. Currently this only works with the Solace binder.",
         "required": false,
