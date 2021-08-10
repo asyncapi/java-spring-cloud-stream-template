@@ -1,5 +1,6 @@
 const filter = module.exports;
 const yaml = require('js-yaml');
+const generatorFilters = require('@asyncapi/generator-filters');
 const _ = require('lodash');
 const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
@@ -618,7 +619,7 @@ function getBrokerSettings(asyncapi, params){
        let server = asyncapi.servers()[serverName];
        let url = server.url()
        if (server.variables()) {
-         url = replaceVariablesWithValues(url, server.variables());
+         url = generatorFilters.replaceServerVariablesWithValues(url, server.variables());
        }
        brokers += `${url},`;
      }
@@ -630,45 +631,6 @@ function getBrokerSettings(asyncapi, params){
  return brokerSettings;
 }
 
-
-function replaceVariablesWithValues(url, serverVariables) {
-  const getVariablesNamesFromUrl = (url) => {
-    let result = [],
-      array;
-    const regEx = /{([^}]+)}/g;
-
-    while ((array = regEx.exec(url)) !== null) {
-      result.push([array[0], array[1]]);
-    }
-
-    return result;
-  }
-
-  const getVariableValue = (object, variable) => {
-    const keyValue = object[variable]._json;
-
-    if (keyValue) return keyValue.default || (keyValue.enum && keyValue.enum[0]);
-  }
-
-  const urlVariables = getVariablesNamesFromUrl(url);
-  const declaredVariables =
-    urlVariables.filter(el => serverVariables.hasOwnProperty(el[1]))
-
-  if (urlVariables.length !== 0 && declaredVariables.length !== 0) {
-    let value;
-    let newUrl = url;
-
-    urlVariables.forEach(el => {
-      value = getVariableValue(serverVariables, el[1]);
-
-      if (value) {
-        newUrl = newUrl.replace(el[0], value);
-      }
-    });
-    return newUrl;
-  }
-  return url;
-}
 
 // This returns the SCSt bindings config that will appear in application.yaml.
 function getBindings(asyncapi, params) {
