@@ -1,6 +1,6 @@
 {
   "name": "@asyncapi/java-spring-cloud-stream-template",
-  "version": "0.7.4",
+  "version": "0.9.1",
   "description": "Java Spring Cloud Stream template for AsyncAPI generator.",
   "scripts": {
     "release": "semantic-release",
@@ -27,7 +27,7 @@
   "author": "Michael Davis <michael@damaru.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@asyncapi/generator-filters": "^2.0.0",
+    "@asyncapi/generator-filters": "^2.1.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15"
   },
@@ -69,27 +69,38 @@
     "parameters": {
       "actuator": {
         "description": "If present, it adds the dependencies for spring-boot-starter-web, spring-boot-starter-actuator and micrometer-registry-prometheus.",
-        "required": false
+        "required": false,
+        "default": false
       },
       "artifactId": {
         "description": "The Maven artifact id. Alternatively you can set the specification extension info.x-artifact-id",
-        "required": false
+        "required": false,
+        "default": "project-name"
       },
       "artifactType": {
-        "description": "The type of project to generate, application or library. The default is library. When generating an application, the pom.xml file will contain the complete set of dependencies required to run an app, and it will contain an Application class with a main function. Otherwise the pom file will include only the dependencies required to compile a library.",
-        "required": false
+        "description": "The type of project to generate, application or library. The default is application. When generating an application, the pom.xml file will contain the complete set of dependencies required to run an app, and it will contain an Application class with a main function. Otherwise the pom file will include only the dependencies required to compile a library.",
+        "required": false,
+        "default": "application"
       },
       "binder": {
         "description": "The name of the binder implementation, one of kafka, rabbit or solace. Default: kafka. If you need other binders to be supported, please let us know!",
-        "required": false
+        "required": false,
+        "default": "kafka"
+      },
+      "dynamicType": {
+        "description": "When using channels with parameters, i.e. dynamic topics where the topic could be different for each message, this determines whether to use the StreamBridge or a message header. StreamBridge can be used with all binders, but some binders such as Solace can use the topic set in a header for better performance. Possible values are streamBridge and header. Default is streamBridge.",
+        "required": false,
+        "default": "streamBridge"
       },
       "groupId": {
         "description": "The Maven group id. Alternatively you can set the specification extension info.x-group-id",
-        "required": false
+        "required": false,
+        "default": "com.company"
       },
       "host": {
         "description": "The host connection property. Currently this only works with the Solace binder. Example: tcp://myhost.com:55555.",
-        "required": false
+        "required": false,
+        "default": "tcp://localhost:55555"
       },
       "javaPackage": {
         "description": "The Java package of the generated classes. Alternatively you can set the specification extension info.x-java-package",
@@ -97,39 +108,53 @@
       },
       "msgVpn": {
         "description": "The message vpn connection property. Currently this only works with the Solace binder.",
-        "required": false
+        "required": false,
+        "default": "default"
+      },
+      "parametersToHeaders": {
+        "description": "If true, this will create headers on the incoming messages for each channel parameter. Currently this only works with messages originating from Solace (using the solace_destination header) and RabbitMQ (using the amqp_receivedRoutingKey header.)",
+        "required": false,
+        "default": false
       },
       "password": {
         "description": "The client password connection property. Currently this only works with the Solace binder.",
-        "required": false
+        "required": false,
+        "default": "default"
       },
       "reactive": {
         "description": "If true, this will generate reactive style functions using the Flux class. Defalt: false.",
-        "required": false
+        "required": false,
+        "default": false
       },
       "solaceSpringCloudVersion": {
         "description": "The version of the solace-spring-cloud-bom dependency used when generating an application. Alternatively you can set the specification extension info.x-solace-spring-cloud-version.",
-        "required": false
+        "required": false,
+        "default": "2.1.0"
       },
       "springBootVersion": {
         "description": "The version of Spring Boot used when generating an application. Alternatively you can set the specification extension info.x-spring-booot-version. Example: 2.2.6.RELEASE.",
-        "required": false
+        "required": false,
+        "default": "2.4.7"
       },
       "springCloudVersion": {
         "description": "The version of the spring-cloud-dependencies BOM dependency used when generating an application. Alternatively you can set the specification extension info.x-spring-cloud-version. Example: Hoxton.RELEASE.",
-        "required": false
+        "required": false,
+        "default": "2020.0.3"
       },
       "springCloudStreamVersion": {
         "description": "The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead. Example: 3.0.1.RELEASE",
-        "required": false
+        "required": false,
+        "default": "3.1.3"
       },
       "username": {
         "description": "The client username connection property. Currently this only works with the Solace binder",
-        "required": false
+        "required": false,
+        "default": "default"
       },
       "view": {
         "description": "The view that the template uses. By default it is the client view, which means that when the document says publish, we subscribe. In the case of the provider view, when the document says publish, we publish. Values are client or provider. The default is client.",
-        "required": false
+        "required": false,
+        "default": "client"
       },
       "useServers": {
         "description": "This option works when binder is kafka. By default it is set to false. When set to true, it will concatenate all the urls in the servers section as a list of brokers for kafka.",

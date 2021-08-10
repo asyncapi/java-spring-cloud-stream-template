@@ -1,104 +1,165 @@
 {%- include 'partials/java-package' -%}
 {%- set extraIncludes = [asyncapi, params] | appExtraIncludes %}
-{%- set dynamicFuncs = [asyncapi, params] | getDynamicFunctions -%}
+
+{%- if extraIncludes.needFunction %}
+import java.util.function.Function;
+{%- endif %}
+{%- if extraIncludes.needConsumer %}
+import java.util.function.Consumer;
+{%- endif %}
+{%- if extraIncludes.needSupplier %}
+import java.util.function.Supplier;
+{%- endif %}
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+{%- if extraIncludes.dynamic and params.dynamicType === 'streamBridge' %}
+import org.springframework.beans.factory.annotation.Autowired;
+{%- endif %}
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+{%- if extraIncludes.dynamic %}
+	{%- if params.dynamicType === 'streamBridge' %}
+import org.springframework.cloud.stream.function.StreamBridge;
+	{%- else %}
+import org.springframework.cloud.stream.binder.BinderHeaders;
+	{%- endif %}
+{%- endif %}
+{%- if extraIncludes.needBean %}
 import org.springframework.context.annotation.Bean;
-{% if extraIncludes.needMessageInclude %}
+{%- endif %}
+{%- if extraIncludes.needMessage %}
 import org.springframework.messaging.Message;
-{% endif %}
+{%- endif %}
+{%- if extraIncludes.dynamic %}
+import org.springframework.messaging.support.MessageBuilder;
+{%- endif %}
 {%- if params.reactive === 'true' %}
 import reactor.core.publisher.Flux;
-{%- endif -%}
-{%- set funcs = [asyncapi, params] | functionSpecs -%}
-{%- set hasFunctions = false -%}
-{%- set hasConsumers = false -%}
-{%- set hasSuppliers = false -%}
-{%- for funcName, funcSpec in funcs -%}
-{%- if funcSpec.type === 'function' -%}
-{%- set hasFunctions = true %}
 {%- endif %}
-{%- if funcSpec.type === 'consumer' -%}
-{%- set hasConsumers = true %}
-{%- endif %}
-{%- if funcSpec.type === 'supplier' -%}
-{%- set hasSuppliers = true -%}
-{%- endif -%}
-{%- endfor %}
-{%- if hasFunctions %}
-import java.util.function.Function;
-{%- endif %}
-{%- if hasConsumers %}
-import java.util.function.Consumer;
-{%- endif %}
-{%- if hasSuppliers %}
-import java.util.function.Supplier;
-{%- endif %}
-{% if extraIncludes.dynamicTopics %}
-// Uncomment this if you want to use one of the sample functions commented out below.
-/*
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.stream.binder.BinderHeaders;
-import org.springframework.cloud.stream.function.StreamBridge;
-{%- if extraIncludes.dynamicTopics and not extraIncludes.needMessageInclude %}
-import org.springframework.messaging.Message;
-{%- endif %}
-import org.springframework.messaging.support.MessageBuilder;
-*/
-{% endif %}
-
 {% set className = [asyncapi.info(), params] | mainClassName %}
 @SpringBootApplication
 public class {{ className }} {
 
-    private static final Logger logger = LoggerFactory.getLogger({{ className }}.class);
-{%- if dynamicFuncs.size %}
-//Uncomment this if you want to use one of the sample functions commented out below.
-/*
-    private static final String DYNAMIC_BINDING = "dynamic";
-    @Autowired
-    private StreamBridge streamBridge;
-*/
+	private static final Logger logger = LoggerFactory.getLogger({{ className }}.class);
+{%- if extraIncludes.dynamic and params.dynamicType === 'streamBridge' %}
+
+	@Autowired
+	private StreamBridge streamBridge;
 {%- endif %}
 
 	public static void main(String[] args) {
 		SpringApplication.run({{ className }}.class);
 	}
+{% set funcs = [asyncapi, params] | functionSpecs -%}
 {% for funcName, funcSpec in funcs %}
+	{%- if funcSpec.type === 'function' %}
+		{%- if funcSpec.dynamic %}
+			{%- if params.dynamicType === 'header' %}
+	{{ funcSpec.functionSignature | safe }} {
+		return data -> {
+			// Add business logic here.
+			logger.info(data.toString());
+			{% for param in funcSpec.channelInfo.parameters -%}
+			{{ param.type }} {{ param.name }} = {{ param.sampleArg | safe }};
+			{% endfor -%}
+			String topic = String.format("{{ funcSpec.channelInfo.publishChannel }}",
+				{{ funcSpec.channelInfo.functionArgList }});
+			{{ funcSpec.publishPayload | safe }} payload = new {{ funcSpec.publishPayload | safe }}();
+			Message message = MessageBuilder
+				.withPayload(payload)
+				.setHeader(BinderHeaders.TARGET_DESTINATION, topic)
+				.build();
+
+			return message;
+		};
+	}
+			{%- else %}{# streamBridge, we need a consumer to call our func. #}
+	// This is a consumer that calls a send method, instead of a function, because it has a dynamic channel and we need streamBridge.
+	{{ funcSpec.functionSignature | safe }} {
+		return data -> {
+			// Add business logic here.
+			logger.info(data.toString());
+			{% for param in funcSpec.channelInfo.parameters -%}
+			{{ param.type }} {{ param.name }} = {{ param.sampleArg | safe }};
+			{% endfor -%}
+			{{ funcSpec.publishPayload | safe }} payload = new {{ funcSpec.publishPayload | safe }}();
+			{{ funcSpec.sendMethodName }}(payload, {{ funcSpec.channelInfo.functionArgList }});
+		};
+	}
+			{%- endif %}
+		{%- else %}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
-		{%- if funcSpec.isSubscriber and funcSpec.type !== 'function' %}
+		return data -> {
+			// Add business logic here.
+			logger.info(data.toString());
+			return new {{ funcSpec.publishPayload | safe }}();
+		};
+	}
+		{%- endif %}
+	{%- elif funcSpec.type === 'consumer' %}
+	@Bean
+	{{ funcSpec.functionSignature | safe }} {
 		return data -> {
 			// Add business logic here.	
 			logger.info(data.toString());
 		};
-		{%- else %}
-		return data -> {
+	}	
+	{%- else %}{#- it is a supplier. #}
+		{%- if funcSpec.dynamic %}
+			{%- if params.dynamicType === 'header' %}
+	@Bean
+	{{ funcSpec.functionSignature | safe }} {
+		return () -> {
+			// Add business logic here.
+			{{ funcSpec.publishPayload | safe }} payload = new {{ funcSpec.publishPayload | safe }}();
+			{% for param in funcSpec.channelInfo.parameters -%}
+			{{ param.type }} {{ param.name }} = {{ param.sampleArg | safe }};
+			{% endfor -%}
+			String topic = String.format("{{ funcSpec.channelInfo.publishChannel }}",
+				{{ funcSpec.channelInfo.functionArgList }});
+			Message message = MessageBuilder
+				.withPayload(payload)
+				.setHeader(BinderHeaders.TARGET_DESTINATION, topic)
+				.build();
+
+			return message;
+		};
+	}
+			{# else do nothing, we just use the void function below. #}
+			{%- endif %}{# dynamic type #}
+		{%- else -%}{# it is not dynamic. #}
+	@Bean
+	{{ funcSpec.functionSignature | safe }} {
+		return () -> {
 			// Add business logic here.
 			return new {{ funcSpec.publishPayload | safe }}();
 		};
-		{%- endif %}
 	}
+		{%- endif %}{# dynamic #}
+	{%- endif %}{# supplier #}
 {% endfor %}
-
-{% if dynamicFuncs.size %}
-/* Here is an example of how to send a message to a dynamic topic:
-{% for dynFuncName, dynFuncSpec in dynamicFuncs %}
-	public void {{ dynFuncName }}(
-		{{ dynFuncSpec.payloadClass }} payload, {{ dynFuncSpec.topicInfo.functionParamList }}
+{%- set dynamicFuncs = [asyncapi, params] | getDynamicFunctions -%}
+{%- if dynamicFuncs.size %}
+{%- for sendMethodName, dynFuncSpec in dynamicFuncs %}
+	{%- if funcSpec.type === 'supplier' or params.dynamicType === 'streamBridge' %}
+	public void {{ sendMethodName }}(
+		{{ dynFuncSpec.payloadClass }} payload, {{ dynFuncSpec.channelInfo.functionParamList }}
 		) {
-		String topic = String.format("{{ dynFuncSpec.topicInfo.publishTopic }}",
-			{{ dynFuncSpec.topicInfo.functionArgList }});
+		String topic = String.format("{{ dynFuncSpec.channelInfo.publishChannel }}",
+			{{ dynFuncSpec.channelInfo.functionArgList }});
+			{%- if params.dynamicType === 'header' -%}
 		Message message = MessageBuilder
 			.withPayload(payload)
 			.setHeader(BinderHeaders.TARGET_DESTINATION, topic)
 			.build();
-		streamBridge.send(DYNAMIC_BINDING, message);
+		streamBridge.send(topic, message);
+      {%- else %}
+		streamBridge.send(topic, payload);
+      {%- endif %}
 	}
+	{%- endif %}
 {%- endfor %}
-*/
 {%- endif %}
 }

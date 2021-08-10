@@ -2,7 +2,6 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
-const ScsLib = require('../lib/scsLib.js');
 // To enable debug logging, set the env var DEBUG="postProcess" with whatever things you want to see.
 const debugPostProcess = require('debug')('postProcess');
 
@@ -10,7 +9,6 @@ const sourceHead = '/src/main/java/';
 
 module.exports = {
   'generate:after': generator => {
-    const scsLib = new ScsLib();
     const asyncapi = generator.asyncapi;
     let sourcePath = generator.targetDir + sourceHead;
     const info = asyncapi.info();
@@ -45,8 +43,6 @@ module.exports = {
     // Rename the pom file if necessary, and only include Application.java when an app is requested.
     const artifactType = generator.templateParams['artifactType'];
 
-    let overrideClassName = scsLib.getParamOrExtension(info, generator.templateParams, 'javaClass', 'x-java-class');
-
     if (artifactType === 'library') {
       fs.renameSync(path.resolve(generator.targetDir, 'pom.lib'), path.resolve(generator.targetDir, 'pom.xml'));
       fs.unlinkSync(path.resolve(generator.targetDir, 'pom.app'));
@@ -54,11 +50,6 @@ module.exports = {
     } else {
       fs.renameSync(path.resolve(generator.targetDir, 'pom.app'), path.resolve(generator.targetDir, 'pom.xml'));
       fs.unlinkSync(path.resolve(generator.targetDir, 'pom.lib'));
-
-      if (overrideClassName) {
-        overrideClassName += '.java';
-        fs.renameSync(path.resolve(sourcePath, 'Application.java'), path.resolve(sourcePath, overrideClassName));
-      }
     }
 
     // This renames schema objects ensuring they're proper Java class names. It also removes files that are schemas of simple types.

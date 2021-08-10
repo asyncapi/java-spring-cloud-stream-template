@@ -4,24 +4,13 @@ const _ = require('lodash');
 const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
 // To enable debug logging, set the env var DEBUG="type function" with whatever things you want to see.
-const debugAppProperties = require('debug')('appProperties');
 const debugDynamic = require('debug')('dynamic');
 const debugFunction = require('debug')('function');
 const debugJavaClass = require('debug')('javaClass');
 const debugPayload = require('debug')('payload');
 const debugProperty = require('debug')('property');
-const debugTopic = require('debug')('topic');
+const debugChannel = require('debug')('channel');
 const debugType = require('debug')('type');
-
-// Library versions
-const SOLACE_SPRING_CLOUD_VERSION = '2.1.0';
-const SPRING_BOOT_VERSION = '2.4.7';
-const SPRING_CLOUD_VERSION = '2020.0.3';
-const SPRING_CLOUD_STREAM_VERSION = '3.1.3.RELEASE';
-
-// Connection defaults. SOLACE_DEFAULT applies to msgVpn, username and password.
-const SOLACE_HOST = 'tcp://localhost:55555';
-const SOLACE_DEFAULT = 'default';
 
 const stringMap = new Map();
 stringMap.set('date',{javaType: 'java.time.LocalDate', printFormat: '%s', sample: '2000-12-31'});
@@ -78,33 +67,65 @@ class SCSFunction {
     return `${this.name  }-in-0`;
   }
 
+  // This returns true if this is a function, but we need to render it as a consumer
+  // because we need to call streamBridge to send out the message.
+  get functionAsConsumer() {
+    return this.type === 'function' && this.dynamic && this.dynamicType === 'streamBridge';
+  }
+
   get functionSignature() {
     let ret = '';
-    switch (this.type) {
-    case 'function':
-      if (this.reactive) {
-        ret = `public Function<Flux<${this.subscribePayload}>, Flux<${this.publishPayload}>> ${this.name}()`;
-      } else {
-        ret = `public Function<${this.subscribePayload}, ${this.publishPayload}> ${this.name}()`;
-      }
-      break;
-    case 'supplier':
-      if (this.reactive) {
-        ret = `public Supplier<Flux<${this.publishPayload}>> ${this.name}()`;
-      } else {
-        ret = `public Supplier<${this.publishPayload}> ${this.name}()`;
-      }
-      break;
-    case 'consumer':
+    if (this.type === 'consumer' || (this.type === 'function' && this.dynamic && this.dynamicType === 'streamBridge')) {
       if (this.reactive) {
         ret = `public Consumer<Flux<${this.subscribePayload}>> ${this.name}()`;
+      } else if (this.dynamic && this.parametersToHeaders) {
+        ret = `public Consumer<Message<${this.subscribePayload}>> ${this.name}()`;
       } else {
         ret = `public Consumer<${this.subscribePayload}> ${this.name}()`;
       }
-      break;
-    default:
+    } else if (this.type === 'supplier') {
+      ret = this.getSupplierFunctionSignature();
+    } else if (this.type === 'function') {
+      ret = this.getFunctionMethodSignature();
+    } else {
       throw new Error(`Can't determine the function signature for ${this.name} because the type is ${this.type}`);
     }
+    return ret;
+  }
+
+  getSupplierFunctionSignature() {
+    let ret = '';
+
+    if (this.dynamic) {
+      if (this.reactive) {
+        ret = `public Supplier<Flux<Message<${this.publishPayload}>>> ${this.name}()`;
+      } else {
+        ret = `public Supplier<Message<${this.publishPayload}>> ${this.name}()`;
+      }
+    } else if (this.reactive) {
+      ret = `public Supplier<Flux<${this.publishPayload}>> ${this.name}()`;
+    } else {
+      ret = `public Supplier<${this.publishPayload}> ${this.name}()`;
+    }
+
+    return ret;
+  }
+
+  getFunctionMethodSignature() {
+    let ret = '';
+
+    if (this.dynamic) {
+      if (this.reactive) {
+        ret = `public Function<Flux<${this.subscribePayload}>, Flux<Message<${this.publishPayload}>>> ${this.name}()`;
+      } else {
+        ret = `public Function<${this.subscribePayload}, Message<${this.publishPayload}>> ${this.name}()`;
+      }
+    } else if (this.reactive) {
+      ret = `public Function<Flux<${this.subscribePayload}>, Flux<${this.publishPayload}>> ${this.name}()`;
+    } else {
+      ret = `public Function<${this.subscribePayload}, ${this.publishPayload}> ${this.name}()`;
+    }
+
     return ret;
   }
 }
@@ -112,7 +133,7 @@ class SCSFunction {
 // This generates the object that gets rendered in the application.yaml file.
 function appProperties([asyncapi, params]) {
   debugProperty('appProperties start');
-  params.binder = params.binder || 'kafka';
+
   if (params.binder !== 'kafka' && params.binder !== 'rabbit' && params.binder !== 'solace') {
     throw new Error('Please provide a parameter named \'binder\' with the value kafka, rabbit or solace.');
   }
@@ -122,6 +143,13 @@ function appProperties([asyncapi, params]) {
   doc.spring.cloud = {};
   const cloud = doc.spring.cloud;
   cloud.function = {};
+
+  // See if we have dynamic functions, and if the parametersToHeaders param is set.
+  // If so, add the input-header-mapping-expression config to consumers which consume dynamic channels.
+  if (params.parametersToHeaders) {
+    handleParametersToHeaders(asyncapi, params, cloud);
+  }
+
   debugProperty('appProperties getFunctionDefinitions');
   cloud.function.definition = getFunctionDefinitions(asyncapi, params);
   cloud.stream = {};
@@ -178,43 +206,85 @@ function appProperties([asyncapi, params]) {
 }
 filter.appProperties = appProperties;
 
+function handleParametersToHeaders(asyncapi, params, cloud) {
+  const dynamicFuncs = getDynamicFunctions([asyncapi, params]);
+
+  if (dynamicFuncs && (params.binder === 'solace' || params.binder === 'rabbit')) {
+    cloud.function.configuration = {};
+    const funcs = getFunctionSpecs(asyncapi, params);
+
+    funcs.forEach((spec, name, map) => {
+      if (spec.dynamic && spec.type === 'consumer') {
+        cloud.function.configuration[name] = {};
+        cloud.function.configuration[name]['input-header-mapping-expression'] = {};
+        const headerConfig = cloud.function.configuration[name]['input-header-mapping-expression'];
+        addHeaderConfigs(params, spec.channelInfo, headerConfig);
+      }
+    });   
+  }
+}
+
+function addHeaderConfigs(params, channelInfo, headerConfig) {
+  for (const param of channelInfo.parameters) {
+    if (params.binder === 'solace') {
+      headerConfig[param.name] = `headers.solace_destination.getName.split("/")[${param.position}]`;
+    } else if (params.binder === 'rabbit') {
+      headerConfig[param.name] = `headers.amqp_receivedRoutingKey.getName.split("/")[${param.position}]`;
+    }
+  }
+}
+
 function artifactId([info, params]) {
-  return scsLib.getParamOrDefault(info, params, 'artifactId', 'x-artifact-id', 'project-name');
+  return scsLib.getParamOrDefault(info, params, 'artifactId', 'x-artifact-id');
 }
 filter.artifactId = artifactId;
 
+function addtoExtraIncludesFromFunctionSpecs(asyncapi, params, extraIncludes) {
+  const funcs = getFunctionSpecs(asyncapi, params);
+
+  funcs.forEach((spec, name, map) => {
+    if (spec.dynamic) {
+      extraIncludes.dynamic = true;
+    }
+    if (spec.multipleMessages || spec.dynamic) {
+      extraIncludes.needMessage = true;
+    }
+    if (spec.type === 'function' && !spec.functionAsConsumer) {
+      extraIncludes.needBean = true;
+      extraIncludes.needFunction = true;
+    }
+    if ((spec.type === 'supplier' && !(spec.dynamic && spec.dynamicType === 'streamBridge')) || spec.functionAsConsumer) {
+      extraIncludes.needBean = true;
+      extraIncludes.needSupplier = true;
+    }
+    if (spec.type === 'consumer') {
+      extraIncludes.needBean = true;
+      extraIncludes.needConsumer = true;
+    }
+  });
+}
+
 function appExtraIncludes([asyncapi, params]) {
-  const ret = {};
+  const extraIncludes = {};
   
   for (const channelName in asyncapi.channels()) {
     const channel = asyncapi.channels()[channelName];
     const subscribe = channel.subscribe();
 
     if (subscribe && (subscribe.hasMultipleMessages())) {
-      ret.needMessageInclude = true;
+      extraIncludes.needMessage = true;
     }
 
     const publish = channel.publish();
     if (publish && publish.hasMultipleMessages()) {
-      ret.needMessageInclude = true;
-    }
-
-    const pub  = scsLib.getRealPublisher(asyncapi.info(), params, channel);
-    const topicInfo = getTopicInfo(channelName, channel);
-    if (pub && topicInfo.hasParams) {
-      ret.dynamicTopics = true;
+      extraIncludes.needMessage = true;
     }
   }
 
-  const funcs = getFunctionSpecs(asyncapi, params);
-  funcs.forEach((spec, name, map) => {
-    if (spec.multipleMessages) {
-      ret.needMessageInclude = true;
-    }
-  });
-
-  return ret;
+  addtoExtraIncludesFromFunctionSpecs(asyncapi, params, extraIncludes);
+  return extraIncludes;
 }
+
 filter.appExtraIncludes = appExtraIncludes;
 
 function identifierName(str) {
@@ -312,7 +382,7 @@ function functionSpecs([asyncapi, params]) {
 }
 filter.functionSpecs = functionSpecs;
 
-// This returns the non-SCS type functions for sending to dynamic topics.
+// This returns the non-SCS type functions for sending to dynamic channels.
 function getDynamicFunctions([asyncapi, params]) {
   const functionMap = new Map();
   debugDynamic('start:');
@@ -321,17 +391,16 @@ function getDynamicFunctions([asyncapi, params]) {
     debugDynamic(`getDynamicFunctions channelName ${channelName}`);
     debugDynamic(channel);
     const publisher = scsLib.getRealPublisher(asyncapi.info(), params, channel);
-    debugDynamic('start: 3');
     if (publisher) {
       debugDynamic('found publisher:');
       debugDynamic(publisher);
-      const topicInfo = getTopicInfo(channelName, channel);
-      if (topicInfo.hasParams) {
+      const channelInfo = getChannelInfo(params, channelName, channel);
+      if (channelInfo.hasParams) {
         const spec = {};
-        spec.topicInfo = topicInfo;
+        spec.channelInfo = channelInfo;
         spec.payloadClass = getPayloadClass(publisher);
-        spec.functionName = `send${_.upperFirst(getFunctionName(channelName, publisher, undefined))}`;
-        functionMap.set(spec.functionName, spec);
+        spec.sendMethodName = getSendFunctionName(channelName, publisher);
+        functionMap.set(spec.sendMethodName, spec);
       }
     }
   }
@@ -364,7 +433,7 @@ function getRealSubscriber([info, params, channel]) {
 filter.getRealSubscriber = getRealSubscriber;
 
 function groupId([info, params]) {  
-  return scsLib.getParamOrDefault(info, params, 'groupId', 'x-group-id', 'com.company');
+  return scsLib.getParamOrDefault(info, params, 'groupId', 'x-group-id');
 }
 filter.groupId = groupId;
 
@@ -435,22 +504,22 @@ function schemaExtraIncludes([schemaName, schema]) {
 filter.schemaExtraIncludes = schemaExtraIncludes;
 
 function solaceSpringCloudVersion([info, params]) {
-  return scsLib.getParamOrDefault(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version', SOLACE_SPRING_CLOUD_VERSION);
+  return scsLib.getParamOrDefault(info, params, 'solaceSpringCloudVersion', 'x-solace-spring-cloud-version');
 }
 filter.solaceSpringCloudVersion = solaceSpringCloudVersion;
 
 function springBootVersion([info, params]) {
-  return scsLib.getParamOrDefault(info, params, 'springBootVersion', 'x-spring-boot-version', SPRING_BOOT_VERSION);
+  return scsLib.getParamOrDefault(info, params, 'springBootVersion', 'x-spring-boot-version');
 }
 filter.springBootVersion = springBootVersion;
 
 function springCloudStreamVersion([info, params]) {
-  return scsLib.getParamOrDefault(info, params, 'springCloudStreamVersion', 'x-spring-cloud-stream-version', SPRING_CLOUD_STREAM_VERSION);
+  return scsLib.getParamOrDefault(info, params, 'springCloudStreamVersion', 'x-spring-cloud-stream-version');
 }
 filter.springCloudStreamVersion = springCloudStreamVersion;
 
 function springCloudVersion([info, params]) {
-  return scsLib.getParamOrDefault(info, params, 'springCloudVersion', 'x-spring-cloud-version', SPRING_CLOUD_VERSION);
+  return scsLib.getParamOrDefault(info, params, 'springCloudVersion', 'x-spring-cloud-version');
 }
 filter.springCloudVersion = springCloudVersion;
 
@@ -523,7 +592,7 @@ function getAdditionalSubs(asyncapi, params) {
   let ret;
   const funcs = getFunctionSpecs(asyncapi, params);
   funcs.forEach((spec, name, map) => {
-    debugAppProperties(`getAdditionalSubs: ${spec.name} ${spec.isQueueWithSubscription} ${spec.additionalSubscriptions}`);
+    debugProperty(`getAdditionalSubs: ${spec.name} ${spec.isQueueWithSubscription} ${spec.additionalSubscriptions}`);
     // The first additional subscription will be the destination. If there is more than one the rest go here.
     if (spec.isQueueWithSubscription && spec.additionalSubscriptions.length > 1) {
       if (!ret) {
@@ -635,6 +704,9 @@ function getFunctionName(channelName, operation, isSubscriber) {
   if (smfBinding && smfBinding.queueName && smfBinding.topicSubscriptions) {
     functionName = smfBinding.queueName;
   } else {
+    if (operation.id()) {
+      return operation.id();
+    }
     functionName = channelName;
   }
 
@@ -658,6 +730,13 @@ function getFunctionDefinitions(asyncapi, params) {
 
 function getFunctionSpecs(asyncapi, params) {
   // This maps function names to SCS function definitions.
+
+  debugFunction('--------------------------- getFunctionSpecs -------------------');
+
+  if (params.dynamicType !== 'header' && params.dynamicType !== 'streamBridge') {
+    throw new Error(`The dynamicType parameter must be either 'header' or 'streamBridge. Given: ${params.dynamicType}`);
+  }
+
   const functionMap = new Map();
   const reactive = params.reactive === 'true';
   const info = asyncapi.info();
@@ -667,23 +746,31 @@ function getFunctionSpecs(asyncapi, params) {
     debugFunction(`getFunctionSpecs channelName ${channelName}`);
     debugFunction(channel);
     let functionSpec;
+
     const publish = scsLib.getRealPublisher(info, params, channel);
     if (publish) {
       const name = getFunctionName(channelName, publish, false);
+      debugFunction(`We have a real publisher named ${name}`);
       functionSpec = functionMap.get(name);
       if (functionSpec) {
         if (functionSpec.isPublisher) {
           throw new Error(`Function ${name} can't publish to both channels ${name} and ${channelName}.`);
         }
         functionSpec.type = 'function';
+        debugFunction('Found existing subscriber, so this is a function.');
       } else {
+        const channelInfo = getChannelInfo(params, channelName, channel);
         functionSpec = new SCSFunction();
         functionSpec.name = name;
         functionSpec.type = 'supplier';
         functionSpec.reactive = reactive;
+        functionSpec.dynamic = channelInfo.hasParams;
+        functionSpec.channelInfo = channelInfo;
+        functionSpec.sendMethodName = getSendFunctionName(channelName, publish);
+        functionSpec.dynamicType = params.dynamicType;
+        functionSpec.parametersToHeaders = params.parametersToHeaders;
         functionMap.set(name, functionSpec);
       }
-      debugFunction('calling getPayloadClass');
       const payload = getPayloadClass(publish);
       if (!payload) {
         throw new Error(`Channel ${channelName}: no payload class has been defined.`);
@@ -692,12 +779,11 @@ function getFunctionSpecs(asyncapi, params) {
       functionSpec.publishChannel = channelName;
     }
 
-    debugFunction('subscribe:');
     const subscribe = scsLib.getRealSubscriber(info, params, channel);
-    debugFunction(subscribe);
 
     if (subscribe) {
       const name = getFunctionName(channelName, subscribe, true);
+      debugFunction(`We have a real subscriber named ${name}`);
       const smfBinding = subscribe.binding('smf');
       debugFunction('smfBinding:');
       debugFunction(smfBinding);
@@ -706,7 +792,7 @@ function getFunctionSpecs(asyncapi, params) {
         debugFunction(`This already exists: ${name} isQueueWithSubscription: ${functionSpec.isQueueWithSubscription}`);
         if (functionSpec.isQueueWithSubscription) { // This comes from an smf binding to a queue.
           debugFunction(functionSpec);
-          for (const sub of smfBinding.topicSubscriptions) {
+          for (const sub of smfBinding.channelSubscriptions) {
             let foundIt = false;
             for (const existingSub of functionSpec.additionalSubscriptions) {
               debugFunction(`Comparing ${sub} to ${existingSub}`);
@@ -735,13 +821,19 @@ function getFunctionSpecs(asyncapi, params) {
             throw new Error(`Function ${name} can't subscribe to both channels ${functionSpec.channel} and ${channelName}.`);
           }
           functionSpec.type = 'function';
+          functionSpec.dynamicType = params.dynamicType;
         }
       } else {
         debugFunction('This is a new one.');
+        const channelInfo = getChannelInfo(params, channelName, channel);
         functionSpec = new SCSFunction();
         functionSpec.name = name;
         functionSpec.type = 'consumer';
         functionSpec.reactive = reactive;
+        functionSpec.dynamic = channelInfo.hasParams;
+        functionSpec.channelInfo = channelInfo;
+        functionSpec.dynamicType = params.dynamicType;
+        functionSpec.parametersToHeaders = params.parametersToHeaders;
         functionMap.set(name, functionSpec);
         if (smfBinding && smfBinding.queueName && smfBinding.topicSubscriptions) {
           debugFunction(`A new one with subscriptions: ${smfBinding.topicSubscriptions}`);
@@ -769,10 +861,10 @@ function getFunctionSpecs(asyncapi, params) {
         functionSpec.subscribeChannel = dest;
       } else if (functionSpec.isQueueWithSubscription) {
         functionSpec.subscribeChannel = functionSpec.additionalSubscriptions[0];
-        debugFunction(`Setting subscribeChannel for topicWithSubs: ${functionSpec.subscribeChannel}`);
+        debugFunction(`Setting subscribeChannel for channelWithSubs: ${functionSpec.subscribeChannel}`);
       } else {
-        const topicInfo = getTopicInfo(channelName, channel);
-        functionSpec.subscribeChannel = topicInfo.subscribeTopic;
+        const channelInfo = getChannelInfo(params, channelName, channel);
+        functionSpec.subscribeChannel = channelInfo.subscribeChannel;
       }
     }
 
@@ -801,7 +893,7 @@ function getPayloadClass(pubOrSub) {
         debugPayload('type:');
         debugPayload(type);
 
-        if (type === 'object') {
+        if (!type || type === 'object') {
           ret = payload.ext('x-parser-schema-id');
           ret = _.camelCase(ret);
           ret = _.upperFirst(ret);
@@ -816,39 +908,56 @@ function getPayloadClass(pubOrSub) {
   return ret;
 }
 
+function getSendFunctionName(channelName, operation) {
+  return `send${_.upperFirst(getFunctionName(channelName, operation, undefined))}`;
+}
+
 // This returns the connection properties for a solace binder, for application.yaml.
 function getSolace(params) {
   const ret = {};
   ret.java = {};
-  ret.java.host = params.host || SOLACE_HOST;
-  ret.java.msgVpn = params.msgVpn || SOLACE_DEFAULT;
-  ret.java.clientUsername = params.username || SOLACE_DEFAULT;
-  ret.java.clientPassword = params.password || SOLACE_DEFAULT;
+  ret.java.host = params.host;
+  ret.java.msgVpn = params.msgVpn;
+  ret.java.clientUsername = params.username;
+  ret.java.clientPassword = params.password;
   return ret;
 }
 
-// This returns an object containing information the template needs to render topic strings.
-function getTopicInfo(channelName, channel) {
+// This returns an object containing information the template needs to render channel strings.
+function getChannelInfo(params, channelName, channel) {
   const ret = {};
-  let publishTopic = String(channelName);
-  let subscribeTopic = String(channelName);
-  const params = [];
+
+  // This isfor the parameterToHeader feature.
+  const delimiter = (params.binder === 'rabbit' || params.binder === 'kafka') ? '.' : '/';
+  const channelParts = channelName.split(delimiter);
+
+  let publishChannel = String(channelName);
+  let subscribeChannel = String(channelName);
+  const parameters = [];
   let functionParamList = '';
   let functionArgList = '';
   let sampleArgList = '';
   let first = true;
 
-  debugTopic('params:');
-  debugTopic(channel.parameters());
+  debugChannel('parameters:');
+  debugChannel(channel.parameters());
   for (const name in channel.parameters()) {
-    const nameWithBrackets = `{${  name  }}`;
+    const nameWithBrackets = `{${name}}`;
     const parameter = channel.parameter(name);
     const schema = parameter.schema();
     const type = getType(schema.type(), schema.format());
-    const param = { name: _.lowerFirst(name) };
-    debugTopic(`name: ${name} type:`);
-    debugTopic(type);
+    const param = { name: _.camelCase(name) };
+    debugChannel(`name: ${name} type:`);
+    debugChannel(type);
     let sampleArg = 1;
+
+    // Figure out what position it's in. This is just for the parameterToHeader feature.
+    for (let i = 0; i < channelParts.length; i++) {
+      if (channelParts[i] === nameWithBrackets) {
+        param.position = i;
+        break;
+      }
+    }
 
     if (first) {
       first = false;
@@ -858,48 +967,53 @@ function getTopicInfo(channelName, channel) {
     }
 
     sampleArgList += ', ';
-
-    if (type) {
-      debugTopic('It is a type:');
-      debugTopic(type);
-      const javaType = type.javaType || typeMap.get(type);
-      if (!javaType) throw new Error(`topicInfo filter: type not found in typeMap: ${type}`);
-      param.type = javaType;
-      const printfArg = type.printFormat;
-      debugTopic(`printf: ${printfArg}`);
-      if (!printfArg) throw new Error(`topicInfo filter: printFormat not found in formatMap: ${type}`);
-      debugTopic(`Replacing ${nameWithBrackets}`);
-      publishTopic = publishTopic.replace(nameWithBrackets, printfArg);
-      sampleArg = type.sample;
-    } else {
-      const en = schema.enum();
-      if (en) {
-        debugTopic(`It is an enum: ${en}`);
-        param.type = _.upperFirst(name);
-        param.enum = en;
-        sampleArg = `Messaging.${param.type}.${en[0]}`;
-        debugTopic(`Replacing ${nameWithBrackets}`);
-        publishTopic = publishTopic.replace(nameWithBrackets, '%s');
-      } else {
-        throw new Error(`topicInfo filter: Unknown parameter type: ${  JSON.stringify(schema)}`);
-      }
-    }
-
-    subscribeTopic = subscribeTopic.replace(nameWithBrackets, '*');
+    [publishChannel, sampleArg] = handleParameterType(name, param, type, publishChannel, schema, nameWithBrackets);
+    subscribeChannel = subscribeChannel.replace(nameWithBrackets, '*');
     functionParamList += `${param.type} ${param.name}`;
     functionArgList += param.name;
     sampleArgList += sampleArg;
-    params.push(param);
+    parameters.push(param);
   }
   ret.functionArgList = functionArgList;
   ret.functionParamList = functionParamList;
   ret.sampleArgList = sampleArgList;
   ret.channelName = channelName;
-  ret.params = params;
-  ret.publishTopic = publishTopic;
-  ret.subscribeTopic = subscribeTopic;
-  ret.hasParams = params.length > 0;
+  ret.parameters = parameters;
+  ret.publishChannel = publishChannel;
+  ret.subscribeChannel = subscribeChannel;
+  ret.hasParams = parameters.length > 0;
   return ret;
+}
+
+function handleParameterType(name, param, type, publishChannel, schema, nameWithBrackets) {
+  let sampleArg = 1;
+  if (type) {
+    debugChannel('It is a type:');
+    debugChannel(type);
+    const javaType = type.javaType || typeMap.get(type);
+    if (!javaType) throw new Error(`channelInfo filter: type not found in typeMap: ${type}`);
+    param.type = javaType;
+    const printfArg = type.printFormat;
+    debugChannel(`printf: ${printfArg}`);
+    if (!printfArg) throw new Error(`channelInfo filter: printFormat not found in formatMap: ${type}`);
+    debugChannel(`Replacing ${nameWithBrackets}`);
+    publishChannel = publishChannel.replace(nameWithBrackets, printfArg);
+    sampleArg = type.sample;
+  } else {
+    const en = schema.enum();
+    if (en) {
+      debugChannel(`It is an enum: ${en}`);
+      param.type = _.upperFirst(name);
+      param.enum = en;
+      sampleArg = `Messaging.${param.type}.${en[0]}`;
+      debugChannel(`Replacing ${nameWithBrackets}`);
+      publishChannel = publishChannel.replace(nameWithBrackets, '%s');
+    } else {
+      throw new Error(`channelInfo filter: Unknown parameter type: ${  JSON.stringify(schema)}`);
+    }
+  }
+  param.sampleArg = sampleArg;
+  return [publishChannel, sampleArg];
 }
 
 function indent(numTabs) {
@@ -907,6 +1021,5 @@ function indent(numTabs) {
 }
 
 function isApplication(params) {
-  const artifactType = params.artifactType;
-  return (!artifactType || artifactType === 'application');
+  return params.artifactType === 'application';
 }
