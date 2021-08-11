@@ -168,12 +168,12 @@ function appProperties([asyncapi, params]) {
   }
 
   if (params.binder === 'kafka') {
-      const brokerSettings = getBrokerSettings(asyncapi, params);
+    const brokerSettings = getBrokerSettings(asyncapi, params);
 
-      if (brokerSettings) {
-        scs.kafka = brokerSettings;
-      }
+    if (brokerSettings) {
+      scs.kafka = brokerSettings;
     }
+  }
 
   if (isApplication(params)) {
     if (params.binder === 'solace') {
@@ -609,24 +609,24 @@ function getAdditionalSubs(asyncapi, params) {
   return ret;
 }
 
-function getBrokerSettings(asyncapi, params){
- let brokerSettings;
+function getBrokerSettings(asyncapi, params) {
+  let brokerSettings;
 
- if(params.useServers === 'true'){
+  if (params.useServers === 'true') {
     let brokers = "";
 
-    for (let serverName in asyncapi.servers() ){
-       let server = asyncapi.servers()[serverName];
-       let url = server.url()
-       if (server.variables()) {
-         url = generatorFilters.replaceServerVariablesWithValues(url, server.variables());
-       }
-       brokers += `${url},`;
-     }
-     brokers = brokers.substring(0, brokers.length - 1);
-     brokerSettings = {};
-     brokerSettings.binder = {};
-     brokerSettings.binder.brokers = brokers;
+    for (let serverName in asyncapi.servers()) {
+      let server = asyncapi.servers()[serverName];
+      let url = server.url()
+      if (server.variables()) {
+        url = generatorFilters.replaceServerVariablesWithValues(url, server.variables());
+      }
+      brokers += `${url},`;
+    }
+    brokers = brokers.substring(0, brokers.length - 1);
+    brokerSettings = {};
+    brokerSettings.binder = {};
+    brokerSettings.binder.brokers = brokers;
  }
  return brokerSettings;
 }
