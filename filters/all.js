@@ -613,11 +613,11 @@ function getBrokerSettings(asyncapi, params) {
   let brokerSettings;
 
   if (params.useServers === 'true') {
-    let brokers = "";
+    let brokers = '';
 
-    for (let serverName in asyncapi.servers()) {
-      let server = asyncapi.servers()[serverName];
-      let url = server.url()
+    for (const serverName in asyncapi.servers()) {
+      const server = asyncapi.servers()[serverName];
+      let url = server.url();
       if (server.variables()) {
         url = generatorFilters.replaceServerVariablesWithValues(url, server.variables());
       }
@@ -627,10 +627,9 @@ function getBrokerSettings(asyncapi, params) {
     brokerSettings = {};
     brokerSettings.binder = {};
     brokerSettings.binder.brokers = brokers;
- }
- return brokerSettings;
+  }
+  return brokerSettings;
 }
-
 
 // This returns the SCSt bindings config that will appear in application.yaml.
 function getBindings(asyncapi, params) {
