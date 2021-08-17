@@ -54,27 +54,44 @@ module.exports = {
 
     // This renames schema objects ensuring they're proper Java class names. It also removes files that are schemas of simple types.
 
-    const schemas = asyncapi.components().schemas();
-    debugPostProcess('schemas:');
-    debugPostProcess(schemas);
+    /*
+    if (false && asyncapi.components() && asyncapi.components().schemas()) {
+      const schemas = asyncapi.components().schemas();
+      debugPostProcess('schemas:');
+      debugPostProcess(schemas);
 
-    for (const schemaName in asyncapi.components().schemas()) {
-      const schema = schemas[schemaName];
-      const type = schema.type();
-      debugPostProcess(`postprocess schema ${schemaName} ${type}`);
+      for (const schemaName in schemas) {
+        const schema = schemas[schemaName];
+        const type = schema.type();
+        debugPostProcess(`postprocess schema ${schemaName} ${type}`);
+      }
+    }
+    */
+    
+    asyncapi.allSchemas().forEach((value, key, map) => {
+      processSchema(key, value);
+    });
+
+    function processSchema(schemaName, schema) {
+      schemaName = schemaName.replace('<', '');
+      schemaName = schemaName.replace('>', '');
       const oldPath = path.resolve(sourcePath, `${schemaName}.java`);
+      debugPostProcess(`old path: ${oldPath}`);
 
-      if (type === 'object' || type === 'enum') {
-        let javaName = _.camelCase(schemaName);
-        javaName = _.upperFirst(javaName);
+      if (fs.existsSync(oldPath)) {
+        const type = schema.type();
+        if (type === 'object' || type === 'enum') {
+          let javaName = _.camelCase(schemaName);
+          javaName = _.upperFirst(javaName);
 
-        if (javaName !== schemaName) {
-          const newPath = path.resolve(sourcePath, `${javaName}.java`);
-          fs.renameSync(oldPath, newPath);
-          debugPostProcess(`Renamed class file ${schemaName} to ${javaName}`);
+          if (javaName !== schemaName) {
+            const newPath = path.resolve(sourcePath, `${javaName}.java`);
+            fs.renameSync(oldPath, newPath);
+            debugPostProcess(`Renamed class file ${schemaName} to ${javaName}`);
+          }
+        } else {
+          fs.unlinkSync(oldPath);
         }
-      } else {
-        fs.unlinkSync(oldPath);
       }
     }
   }

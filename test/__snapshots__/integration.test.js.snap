@@ -1,5 +1,46 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`template integration tests using the generator avro message payloads should generate anonymous schemas 1`] = `
+"package com.acme;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class Application {
+
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class);
+	}
+
+	@Bean
+	public Supplier<AnonymousSchema5> updateLightMeasurement() {
+		return () -> {
+			// Add business logic here.
+			return new AnonymousSchema5();
+		};
+	}
+
+	@Bean
+	public Consumer<AnonymousSchema1> readLightMeasurement() {
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+	}
+
+}
+"
+`;
+
 exports[`template integration tests using the generator should generate application files using the solace binder 1`] = `
 "<?xml version=\\"1.0\\" encoding=\\"UTF-8\\"?>
 <project xmlns=\\"http://maven.apache.org/POM/4.0.0\\" xmlns:xsi=\\"http://www.w3.org/2001/XMLSchema-instance\\" xsi:schemaLocation=\\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\\">
