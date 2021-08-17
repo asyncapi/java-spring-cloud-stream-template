@@ -1,5 +1,6 @@
 const filter = module.exports;
 const yaml = require('js-yaml');
+const generatorFilters = require('@asyncapi/generator-filters');
 const _ = require('lodash');
 const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
@@ -163,6 +164,14 @@ function appProperties([asyncapi, params]) {
 
     if (additionalSubs) {
       scs.solace = additionalSubs;
+    }
+  }
+
+  if (params.binder === 'kafka') {
+    const brokerSettings = getBrokerSettings(asyncapi, params);
+
+    if (brokerSettings) {
+      scs.kafka = brokerSettings;
     }
   }
 
@@ -598,6 +607,28 @@ function getAdditionalSubs(asyncapi, params) {
     }
   });
   return ret;
+}
+
+function getBrokerSettings(asyncapi, params) {
+  let brokerSettings;
+
+  if (params.useServers === 'true') {
+    let brokers = '';
+
+    for (const serverName in asyncapi.servers()) {
+      const server = asyncapi.servers()[serverName];
+      let url = server.url();
+      if (server.variables()) {
+        url = generatorFilters.replaceServerVariablesWithValues(url, server.variables());
+      }
+      brokers += `${url},`;
+    }
+    brokers = brokers.substring(0, brokers.length - 1);
+    brokerSettings = {};
+    brokerSettings.binder = {};
+    brokerSettings.binder.brokers = brokers;
+  }
+  return brokerSettings;
 }
 
 // This returns the SCSt bindings config that will appear in application.yaml.

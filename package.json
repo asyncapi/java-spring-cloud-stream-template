@@ -155,6 +155,10 @@
         "description": "The view that the template uses. By default it is the client view, which means that when the document says publish, we subscribe. In the case of the provider view, when the document says publish, we publish. Values are client or provider. The default is client.",
         "required": false,
         "default": "client"
+      },
+      "useServers": {
+        "description": "This option works when binder is kafka. By default it is set to false. When set to true, it will concatenate all the urls in the servers section as a list of brokers for kafka.",
+        "required": false
       }
     },
     "filters": [
