@@ -100,4 +100,26 @@ describe('template integration tests using the generator', () => {
       expect(file).toMatchSnapshot();
     }
   });
+
+  it('avro message payloads should generate anonymous schemas', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    const PACKAGE = 'com.acme';
+    const PACKAGE_PATH = path.join(...PACKAGE.split('.'));
+    const params = {
+      binder: 'kafka',
+      javaPackage: PACKAGE,
+      artifactId: 'asyncApiFileName'
+    };
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true, templateParams: params });
+    await generator.generateFromFile(path.resolve('test', 'mocks/kafka-avro.yaml'));
+
+    const expectedFiles = [
+      `src/main/java/${PACKAGE_PATH}/Application.java`
+    ];
+    for (const index in expectedFiles) {
+      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
+      expect(file).toMatchSnapshot();
+    }
+  });
 });
