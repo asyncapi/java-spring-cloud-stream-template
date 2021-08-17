@@ -1,0 +1,54 @@
+asyncapi: '2.0.0'
+info:
+  title: Streetlights API
+  version: '1.0.0'
+  description: |
+    The Smartylighting Streetlights API allows you
+    to remotely manage the city lights.
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0'
+
+servers:
+  production:
+    url: kafka.bootstrap:{port}
+    protocol: kafka
+    variables:
+      port:
+        default: '9092'
+        enum:
+          - '9092'
+          - '9093'
+channels:
+  event.lighting.measured:
+    publish:
+      bindings:
+        kafka:
+          groupId: my-group
+      operationId: readLightMeasurement
+      message:
+        schemaFormat: 'application/vnd.apache.avro;version=1.9.0'
+        payload: # The following is an Avro schema in YAML format (JSON format is also supported)
+          type: record
+          doc: User information
+          fields:
+            - name: displayName
+              type: string
+            - name: email
+              type: string
+            - name: age
+              type: int
+    subscribe:
+      operationId: updateLightMeasurement
+      message:
+        schemaFormat: 'application/vnd.apache.avro;version=1.9.0'
+        payload:
+          type: record
+          doc: User information
+          fields:
+            - name: displayName
+              type: string
+            - name: email
+              type: string
+            - name: age
+              type: int
