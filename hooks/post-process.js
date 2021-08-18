@@ -1,7 +1,6 @@
 // vim: set ts=2 sw=2 sts=2 expandtab :
 const fs = require('fs');
 const path = require('path');
-const _ = require('lodash');
 const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
 // To enable debug logging, set the env var DEBUG="postProcess" with whatever things you want to see.
@@ -61,11 +60,6 @@ module.exports = {
     });
 
     function processSchema(schemaName, schema) {
-
-      let newName = schemaName;
-
-      //debugPostProcess(schema);
-
       if (schemaName.startsWith('<')) {
         debugPostProcess(`found an anonymous schema ${schemaName}`);
         schemaName = schemaName.replace('<', '');
@@ -79,7 +73,7 @@ module.exports = {
         const schemaType = schema.type();
         debugPostProcess(`Old path exists. schemaType: ${schemaType}`);
         if (schemaType === 'object' || schemaType === 'enum') {
-          let javaName = scsLib.getClassName(schemaName);
+          const javaName = scsLib.getClassName(schemaName);
           debugPostProcess(`javaName: ${javaName} schemaName: ${schemaName}`);
 
           if (javaName !== schemaName) {
