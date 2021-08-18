@@ -2,6 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
+const ScsLib = require('../lib/scsLib.js');
+const scsLib = new ScsLib();
 // To enable debug logging, set the env var DEBUG="postProcess" with whatever things you want to see.
 const debugPostProcess = require('debug')('postProcess');
 
@@ -54,35 +56,31 @@ module.exports = {
 
     // This renames schema objects ensuring they're proper Java class names. It also removes files that are schemas of simple types.
 
-    /*
-    if (false && asyncapi.components() && asyncapi.components().schemas()) {
-      const schemas = asyncapi.components().schemas();
-      debugPostProcess('schemas:');
-      debugPostProcess(schemas);
-
-      for (const schemaName in schemas) {
-        const schema = schemas[schemaName];
-        const type = schema.type();
-        debugPostProcess(`postprocess schema ${schemaName} ${type}`);
-      }
-    }
-    */
-    
     asyncapi.allSchemas().forEach((value, key, map) => {
       processSchema(key, value);
     });
 
     function processSchema(schemaName, schema) {
-      schemaName = schemaName.replace('<', '');
-      schemaName = schemaName.replace('>', '');
+
+      let newName = schemaName;
+
+      //debugPostProcess(schema);
+
+      if (schemaName.startsWith('<')) {
+        debugPostProcess(`found an anonymous schema ${schemaName}`);
+        schemaName = schemaName.replace('<', '');
+        schemaName = schemaName.replace('>', '');    
+      }
+
       const oldPath = path.resolve(sourcePath, `${schemaName}.java`);
       debugPostProcess(`old path: ${oldPath}`);
 
       if (fs.existsSync(oldPath)) {
-        const type = schema.type();
-        if (type === 'object' || type === 'enum') {
-          let javaName = _.camelCase(schemaName);
-          javaName = _.upperFirst(javaName);
+        const schemaType = schema.type();
+        debugPostProcess(`Old path exists. schemaType: ${schemaType}`);
+        if (schemaType === 'object' || schemaType === 'enum') {
+          let javaName = scsLib.getClassName(schemaName);
+          debugPostProcess(`javaName: ${javaName} schemaName: ${schemaName}`);
 
           if (javaName !== schemaName) {
             const newPath = path.resolve(sourcePath, `${javaName}.java`);
@@ -90,6 +88,8 @@ module.exports = {
             debugPostProcess(`Renamed class file ${schemaName} to ${javaName}`);
           }
         } else {
+          // In this case it's an anonymous schema for a primitive type or something.
+          debugPostProcess(`deleting ${oldPath}`);
           fs.unlinkSync(oldPath);
         }
       }
