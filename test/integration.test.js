@@ -85,4 +85,19 @@ describe('template integration tests using the generator', () => {
       expect(file).toMatchSnapshot();
     }
   });
+
+  it('should generate a comment for a consumer receiving multiple messages', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true });
+    await generator.generateFromFile(path.resolve('test', 'mocks/animals.yaml'));
+
+    const expectedFiles = [
+      'src/main/java/Application.java'
+    ];
+    for (const index in expectedFiles) {
+      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
+      expect(file).toMatchSnapshot();
+    }
+  });
 });
