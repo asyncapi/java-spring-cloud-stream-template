@@ -101,10 +101,12 @@ describe('template integration tests using the generator', () => {
     }
   });
 
-  it('avro message payloads should generate anonymous schemas', async () => {
+  it('avro schemas should appear in a package based on their namespace, if any.', async () => {
+    // Note that this file has 2 Avro schemas named User, but one has the namespace 'userpublisher.'
     const OUTPUT_DIR = generateFolderName();
     const PACKAGE = 'com.acme';
     const PACKAGE_PATH = path.join(...PACKAGE.split('.'));
+    const AVRO_PACKAGE_PATH = 'userpublisher';
     const params = {
       binder: 'kafka',
       javaPackage: PACKAGE,
@@ -115,7 +117,8 @@ describe('template integration tests using the generator', () => {
     await generator.generateFromFile(path.resolve('test', 'mocks/kafka-avro.yaml'));
 
     const expectedFiles = [
-      `src/main/java/${PACKAGE_PATH}/Application.java`
+      `src/main/java/${PACKAGE_PATH}/User.java`,
+      `src/main/java/${AVRO_PACKAGE_PATH}/User.java`,
     ];
     for (const index in expectedFiles) {
       const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');

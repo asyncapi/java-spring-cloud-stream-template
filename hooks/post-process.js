@@ -15,6 +15,7 @@ module.exports = {
     const info = asyncapi.info();
     let javaPackage = generator.templateParams['javaPackage'];
     const extensions = info.extensions();
+    let overridePath;
 
     if (!javaPackage && info && extensions) {
       javaPackage = extensions['x-java-package'];
@@ -22,7 +23,14 @@ module.exports = {
 
     if (javaPackage) {
       debugPostProcess(`package: ${javaPackage}`);
-      const overridePath = `${generator.targetDir + sourceHead + javaPackage.replace(/\./g, '/')}/`;
+      overridePath = `${generator.targetDir + sourceHead + javaPackage.replace(/\./g, '/')}/`;
+    }
+    
+    asyncapi.allSchemas().forEach((value, key, map) => {
+      processSchema(key, value);
+    });
+
+    if (javaPackage) {
       debugPostProcess(`Moving files from ${sourcePath} to ${overridePath}`);
       let first = true;
       fs.readdirSync(sourcePath).forEach(file => {
@@ -34,8 +42,7 @@ module.exports = {
           }
 
           debugPostProcess(`Copying ${file}`);
-          fs.copyFileSync(path.resolve(sourcePath, file), path.resolve(overridePath, file));
-          fs.unlinkSync(path.resolve(sourcePath, file));
+          moveFile(sourcePath, overridePath, file);
         }
       });
       sourcePath = overridePath;
@@ -55,10 +62,6 @@ module.exports = {
 
     // This renames schema objects ensuring they're proper Java class names. It also removes files that are schemas of simple types.
 
-    asyncapi.allSchemas().forEach((value, key, map) => {
-      processSchema(key, value);
-    });
-
     function processSchema(schemaName, schema) {
       if (schemaName.startsWith('<')) {
         debugPostProcess(`found an anonymous schema ${schemaName}`);
@@ -66,7 +69,23 @@ module.exports = {
         schemaName = schemaName.replace('>', '');    
       }
 
-      const oldPath = path.resolve(sourcePath, `${schemaName}.java`);
+      // First see if we need to move it to a different package based on its namespace.
+      // This mainly applies to Avro files which have the fully qualified name.
+      let newSourceDir = sourcePath;
+      const generatedFileName = `${schemaName}.java`;
+      let desiredClassName = scsLib.getClassName(schemaName);
+
+      const indexOfDot = schemaName.lastIndexOf('.');
+      if (indexOfDot > 0) {
+        const newPackage = schemaName.substring(0, indexOfDot);
+        const className = schemaName.substring(indexOfDot + 1);
+        debugPostProcess(`package: ${newPackage} className: ${className}`);
+        newSourceDir = `${generator.targetDir + sourceHead + newPackage.replace(/\./g, '/')}/`;
+        moveFile(sourcePath, newSourceDir, generatedFileName);
+        desiredClassName = scsLib.getClassName(className);
+      }
+
+      const oldPath = path.resolve(newSourceDir, generatedFileName);
       debugPostProcess(`old path: ${oldPath}`);
 
       if (fs.existsSync(oldPath)) {
@@ -74,12 +93,12 @@ module.exports = {
         debugPostProcess(`Old path exists. schemaType: ${schemaType}`);
         if (schemaType === 'object' || schemaType === 'enum') {
           const javaName = scsLib.getClassName(schemaName);
-          debugPostProcess(`javaName: ${javaName} schemaName: ${schemaName}`);
+          debugPostProcess(`desiredClassName: ${desiredClassName} schemaName: ${schemaName}`);
 
           if (javaName !== schemaName) {
-            const newPath = path.resolve(sourcePath, `${javaName}.java`);
+            const newPath = path.resolve(newSourceDir, `${desiredClassName}.java`);
             fs.renameSync(oldPath, newPath);
-            debugPostProcess(`Renamed class file ${schemaName} to ${javaName}`);
+            debugPostProcess(`Renamed class file ${schemaName} to ${desiredClassName}`);
           }
         } else {
           // In this case it's an anonymous schema for a primitive type or something.
@@ -87,6 +106,18 @@ module.exports = {
           fs.unlinkSync(oldPath);
         }
       }
+    }
+
+    function moveFile(oldDirectory, newDirectory, fileName) {
+      if (!fs.existsSync(newDirectory)) {
+        fs.mkdirSync(newDirectory, { recursive: true });
+        debugPostProcess(`Made directory ${newDirectory}`);
+      }
+      const oldPath = path.resolve(oldDirectory, fileName);
+      const newPath = path.resolve(newDirectory, fileName);
+      fs.copyFileSync(oldPath, newPath);
+      fs.unlinkSync(oldPath);
+      debugPostProcess(`Moved ${fileName} from ${oldPath} to ${newPath}`);
     }
   }
 };
