@@ -31,7 +31,6 @@ module.exports = {
     });
 
     if (javaPackage) {
-
       debugPostProcess(`Moving files from ${sourcePath} to ${overridePath}`);
       let first = true;
       fs.readdirSync(sourcePath).forEach(file => {
@@ -73,7 +72,7 @@ module.exports = {
       // First see if we need to move it to a different package based on its namespace.
       // This mainly applies to Avro files which have the fully qualified name.
       let newSourceDir = sourcePath;
-      let generatedFileName = `${schemaName}.java`;
+      const generatedFileName = `${schemaName}.java`;
       let desiredClassName = scsLib.getClassName(schemaName);
 
       const indexOfDot = schemaName.lastIndexOf('.');

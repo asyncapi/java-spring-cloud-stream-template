@@ -91,7 +91,7 @@ describe('template integration tests using the generator', () => {
     const OUTPUT_DIR = generateFolderName();
     const PACKAGE = 'com.acme';
     const PACKAGE_PATH = path.join(...PACKAGE.split('.'));
-    const AVRO_PACKAGE_PATH = 'userpublisher'
+    const AVRO_PACKAGE_PATH = 'userpublisher';
     const params = {
       binder: 'kafka',
       javaPackage: PACKAGE,
