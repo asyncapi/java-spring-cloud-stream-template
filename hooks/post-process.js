@@ -1,7 +1,8 @@
 // vim: set ts=2 sw=2 sts=2 expandtab :
 const fs = require('fs');
 const path = require('path');
-const _ = require('lodash');
+const ApplicationModel = require('../lib/applicationModel.js');
+const applicationModel = new ApplicationModel('post');
 // To enable debug logging, set the env var DEBUG="postProcess" with whatever things you want to see.
 const debugPostProcess = require('debug')('postProcess');
 
@@ -11,10 +12,13 @@ module.exports = {
   'generate:after': generator => {
     const asyncapi = generator.asyncapi;
     let sourcePath = generator.targetDir + sourceHead;
+
+    deleteNonObjectSchemas(asyncapi, sourcePath);
+    renameSubclassFiles(asyncapi, sourcePath);
+
     const info = asyncapi.info();
     let javaPackage = generator.templateParams['javaPackage'];
     const extensions = info.extensions();
-
     if (!javaPackage && info && extensions) {
       javaPackage = extensions['x-java-package'];
     }
@@ -25,6 +29,7 @@ module.exports = {
       debugPostProcess(`Moving files from ${sourcePath} to ${overridePath}`);
       let first = true;
       fs.readdirSync(sourcePath).forEach(file => {
+        debugPostProcess(`File: ${file}`);
         if (!fs.lstatSync(path.resolve(sourcePath, file)).isDirectory()) {
           if (first) {
             first = false;
@@ -52,31 +57,48 @@ module.exports = {
       fs.unlinkSync(path.resolve(generator.targetDir, 'pom.lib'));
     }
 
-    // This renames schema objects ensuring they're proper Java class names. It also removes files that are schemas of simple types.
-
-    const schemas = asyncapi.components().schemas();
-    debugPostProcess('schemas:');
-    debugPostProcess(schemas);
-
-    for (const schemaName in asyncapi.components().schemas()) {
-      const schema = schemas[schemaName];
-      const type = schema.type();
-      debugPostProcess(`postprocess schema ${schemaName} ${type}`);
-      const oldPath = path.resolve(sourcePath, `${schemaName}.java`);
-
-      if (type === 'object' || type === 'enum') {
-        let javaName = _.camelCase(schemaName);
-        javaName = _.upperFirst(javaName);
-
-        if (javaName !== schemaName) {
-          const newPath = path.resolve(sourcePath, `${javaName}.java`);
-          fs.renameSync(oldPath, newPath);
-          debugPostProcess(`Renamed class file ${schemaName} to ${javaName}`);
-        }
-      } else {
-        fs.unlinkSync(oldPath);
-      }
-    }
+    applicationModel.reset();
   }
+  
 };
 
+function deleteNonObjectSchemas(asyncapi, sourcePath) {
+  debugPostProcess('Deleting non-object schemas.');
+  asyncapi.allSchemas().forEach((schema, schemaName) => {
+    if (schema.type() !== 'object') {
+      const fileName = getFileName(schemaName);
+      const filePath = path.resolve(sourcePath, fileName);
+      debugPostProcess(`deleting ${filePath}`);
+      fs.unlinkSync(filePath);
+    }
+  });
+}
+
+function renameSubclassFiles(asyncapi, sourcePath) {
+  debugPostProcess('Renaming subclass schemas.');
+  asyncapi.allSchemas().forEach((schema, schemaName) => {
+    if (schema.type() === 'object') {
+      const modelClass = applicationModel.getModelClass(schemaName);
+      const javaName = modelClass.getClassName();
+      debugPostProcess(`javaName: ${javaName} schemaName: ${schemaName}`);
+      if (javaName !== schemaName) {
+        const newPath = path.resolve(sourcePath, `${javaName}.java`);
+        const fileName = getFileName(schemaName);
+        const oldPath = path.resolve(sourcePath, fileName);
+        fs.renameSync(oldPath, newPath);
+        debugPostProcess(`Renamed class file ${schemaName} to ${javaName}`);
+      }
+    }
+  });  
+}
+
+function getFileName(schemaName) {
+  let trimmedSchemaName = schemaName;
+  if (schemaName.startsWith('<')) {
+    debugPostProcess(`found an anonymous schema ${schemaName}`);
+    trimmedSchemaName = schemaName.replace('<', '');
+    trimmedSchemaName = trimmedSchemaName.replace('>', '');
+  }
+
+  return `${trimmedSchemaName}.java`;
+}

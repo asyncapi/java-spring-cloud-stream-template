@@ -29,7 +29,8 @@
   "dependencies": {
     "@asyncapi/generator-filters": "^2.1.0",
     "js-yaml": "^3.13.1",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.15",
+    "@types/node" : "^16.7.1"
   },
   "devDependencies": {
     "@asyncapi/generator": "^1.8.7",

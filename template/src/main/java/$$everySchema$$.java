@@ -5,4 +5,4 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 {% endif %}
 {% from "partials/java-class" import javaClass -%}
-{{ javaClass(schemaName, schema, schema.properties(), schema.required(), 0, false ) }}
+{{ javaClass(schemaName, schema, schema.properties(), 0, false) }}

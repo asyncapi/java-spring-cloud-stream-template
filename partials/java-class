@@ -1,15 +1,18 @@
-{%- macro javaClass(name, schema, properties, required, indentLevel, isStatic) %}
-{%- set className = name | camelCase | upperFirst %}
+{%- macro javaClass(schemaName, schema, properties, indentLevel, isStatic) %}
+{%- set modelClass = schemaName | getModelClass %}
+{%- set className = modelClass.getClassName() %}
 {{ 'javaClass' | logJavaClass -}}
 {{ className | logJavaClass -}}
 {% set indent1 = indentLevel | indent1 -%}
 {% set indent2 = indentLevel | indent2 -%}
 {% set indent3 = indentLevel | indent3 -%}
 {{ indent1 }}@JsonInclude(JsonInclude.Include.NON_NULL)
-{{ indent1 }}public {% if isStatic %}static {% endif %}class {{ className }} {
+{{ indent1 }}public {% if isStatic %}static {% endif %}class {{ className }}
+{%- if modelClass.isSubClass() %} extends {{ modelClass.getSuperClassName() }}{% endif %} {
 {# Default constructor #}
 {{ indent2 }}public {{ className }} () {
 {{ indent2 }}}
+
 {# If the top level object is an array, we need to deal with that specially. -#}
 {%- if schema and schema.type() === 'array' -%}
 {%- set name = schema.title() | camelCase -%}
@@ -23,7 +26,7 @@
 {{ indent2 }}public {{ arrayType }} get{{ type }}() { return {{ name }}; }
 {{ indent2 }}public void set{{ type }}({{ arrayType }} {{ name }}) { this.{{ name }} = {{name}}; }
 
-{{ javaClass(type, null, schema.items().properties(), schema.items().required(), indentLevel+1, true) }}
+{{ javaClass(type, null, schema.items().properties(), indentLevel+1, true) }}
 {%- else -%} {# not an array at the top level. #}
 {%- set first = true -%}
 {#- Constructor with all properties -#}
@@ -76,10 +79,10 @@
 {{ indent2 }}}
 {# Inner classes #}
 {%- if prop.type() === 'object' %}
-{{ javaClass(javaName, null, prop.properties(), prop.required(), indentLevel+1, true) }}
+{{ javaClass(javaName, null, prop.properties(), indentLevel+1, true) }}
 {% endif -%}
 {%- if isArrayOfObjects %}
-{{ javaClass(javaName, null, prop.items().properties(), prop.items().required(), indentLevel+1, true) }}
+{{ javaClass(javaName, null, prop.items().properties(), indentLevel+1, true) }}
 {% endif -%}
 {# Enums #}
 {%- if prop.enum() %}
@@ -94,6 +97,8 @@
 {%- set javaName = name | identifierName %}
 {{ indent3 }}+ " {{ javaName }}: " + {{ javaName }}
 {%- endfor %}
+{%- if modelClass.isSubClass() %}
+{{ indent3 }}+ " super: " + super.toString(){% endif %}
 {{ indent3 }}+ " ]";
 {{ indent2 }}}
 {{ indent1 }}}

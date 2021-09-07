@@ -1,5 +1,46 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`template integration tests using the generator should generate a model subclass when it sees an allOf 1`] = `
+"package com.acme;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ExtendedErrorModel extends ErrorModel {
+
+	public ExtendedErrorModel () {
+	}
+
+	public ExtendedErrorModel (
+		String rootCause) {
+		this.rootCause = rootCause;
+	}
+
+
+	private String rootCause;
+
+	public String getRootCause() {
+		return rootCause;
+	}
+
+	public ExtendedErrorModel setRootCause(String rootCause) {
+		this.rootCause = rootCause;
+		return this;
+	}
+
+
+	public String toString() {
+		return \\"ExtendedErrorModel [\\"
+		+ \\" rootCause: \\" + rootCause
+		+ \\" super: \\" + super.toString()
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
 exports[`template integration tests using the generator should generate application files using the solace binder 1`] = `
 "<?xml version=\\"1.0\\" encoding=\\"UTF-8\\"?>
 <project xmlns=\\"http://maven.apache.org/POM/4.0.0\\" xmlns:xsi=\\"http://www.w3.org/2001/XMLSchema-instance\\" xsi:schemaLocation=\\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\\">
@@ -131,6 +172,7 @@ public class MySchema {
 
 	public MySchema () {
 	}
+
 	public MySchema (
 		String prop1) {
 		this.prop1 = prop1;
