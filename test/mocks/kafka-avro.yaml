@@ -1,0 +1,39 @@
+asyncapi: '2.0.0'
+info:
+  title: Avro Test
+  version: '1.0.0'
+  description: Tests Avro schema generation
+channels:
+  userUpdates:
+    publish:
+      bindings:
+        kafka:
+          groupId: my-group
+      message:
+        schemaFormat: 'application/vnd.apache.avro;version=1.9.0'
+        payload:
+          name: User
+          namespace: userpublisher
+          type: record
+          doc: User information
+          fields:
+            - name: displayName
+              type: string
+            - name: email
+              type: string
+            - name: age
+              type: int
+    subscribe:
+      message:
+        schemaFormat: 'application/vnd.apache.avro;version=1.9.0'
+        payload:
+          name: User
+          type: record
+          doc: User information
+          fields:
+            - name: displayName
+              type: string
+            - name: email
+              type: string
+            - name: age
+              type: int
