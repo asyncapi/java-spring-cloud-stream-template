@@ -305,6 +305,7 @@ exports[`template integration tests using the generator should generate applicat
 "package com.acme;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -313,12 +314,16 @@ public class MySchema {
 	public MySchema () {
 	}
 	public MySchema (
-		String prop1) {
+		String prop1, 
+		String _long) {
 		this.prop1 = prop1;
+		this._long = _long;
 	}
 
 
 	private String prop1;
+	@JsonProperty(\\"long\\")
+	private String _long;
 
 	public String getProp1() {
 		return prop1;
@@ -330,9 +335,20 @@ public class MySchema {
 	}
 
 
+	public String get_long() {
+		return _long;
+	}
+
+	public MySchema set_long(String _long) {
+		this._long = _long;
+		return this;
+	}
+
+
 	public String toString() {
 		return \\"MySchema [\\"
 		+ \\" prop1: \\" + prop1
+		+ \\" _long: \\" + _long
 		+ \\" ]\\";
 	}
 }
@@ -479,6 +495,7 @@ public class Application {
 	}
 
 	// This is a consumer that calls a send method, instead of a function, because it has a dynamic channel and we need streamBridge.
+	@Bean
 	public Consumer<MySchema> sameFunctionName() {
 		return data -> {
 			// Add business logic here.

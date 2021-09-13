@@ -546,7 +546,7 @@ function checkPropertyNames(name, schema) {
   debugProperty(`schema type : ${schema.type()}`);
 
   for (const propName in properties) {
-    const javaName = _.camelCase(propName);
+    const javaName = scsLib.getIdentifierName(propName);
     const prop = properties[propName];
     debugProperty(`checking ${propName} ${prop.type()}`);
 
