@@ -8,6 +8,11 @@ The Spring Cloud Stream microservice generated using this template will be an _a
 
 Note that this template ignores the 'Servers' section of AsyncAPI documents. The main reason for this is because SCSt does not directly work with messaging protocols. Protocols are implementation details specific to binders, and SCSt applications need not know or care which protocol is being used.
 
+## Technical requirements
+
+- 1.8.6 =< [Generator](https://github.com/asyncapi/generator/)
+- Generator specific [requirements](https://github.com/asyncapi/generator/#requirements)
+
 ## Specification Conformance
 Note that this template interprets the AsyncAPI document in conformance with the [AsyncAPI Specification](https://www.asyncapi.com/docs/specifications/2.0.0/).
 This means that when the template sees a subscribe operation, it will generate code to publish to that operation's channel.
