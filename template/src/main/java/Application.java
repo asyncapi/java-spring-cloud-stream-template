@@ -101,6 +101,9 @@ public class {{ className }} {
 	}
 		{%- endif %}
 	{%- elif funcSpec.type === 'consumer' %}
+		{%- if funcSpec.multipleMessageComment %}
+	{{ funcSpec.multipleMessageComment }}
+		{%- endif %}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
 		return data -> {
@@ -110,7 +113,7 @@ public class {{ className }} {
 	}	
 	{%- else %}{#- it is a supplier. #}
 		{%- if funcSpec.dynamic %}
-			{%- if params.dynamicType === 'header' %}
+			{%- if params.dynamicType === 'header' -%}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
 		return () -> {
@@ -132,6 +135,9 @@ public class {{ className }} {
 			{# else do nothing, we just use the void function below. #}
 			{%- endif %}{# dynamic type #}
 		{%- else -%}{# it is not dynamic. #}
+			{%- if funcSpec.multipleMessageComment %}
+	{{ funcSpec.multipleMessageComment }}
+			{%- endif %}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
 		return () -> {
