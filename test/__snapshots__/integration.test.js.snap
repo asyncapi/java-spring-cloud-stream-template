@@ -1,5 +1,139 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`template integration tests using the generator avro schemas should appear in a package based on their namespace, if any. 1`] = `
+"package com.acme;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class User {
+
+	public User () {
+	}
+	public User (
+		String displayName, 
+		String email, 
+		Integer age) {
+		this.displayName = displayName;
+		this.email = email;
+		this.age = age;
+	}
+
+
+	private String displayName;
+	private String email;
+	private Integer age;
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public User setDisplayName(String displayName) {
+		this.displayName = displayName;
+		return this;
+	}
+
+
+	public String getEmail() {
+		return email;
+	}
+
+	public User setEmail(String email) {
+		this.email = email;
+		return this;
+	}
+
+
+	public Integer getAge() {
+		return age;
+	}
+
+	public User setAge(Integer age) {
+		this.age = age;
+		return this;
+	}
+
+
+	public String toString() {
+		return \\"User [\\"
+		+ \\" displayName: \\" + displayName
+		+ \\" email: \\" + email
+		+ \\" age: \\" + age
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
+exports[`template integration tests using the generator avro schemas should appear in a package based on their namespace, if any. 2`] = `
+"package com.acme;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UserpublisherUser {
+
+	public UserpublisherUser () {
+	}
+	public UserpublisherUser (
+		String displayName, 
+		String email, 
+		Integer age) {
+		this.displayName = displayName;
+		this.email = email;
+		this.age = age;
+	}
+
+
+	private String displayName;
+	private String email;
+	private Integer age;
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public UserpublisherUser setDisplayName(String displayName) {
+		this.displayName = displayName;
+		return this;
+	}
+
+
+	public String getEmail() {
+		return email;
+	}
+
+	public UserpublisherUser setEmail(String email) {
+		this.email = email;
+		return this;
+	}
+
+
+	public Integer getAge() {
+		return age;
+	}
+
+	public UserpublisherUser setAge(Integer age) {
+		this.age = age;
+		return this;
+	}
+
+
+	public String toString() {
+		return \\"UserpublisherUser [\\"
+		+ \\" displayName: \\" + displayName
+		+ \\" email: \\" + email
+		+ \\" age: \\" + age
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
 exports[`template integration tests using the generator should generate a comment for a consumer receiving multiple messages 1`] = `
 "
 import java.util.function.Consumer;
