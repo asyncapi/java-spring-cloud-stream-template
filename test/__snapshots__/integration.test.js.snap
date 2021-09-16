@@ -1,5 +1,188 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`template integration tests using the generator avro schemas should appear in a package based on their namespace, if any. 1`] = `
+"package com.acme;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class User {
+
+	public User () {
+	}
+
+	public User (
+		String displayName, 
+		String email, 
+		Integer age) {
+		this.displayName = displayName;
+		this.email = email;
+		this.age = age;
+	}
+
+
+	private String displayName;
+	private String email;
+	private Integer age;
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public User setDisplayName(String displayName) {
+		this.displayName = displayName;
+		return this;
+	}
+
+
+	public String getEmail() {
+		return email;
+	}
+
+	public User setEmail(String email) {
+		this.email = email;
+		return this;
+	}
+
+
+	public Integer getAge() {
+		return age;
+	}
+
+	public User setAge(Integer age) {
+		this.age = age;
+		return this;
+	}
+
+
+	public String toString() {
+		return \\"User [\\"
+		+ \\" displayName: \\" + displayName
+		+ \\" email: \\" + email
+		+ \\" age: \\" + age
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
+exports[`template integration tests using the generator avro schemas should appear in a package based on their namespace, if any. 2`] = `
+"package com.acme;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class User {
+
+	public User () {
+	}
+
+	public User (
+		String displayName, 
+		String email, 
+		Integer age) {
+		this.displayName = displayName;
+		this.email = email;
+		this.age = age;
+	}
+
+
+	private String displayName;
+	private String email;
+	private Integer age;
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public User setDisplayName(String displayName) {
+		this.displayName = displayName;
+		return this;
+	}
+
+
+	public String getEmail() {
+		return email;
+	}
+
+	public User setEmail(String email) {
+		this.email = email;
+		return this;
+	}
+
+
+	public Integer getAge() {
+		return age;
+	}
+
+	public User setAge(Integer age) {
+		this.age = age;
+		return this;
+	}
+
+
+	public String toString() {
+		return \\"User [\\"
+		+ \\" displayName: \\" + displayName
+		+ \\" email: \\" + email
+		+ \\" age: \\" + age
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
+exports[`template integration tests using the generator should generate a comment for a consumer receiving multiple messages 1`] = `
+"
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.messaging.Message;
+
+@SpringBootApplication
+public class Application {
+
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class);
+	}
+
+	// The message can be of type:
+	// Cat
+	// Dog
+	@Bean
+	public Supplier<Message<?>> animalsSupplier() {
+		return () -> {
+			// Add business logic here.
+			return new Message<?>();
+		};
+	}
+
+	// The message can be of type:
+	// Cat
+	// Dog
+	@Bean
+	public Consumer<Message<?>> animalsConsumer() {
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+	}
+
+}
+"
+`;
+
 exports[`template integration tests using the generator should generate a model subclass when it sees an allOf 1`] = `
 "package com.acme;
 
@@ -165,6 +348,7 @@ exports[`template integration tests using the generator should generate applicat
 "package com.acme;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -174,12 +358,16 @@ public class MySchema {
 	}
 
 	public MySchema (
-		String prop1) {
+		String prop1, 
+		String _long) {
 		this.prop1 = prop1;
+		this._long = _long;
 	}
 
 
 	private String prop1;
+	@JsonProperty(\\"long\\")
+	private String _long;
 
 	public String getProp1() {
 		return prop1;
@@ -191,9 +379,20 @@ public class MySchema {
 	}
 
 
+	public String get_long() {
+		return _long;
+	}
+
+	public MySchema set_long(String _long) {
+		this._long = _long;
+		return this;
+	}
+
+
 	public String toString() {
 		return \\"MySchema [\\"
 		+ \\" prop1: \\" + prop1
+		+ \\" _long: \\" + _long
 		+ \\" ]\\";
 	}
 }
@@ -340,6 +539,7 @@ public class Application {
 	}
 
 	// This is a consumer that calls a send method, instead of a function, because it has a dynamic channel and we need streamBridge.
+	@Bean
 	public Consumer<MySchema> sameFunctionName() {
 		return data -> {
 			// Add business logic here.

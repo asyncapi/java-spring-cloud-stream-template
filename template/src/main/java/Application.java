@@ -56,6 +56,7 @@ public class {{ className }} {
 	{%- if funcSpec.type === 'function' %}
 		{%- if funcSpec.dynamic %}
 			{%- if params.dynamicType === 'header' %}
+	@Bean
 	{{ funcSpec.functionSignature | safe }} {
 		return data -> {
 			// Add business logic here.
@@ -76,6 +77,7 @@ public class {{ className }} {
 	}
 			{%- else %}{# streamBridge, we need a consumer to call our func. #}
 	// This is a consumer that calls a send method, instead of a function, because it has a dynamic channel and we need streamBridge.
+	@Bean
 	{{ funcSpec.functionSignature | safe }} {
 		return data -> {
 			// Add business logic here.
@@ -99,6 +101,9 @@ public class {{ className }} {
 	}
 		{%- endif %}
 	{%- elif funcSpec.type === 'consumer' %}
+		{%- if funcSpec.multipleMessageComment %}
+	{{ funcSpec.multipleMessageComment }}
+		{%- endif %}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
 		return data -> {
@@ -108,7 +113,7 @@ public class {{ className }} {
 	}	
 	{%- else %}{#- it is a supplier. #}
 		{%- if funcSpec.dynamic %}
-			{%- if params.dynamicType === 'header' %}
+			{%- if params.dynamicType === 'header' -%}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
 		return () -> {
@@ -130,6 +135,9 @@ public class {{ className }} {
 			{# else do nothing, we just use the void function below. #}
 			{%- endif %}{# dynamic type #}
 		{%- else -%}{# it is not dynamic. #}
+			{%- if funcSpec.multipleMessageComment %}
+	{{ funcSpec.multipleMessageComment }}
+			{%- endif %}
 	@Bean
 	{{ funcSpec.functionSignature | safe }} {
 		return () -> {

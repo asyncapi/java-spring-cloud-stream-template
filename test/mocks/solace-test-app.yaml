@@ -5,8 +5,9 @@ components:
       type: object
       properties:
         prop1:
-          default: default string
-          title: PropertyTitle
+          type: string
+        long:
+          description: The name of this property is a Java reserved word.
           type: string
   messages:
     myEvent:

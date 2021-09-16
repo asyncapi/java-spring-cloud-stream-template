@@ -86,6 +86,46 @@ describe('template integration tests using the generator', () => {
     }
   });
 
+  it('should generate a comment for a consumer receiving multiple messages', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true });
+    await generator.generateFromFile(path.resolve('test', 'mocks/animals.yaml'));
+
+    const expectedFiles = [
+      'src/main/java/Application.java'
+    ];
+    for (const index in expectedFiles) {
+      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
+      expect(file).toMatchSnapshot();
+    }
+  });
+
+  it('avro schemas should appear in a package based on their namespace, if any.', async () => {
+    // Note that this file has 2 Avro schemas named User, but one has the namespace 'userpublisher.'
+    const OUTPUT_DIR = generateFolderName();
+    const PACKAGE = 'com.acme';
+    const PACKAGE_PATH = path.join(...PACKAGE.split('.'));
+    const AVRO_PACKAGE_PATH = 'userpublisher';
+    const params = {
+      binder: 'kafka',
+      javaPackage: PACKAGE,
+      artifactId: 'asyncApiFileName'
+    };
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true, templateParams: params });
+    await generator.generateFromFile(path.resolve('test', 'mocks/kafka-avro.yaml'));
+
+    const expectedFiles = [
+      `src/main/java/${PACKAGE_PATH}/User.java`,
+      `src/main/java/${AVRO_PACKAGE_PATH}/User.java`,
+    ];
+    for (const index in expectedFiles) {
+      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
+      expect(file).toMatchSnapshot();
+    }
+  });
+
   it('should generate a model subclass when it sees an allOf', async () => {
     const OUTPUT_DIR = generateFolderName();
     const PACKAGE = 'com.acme';

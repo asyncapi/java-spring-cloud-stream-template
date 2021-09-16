@@ -554,7 +554,7 @@ function checkPropertyNames(name, schema) {
   debugProperty(`schema type : ${schema.type()}`);
 
   for (const propName in properties) {
-    const javaName = _.camelCase(propName);
+    const javaName = scsLib.getIdentifierName(propName);
     const prop = properties[propName];
     debugProperty(`checking ${propName} ${prop.type()}`);
 
@@ -738,6 +738,7 @@ function getFunctionSpecs(asyncapi, params) {
         functionSpec.sendMethodName = getSendFunctionName(channelName, publish);
         functionSpec.dynamicType = params.dynamicType;
         functionSpec.parametersToHeaders = params.parametersToHeaders;
+        functionSpec.multipleMessageComment = getMultipleMessageComment(publish);
         functionMap.set(name, functionSpec);
       }
       const payload = getPayloadClass(publish);
@@ -774,7 +775,6 @@ function getFunctionSpecs(asyncapi, params) {
             if (!foundIt) {
               debugFunction(`Adding new sub ${sub}`);
               functionSpec.additionalSubscriptions.push(sub);
-
               functionSpec.multipleMessages = true;
             }
           }
@@ -803,13 +803,14 @@ function getFunctionSpecs(asyncapi, params) {
         functionSpec.channelInfo = channelInfo;
         functionSpec.dynamicType = params.dynamicType;
         functionSpec.parametersToHeaders = params.parametersToHeaders;
-        functionMap.set(name, functionSpec);
+        functionSpec.multipleMessageComment = getMultipleMessageComment(subscribe);
         if (smfBinding && smfBinding.queueName && smfBinding.topicSubscriptions) {
           debugFunction(`A new one with subscriptions: ${smfBinding.topicSubscriptions}`);
           functionSpec.additionalSubscriptions = smfBinding.topicSubscriptions;
           functionSpec.isQueueWithSubscription = true;
           functionSpec.multipleMessages = smfBinding.topicSubscriptions && smfBinding.topicSubscriptions.length > 1;
         }
+        functionMap.set(name, functionSpec);
       }
 
       if (functionSpec.multipleMessages) {
@@ -844,6 +845,26 @@ function getFunctionSpecs(asyncapi, params) {
   return functionMap;
 }
 
+function getSendFunctionName(channelName, operation) {
+  return `send${_.upperFirst(getFunctionName(channelName, operation, undefined))}`;
+}
+
+function getMultipleMessageComment(pubOrSub) {
+  let ret;
+
+  // We deliberately leave out the last newline, because that makes it easier to use in the template.
+  // Otherwise it's really hard to get rid of an extra unwanted newline.
+  if (pubOrSub.hasMultipleMessages()) {
+    ret = '// The message can be of type:';
+    pubOrSub.messages().forEach(m => {
+      ret += '\n\t// ';
+      ret += getMessagePayloadType(m);
+    });
+  }
+
+  return ret;
+}
+
 function getPayloadClass(pubOrSub) {
   let ret;
 
@@ -853,23 +874,7 @@ function getPayloadClass(pubOrSub) {
   } else {
     const message = pubOrSub.message();
     if (message) {
-      const payload = message.payload();
-      debugPayload('payload:');
-      debugPayload(payload);
-
-      if (payload) {
-        const type = payload.type();
-        debugPayload('type:');
-        debugPayload(type);
-
-        if (!type || type === 'object') {
-          ret = payload.ext('x-parser-schema-id');
-          ret = _.camelCase(ret);
-          ret = _.upperFirst(ret);
-        } else {
-          ret = getType(type, payload.format()).javaType;
-        }
-      }
+      ret = getMessagePayloadType(message);
     }
   }
   debugPayload(`getPayloadClass: ${ret}`);
@@ -877,8 +882,26 @@ function getPayloadClass(pubOrSub) {
   return ret;
 }
 
-function getSendFunctionName(channelName, operation) {
-  return `send${_.upperFirst(getFunctionName(channelName, operation, undefined))}`;
+function getMessagePayloadType(message) {
+  let ret;
+  const payload = message.payload();
+  debugPayload('payload:');
+  debugPayload(payload);
+
+  if (payload) {
+    const type = payload.type();
+    debugPayload('type:');
+    debugPayload(type);
+
+    if (!type || type === 'object') {
+      ret = payload.ext('x-parser-schema-id');
+      ret = _.camelCase(ret);
+      ret = _.upperFirst(ret);
+    } else {
+      ret = getType(type, payload.format()).javaType;
+    }
+  }
+  return ret;
 }
 
 // This returns the connection properties for a solace binder, for application.yaml.
