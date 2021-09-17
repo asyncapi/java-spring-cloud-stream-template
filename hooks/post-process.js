@@ -73,7 +73,7 @@ function processSchema(generator, schemaName, schema, sourcePath, defaultJavaPac
   const fileName = getFileName(schemaName);
   const filePath = path.resolve(sourcePath, fileName);
   debugPostProcess(`processSchema ${schemaName}`);
-  //debugPostProcess(schema);
+  debugPostProcess(schema);
   if (schema.type() !== 'object') {
     debugPostProcess(`deleting ${filePath}`);
     fs.unlinkSync(filePath);
