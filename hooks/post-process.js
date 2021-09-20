@@ -107,7 +107,7 @@ function trimSchemaName(schemaName) {
   let trimmedSchemaName = schemaName;
   if (schemaName.startsWith('<')) {
     trimmedSchemaName = schemaName.replace('<', '');
-    trimmedSchemaName = trimmedSchemaName.replace('>', '');
+    trimmedSchemaName = trimmedSchemaName.replace(/>$/, '');
   }
   return trimmedSchemaName;
 }
