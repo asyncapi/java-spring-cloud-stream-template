@@ -4,6 +4,8 @@ const generatorFilters = require('@asyncapi/generator-filters');
 const _ = require('lodash');
 const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
+const ApplicationModel = require('../lib/applicationModel.js');
+const applicationModel = new ApplicationModel('all');
 // To enable debug logging, set the env var DEBUG="type function" with whatever things you want to see.
 const debugDynamic = require('debug')('dynamic');
 const debugFunction = require('debug')('function');
@@ -420,6 +422,12 @@ const getMethods = (obj) => {
   } while ((currentObj = Object.getPrototypeOf(currentObj)));
   return [...properties.keys()].filter(item => typeof obj[item] === 'function');
 };
+
+function getModelClass(schemaName) {
+  return applicationModel.getModelClass(schemaName);
+}
+
+filter.getModelClass = getModelClass;
 
 function getRealPublisher([info, params, channel]) {
   const pub = scsLib.getRealPublisher(info, params, channel);

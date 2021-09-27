@@ -11,6 +11,7 @@ public class User {
 
 	public User () {
 	}
+
 	public User (
 		String displayName, 
 		String email, 
@@ -74,11 +75,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserpublisherUser {
+public class User {
 
-	public UserpublisherUser () {
+	public User () {
 	}
-	public UserpublisherUser (
+
+	public User (
 		String displayName, 
 		String email, 
 		Integer age) {
@@ -96,7 +98,7 @@ public class UserpublisherUser {
 		return displayName;
 	}
 
-	public UserpublisherUser setDisplayName(String displayName) {
+	public User setDisplayName(String displayName) {
 		this.displayName = displayName;
 		return this;
 	}
@@ -106,7 +108,7 @@ public class UserpublisherUser {
 		return email;
 	}
 
-	public UserpublisherUser setEmail(String email) {
+	public User setEmail(String email) {
 		this.email = email;
 		return this;
 	}
@@ -116,14 +118,14 @@ public class UserpublisherUser {
 		return age;
 	}
 
-	public UserpublisherUser setAge(Integer age) {
+	public User setAge(Integer age) {
 		this.age = age;
 		return this;
 	}
 
 
 	public String toString() {
-		return \\"UserpublisherUser [\\"
+		return \\"User [\\"
 		+ \\" displayName: \\" + displayName
 		+ \\" email: \\" + email
 		+ \\" age: \\" + age
@@ -178,6 +180,47 @@ public class Application {
 	}
 
 }
+"
+`;
+
+exports[`template integration tests using the generator should generate a model subclass when it sees an allOf 1`] = `
+"package com.acme;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ExtendedErrorModel extends ErrorModel {
+
+	public ExtendedErrorModel () {
+	}
+
+	public ExtendedErrorModel (
+		String rootCause) {
+		this.rootCause = rootCause;
+	}
+
+
+	private String rootCause;
+
+	public String getRootCause() {
+		return rootCause;
+	}
+
+	public ExtendedErrorModel setRootCause(String rootCause) {
+		this.rootCause = rootCause;
+		return this;
+	}
+
+
+	public String toString() {
+		return \\"ExtendedErrorModel [\\"
+		+ \\" rootCause: \\" + rootCause
+		+ \\" super: \\" + super.toString()
+		+ \\" ]\\";
+	}
+}
+
 "
 `;
 
@@ -313,6 +356,7 @@ public class MySchema {
 
 	public MySchema () {
 	}
+
 	public MySchema (
 		String prop1, 
 		String _long) {

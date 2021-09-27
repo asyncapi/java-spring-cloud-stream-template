@@ -125,4 +125,25 @@ describe('template integration tests using the generator', () => {
       expect(file).toMatchSnapshot();
     }
   });
+
+  it('should generate a model subclass when it sees an allOf', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    const PACKAGE = 'com.acme';
+    const PACKAGE_PATH = path.join(...PACKAGE.split('.'));
+    const params = {
+      javaPackage: PACKAGE,
+      artifactId: 'asyncApiFileName'
+    };
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true, templateParams: params });
+    await generator.generateFromFile(path.resolve('test', 'mocks/error-reporter.yaml'));
+
+    const expectedFiles = [
+      `src/main/java/${PACKAGE_PATH}/ExtendedErrorModel.java`
+    ];
+    for (const index in expectedFiles) {
+      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
+      expect(file).toMatchSnapshot();
+    }
+  });
 });
