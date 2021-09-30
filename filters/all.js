@@ -436,8 +436,7 @@ function getRealPublisher([info, params, channel]) {
 filter.getRealPublisher = getRealPublisher;
 
 function getRealSubscriber([info, params, channel]) {
-  const pub = scsLib.getRealSubscriber(info, params, channel);
-  return pub;
+  return scsLib.getRealSubscriber(info, params, channel);
 }
 filter.getRealSubscriber = getRealSubscriber;
 
