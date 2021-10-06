@@ -4,7 +4,7 @@ This template generates a Spring Cloud Stream (SCSt) microservice. It uses versi
 
 This template has been tested with Kafka, RabbitMQ and Solace.
 
-The Spring Cloud Stream microservice generated using this template will be an _almost ready to run_ Spring Boot app. The microservice will contain a java class, by default _Application.java_, which includes methods which publish or subscribe events as defined in the AsyncAPI document. These generated methods include Supplier, Consumer and Function functional interfaces from the [java.util.function](https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html) package. These methods will already be pre-configured to publish to and consume from the channels as defined in the AsyncAPI. This configuration is located in the `spring.cloud.stream` section of the generated application.yml file.
+The Spring Cloud Stream microservice generated using this template will be an _ready to run_ Spring Boot app. By default, the microservice will contain a java class, _Application.java_, which includes methods to publish or subscribe events as defined in the AsyncAPI document. These generated methods include Supplier, Consumer and Function functional interfaces from the [java.util.function](https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html) package. These methods will already be pre-configured to publish to and consume from the channels as defined in the AsyncAPI. This configuration is located in the `spring.cloud.stream` section of the generated application.yml file.
 
 Note that this template ignores the 'Servers' section of AsyncAPI documents. The main reason for this is because SCSt does not directly work with messaging protocols. Protocols are implementation details specific to binders, and SCSt applications need not know or care which protocol is being used.
 
@@ -20,8 +20,8 @@ It is possible to override this, see the 'view' parameter in the parameters sect
 
 ### Which Methods are created
 The template works as follows:
-* By default for each channel in the AsyncAPI document, if there is a _subscribe_ operation a _Supplier_ method will be generated, and for a _publish_ operation a _Consumer_ method will get generated.
-* To customize this default behavior you can make use of the `x-scs-function-name` extension. If one _publish_ operation and one _subscribe_ operation share a `x-scs-function-name` attribute then a _java.util.function.Function_ method will be created which uses the _subscribe_ operation's message as the input and the _publish_ operation's message as the output to the generated Function method. It will also wire up the proper channel information in the generated application.yaml file.
+* By default, for each channel in the AsyncAPI document, if there is a _subscribe_ operation a _Supplier_ method will be generated, and for a _publish_ operation a _Consumer_ method will get generated.
+* To customize this default behavior, you can make use of the `x-scs-function-name` extension. If one _publish_ operation and one _subscribe_ operation share a `x-scs-function-name` attribute then a _java.util.function.Function_ method will be created which uses the _subscribe_ operation's message as the input and the _publish_ operation's message as the output to the generated Function method. It will also wire up the proper channel information in the generated application.yaml file.
 * Note that at this time the generator does not support the creation of functions that have more than one _publish_ and/or more than one _subscribe_ operation with the same ```x-scs-function-name``` attribute. This scenario will result in error.
 * Additionally, if a channel has parameters and a _subscribe_ operation, a _send method_ will be generated that takes the payload and the parameters as function arguments, formats the topic from the parameters, and sends the message using the StreamBridge as described in the [Spring Cloud Steam](https://docs.spring.io/spring-cloud-stream/docs/3.1.3/reference/html/spring-cloud-stream.html#_streambridge_and_dynamic_destinations) documentation. If you use `x-scs-function-name` to combine a _subscribe_ and a _publish_ operation and the _subscribe_ operation has parameters, then this template will render a _Consumer_ method that will receive a message and then call the generated _send method_ to send out a new message through the StreamBridge.
 
@@ -30,10 +30,10 @@ This behaviour may be modified by setting the _dynamicType_ parameter to 'header
 
 ### Method Naming
 The generated methods are named as follows: 
-* For each operation (i.e. _publish_ or _subscribe_ in each channel), the template looks for the specification extention ```x-scs-function-name```. If present, it uses that to name the function. 
+* For each operation (i.e., _publish_ or _subscribe_ in each channel), the template looks for the specification extension ```x-scs-function-name```. If present, it uses that to name the function. 
 * If using the same ```x-scs-function-name``` on one _publish_ operation and one _subscribe_ operation to create a Function the name of the generated method will be the ```x-scs-function-name```
 * If there is no ```x-scs-function-name``` attribute, the generator checks the operation's operationId value. If set, that is used as the function name. 
-* If there is no ```x-scs-function-name``` or operationId available, then a name will be generated by taking the channel name, removing non-alphanumeric characters, converting to camel case, and appending 'Supplier' or 'Producer.' For example, if there is a channel called store/process with a publisher operation with a payload called Order, This method will get generated:
+* If there is no ```x-scs-function-name``` or operationId available, then a name will be generated by taking the channel name, removing non-alphanumeric characters, converting to camel case, and appending 'Supplier' or 'Producer.' For example, if there is a channel called store/process with a publisher operation with a payload called Order, the following method will get generated:
  ```
 @Bean
 public Supplier<Order> storeProcessSupplier () {
@@ -49,34 +49,34 @@ When converting from property names to Java field names, the property names are 
 
 By default, this will generate a runnable Spring Boot application. If you set the ```artifactType``` parameter to ```library```, then it will generate a project without a main Application class and without the main Spring Boot dependencies. That will produce a library that can be imported into another application as a Maven artifact. It will contain the model classes and the Spring Cloud Stream configuration.
 
-Doing that allows you to hava a clean separation between the generated code and your hand-written code, and ensures that regenerating the library will not overwrite your business logic.
+Doing that allows you to have a clean separation between the generated code and your hand-written code, and ensures that regenerating the library will not overwrite your business logic.
 
 ## How to Use This Template
 
-Install the AsyncAPI Generator
-```
-npm install -g @asyncapi/generator
-```
+1. Install the AsyncAPI Generator
+  ```
+  npm install -g @asyncapi/generator
+  ```
 
-Run the Generator using the Java Spring Cloud Stream Template
-```
-ag ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
-```
+2. Run the Generator using the Java Spring Cloud Stream Template
+  ```
+  ag ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
+  ```
 
-Run the Generator using the Java Spring Cloud Stream Template with Parameters
-```
-ag -p binder=solace -p artifactId=ExampleArtifactId -p groupId=com.example -p javaPackage=com.example.foo -p solaceSpringCloudVersion=1.0.0 -p springCloudStreamVersion=Horsham.SR3 -p springCloudVersion=Hoxton.SR3 ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
-```
+3. Run the Generator using the Java Spring Cloud Stream Template with Parameters
+  ```
+  ag -p binder=solace -p artifactId=ExampleArtifactId -p groupId=com.example -p javaPackage=com.example.foo -p solaceSpringCloudVersion=1.0.0 -p springCloudStreamVersion=Horsham.SR3 -p springCloudVersion=Hoxton.SR3 ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
+  ```
 
 ## Configuration Options
 
-Please note that none of the parameters or specification extensions is required. All have defaults as documented below.
+Please note that none of the parameters or specification extensions is required. All parameters have defaults as documented below.
 
 Any parameters or specification extensions that include the name 'Solace' only have an effect when the Solace binder is specified. If and when other binder-specific parameters are added to this template, they will follow a similar naming pattern.
 
 ### Destination Overrides
 
-There are two specification extentions you can use to shape how the bindings are configured. You can add the following to a _subscribe_ operation:
+There are two specification extensions you can use to shape how the bindings are configured. You can add the following to a _subscribe_ operation:
 
 ```x-scs-destination``` : This overrides the destination value in a binder. This is useful when you are using the Solace binder and you are following the Solace pattern of publishing to topics and consuming from queues. In this case the x-scs-destination value would be treated as the name of the queue which your microservice will consume from.
 
@@ -113,7 +113,7 @@ useServers | | false | This parameter only works when the binder parameter is ka
 
 ## Specification Extensions
 
-The following specification extensions are supported. In some cases their value can be provided as a command line parameter. The 'info' prefix means that it belongs in the info section of the document.
+The following specification extensions are supported. In some cases, their value can be provided as a command line parameter. The 'info' prefix means that it belongs in the info section of the document.
 
 Extension | Parameter | Default | Description
 ----------|-----------|---------|-------------
@@ -131,7 +131,7 @@ channel.subscription.x-scs-group | | | This is used to specify the group propert
 
 ## Development
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind are welcome!
 
 If you do contribute, please run ```npm run lint``` and ```npm test``` before you submit your code.
 
