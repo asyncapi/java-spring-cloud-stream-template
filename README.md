@@ -25,7 +25,7 @@ The template works as follows:
 * Note that at this time the generator does not support the creation of functions that have more than one _publish_ and/or more than one _subscribe_ operation with the same ```x-scs-function-name``` attribute. This scenario will result in error.
 * Additionally, if a channel has parameters and a _subscribe_ operation, a _send method_ will be generated that takes the payload and the parameters as function arguments, formats the topic from the parameters, and sends the message using the StreamBridge as described in the [Spring Cloud Steam](https://docs.spring.io/spring-cloud-stream/docs/3.1.3/reference/html/spring-cloud-stream.html#_streambridge_and_dynamic_destinations) documentation. If you use `x-scs-function-name` to combine a _subscribe_ and a _publish_ operation and the _subscribe_ operation has parameters, then this template will render a _Consumer_ method that will receive a message and then call the generated _send method_ to send out a new message through the StreamBridge.
 
-This behaviour may be modified by setting the _dynamicType_ parameter to 'header'. This is to support binders that can route messages by putting the topic into a message header. In this case, a _Supplier_ and a _Function_ will set the header on the message rather than use the StreamBridge, however _send methods_ will still be rendered for convenience.
+  This behaviour may be modified by setting the _dynamicType_ parameter to 'header'. This is to support binders that can route messages by putting the topic into a message header. In this case, a _Supplier_ and a _Function_ will set the header on the message rather than use the StreamBridge, however _send methods_ will still be rendered for convenience.
 
 
 ### Method Naming
