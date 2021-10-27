@@ -430,14 +430,12 @@ function getModelClass(schemaName) {
 filter.getModelClass = getModelClass;
 
 function getRealPublisher([info, params, channel]) {
-  const pub = scsLib.getRealPublisher(info, params, channel);
-  return pub;
+  return scsLib.getRealPublisher(info, params, channel);
 }
 filter.getRealPublisher = getRealPublisher;
 
 function getRealSubscriber([info, params, channel]) {
-  const pub = scsLib.getRealSubscriber(info, params, channel);
-  return pub;
+  return scsLib.getRealSubscriber(info, params, channel);
 }
 filter.getRealSubscriber = getRealSubscriber;
 
@@ -533,8 +531,7 @@ function springCloudVersion([info, params]) {
 filter.springCloudVersion = springCloudVersion;
 
 function stringify(obj) {
-  const str = JSON.stringify(obj, null, 2);
-  return str;
+  return JSON.stringify(obj, null, 2);
 }
 filter.stringify = stringify;
 
