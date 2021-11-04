@@ -1,5 +1,6 @@
-{%- macro javaClass(schemaName, schema, properties, indentLevel, isStatic) %}
-{%- set modelClass = schemaName | getModelClass %}
+{%- macro javaClass(schemaName, schema, properties, indentLevel, isStatic, isInnerClass) %}
+{%- set modelClass = {schema: schema, schemaName: schemaName} | getModelClass %}
+{%- if modelClass %}
 {%- set className = modelClass.getClassName() %}
 {{ 'javaClass' | logJavaClass -}}
 {{ className | logJavaClass -}}
@@ -14,7 +15,7 @@
 {{ indent2 }}}
 
 {# If the top level object is an array, we need to deal with that specially. -#}
-{%- if schema and schema.type() === 'array' -%}
+{%- if schema and schema.type() === 'array' and not isInnerClass -%}
 {%- set name = schema.title() | camelCase -%}
 {%- set type = name | upperFirst -%}
 {%- set arrayType = type + '[]' -%}
@@ -26,7 +27,7 @@
 {{ indent2 }}public {{ arrayType }} get{{ type }}() { return {{ name }}; }
 {{ indent2 }}public void set{{ type }}({{ arrayType }} {{ name }}) { this.{{ name }} = {{name}}; }
 
-{{ javaClass(type, null, schema.items().properties(), indentLevel+1, true) }}
+{{ javaClass(type, null, schema.items().properties(), indentLevel+1, true, false) }}
 {%- else -%} {# not an array at the top level. #}
 {%- set first = true -%}
 {#- Constructor with all properties -#}
@@ -78,15 +79,15 @@
 {{ indent3 }}return this;
 {{ indent2 }}}
 {# Inner classes #}
-{%- if prop.type() === 'object' %}
-{{ javaClass(javaName, null, prop.properties(), indentLevel+1, true) }}
+{%- set innerModelClass = {schema: prop, schemaName: javaName} | getModelClass %}
+{%- if prop.type() === 'object' and innerModelClass %}
+{{ javaClass(javaName, prop, prop.properties(), indentLevel+1, true, true) }}
 {% endif -%}
-{%- if isArrayOfObjects %}
-{{ javaClass(javaName, null, prop.items().properties(), indentLevel+1, true) }}
+{%- if isArrayOfObjects and innerModelClass %}
+{{ javaClass(javaName, prop, prop.items().properties(), indentLevel+1, true, true) }}
 {% endif -%}
 {# Enums #}
 {%- if prop.enum() %}
-
 {{ indent2 }}public static enum {{ type }} { {{ prop.enum() }} }
 {% endif -%}
 {%- endfor %}
@@ -101,5 +102,5 @@
 {{ indent3 }}+ " super: " + super.toString(){% endif %}
 {{ indent3 }}+ " ]";
 {{ indent2 }}}
-{{ indent1 }}}
+{{ indent1 }}}{% endif %}
 {% endmacro -%}

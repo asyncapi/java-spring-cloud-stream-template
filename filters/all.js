@@ -423,8 +423,8 @@ const getMethods = (obj) => {
   return [...properties.keys()].filter(item => typeof obj[item] === 'function');
 };
 
-function getModelClass(schemaName) {
-  return applicationModel.getModelClass(schemaName);
+function getModelClass(customSchemaObject) {
+  return applicationModel.getModelClass(customSchemaObject);
 }
 
 filter.getModelClass = getModelClass;

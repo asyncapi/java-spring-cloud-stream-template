@@ -430,6 +430,538 @@ logging:
 "
 `;
 
+exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 1`] = `
+"
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.context.annotation.Bean;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+
+@SpringBootApplication
+public class Application {
+
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+
+	@Autowired
+	private StreamBridge streamBridge;
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class);
+	}
+
+	@Bean
+	public Consumer<LightMeasuredPayload> receiveLightMeasurement() {
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+	}
+
+
+
+
+	public void sendTurnOn(
+		TurnOnOffPayload payload, String streetlightId
+		) {
+		String topic = String.format(\\"smartylighting/streetlights/1/0/action/%s/turn/on\\",
+			streetlightId);
+		streamBridge.send(topic, payload);
+	}
+	public void sendTurnOff(
+		TurnOnOffPayload payload, String streetlightId
+		) {
+		String topic = String.format(\\"smartylighting/streetlights/1/0/action/%s/turn/off\\",
+			streetlightId);
+		streamBridge.send(topic, payload);
+	}
+	public void sendDimLight(
+		DimLightPayload payload, String streetlightId
+		) {
+		String topic = String.format(\\"smartylighting/streetlights/1/0/action/%s/dim\\",
+			streetlightId);
+		streamBridge.send(topic, payload);
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 2`] = `
+"
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class DimLightPayload {
+
+	public DimLightPayload () {
+	}
+
+	public DimLightPayload (
+		Integer percentage, 
+		SentAt sentAt) {
+		this.percentage = percentage;
+		this.sentAt = sentAt;
+	}
+
+
+	private Integer percentage;
+	private SentAt sentAt;
+
+	public Integer getPercentage() {
+		return percentage;
+	}
+
+	public DimLightPayload setPercentage(Integer percentage) {
+		this.percentage = percentage;
+		return this;
+	}
+
+
+	public SentAt getSentAt() {
+		return sentAt;
+	}
+
+	public DimLightPayload setSentAt(SentAt sentAt) {
+		this.sentAt = sentAt;
+		return this;
+	}
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class SentAt {
+
+		public SentAt () {
+		}
+
+		public SentAt (
+			PropertySubobject propertySubobject) {
+			this.propertySubobject = propertySubobject;
+		}
+
+
+		private PropertySubobject propertySubobject;
+
+		public PropertySubobject getPropertySubobject() {
+			return propertySubobject;
+		}
+
+		public SentAt setPropertySubobject(PropertySubobject propertySubobject) {
+			this.propertySubobject = propertySubobject;
+			return this;
+		}
+
+
+		@JsonInclude(JsonInclude.Include.NON_NULL)
+		public static class SubObject {
+
+			public SubObject () {
+			}
+
+			public SubObject (
+				String propertyA) {
+				this.propertyA = propertyA;
+			}
+
+
+			private String propertyA;
+
+			public String getPropertyA() {
+				return propertyA;
+			}
+
+			public SubObject setPropertyA(String propertyA) {
+				this.propertyA = propertyA;
+				return this;
+			}
+
+
+			public String toString() {
+				return \\"SubObject [\\"
+				+ \\" propertyA: \\" + propertyA
+				+ \\" ]\\";
+			}
+		}
+
+
+
+		public String toString() {
+			return \\"SentAt [\\"
+			+ \\" propertySubobject: \\" + propertySubobject
+			+ \\" ]\\";
+		}
+	}
+
+
+
+	public String toString() {
+		return \\"DimLightPayload [\\"
+		+ \\" percentage: \\" + percentage
+		+ \\" sentAt: \\" + sentAt
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
+exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 3`] = `
+"
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class LightMeasuredPayload {
+
+	public LightMeasuredPayload () {
+	}
+
+	public LightMeasuredPayload (
+		Integer lumens, 
+		SentAt sentAt) {
+		this.lumens = lumens;
+		this.sentAt = sentAt;
+	}
+
+
+	private Integer lumens;
+	private SentAt sentAt;
+
+	public Integer getLumens() {
+		return lumens;
+	}
+
+	public LightMeasuredPayload setLumens(Integer lumens) {
+		this.lumens = lumens;
+		return this;
+	}
+
+
+	public SentAt getSentAt() {
+		return sentAt;
+	}
+
+	public LightMeasuredPayload setSentAt(SentAt sentAt) {
+		this.sentAt = sentAt;
+		return this;
+	}
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class SentAt {
+
+		public SentAt () {
+		}
+
+		public SentAt (
+			PropertySubobject propertySubobject) {
+			this.propertySubobject = propertySubobject;
+		}
+
+
+		private PropertySubobject propertySubobject;
+
+		public PropertySubobject getPropertySubobject() {
+			return propertySubobject;
+		}
+
+		public SentAt setPropertySubobject(PropertySubobject propertySubobject) {
+			this.propertySubobject = propertySubobject;
+			return this;
+		}
+
+
+		@JsonInclude(JsonInclude.Include.NON_NULL)
+		public static class SubObject {
+
+			public SubObject () {
+			}
+
+			public SubObject (
+				String propertyA) {
+				this.propertyA = propertyA;
+			}
+
+
+			private String propertyA;
+
+			public String getPropertyA() {
+				return propertyA;
+			}
+
+			public SubObject setPropertyA(String propertyA) {
+				this.propertyA = propertyA;
+				return this;
+			}
+
+
+			public String toString() {
+				return \\"SubObject [\\"
+				+ \\" propertyA: \\" + propertyA
+				+ \\" ]\\";
+			}
+		}
+
+
+
+		public String toString() {
+			return \\"SentAt [\\"
+			+ \\" propertySubobject: \\" + propertySubobject
+			+ \\" ]\\";
+		}
+	}
+
+
+
+	public String toString() {
+		return \\"LightMeasuredPayload [\\"
+		+ \\" lumens: \\" + lumens
+		+ \\" sentAt: \\" + sentAt
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
+exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 4`] = `
+"
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class SentAt {
+
+	public SentAt () {
+	}
+
+	public SentAt (
+		PropertySubobject propertySubobject) {
+		this.propertySubobject = propertySubobject;
+	}
+
+
+	private PropertySubobject propertySubobject;
+
+	public PropertySubobject getPropertySubobject() {
+		return propertySubobject;
+	}
+
+	public SentAt setPropertySubobject(PropertySubobject propertySubobject) {
+		this.propertySubobject = propertySubobject;
+		return this;
+	}
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class SubObject {
+
+		public SubObject () {
+		}
+
+		public SubObject (
+			String propertyA) {
+			this.propertyA = propertyA;
+		}
+
+
+		private String propertyA;
+
+		public String getPropertyA() {
+			return propertyA;
+		}
+
+		public SubObject setPropertyA(String propertyA) {
+			this.propertyA = propertyA;
+			return this;
+		}
+
+
+		public String toString() {
+			return \\"SubObject [\\"
+			+ \\" propertyA: \\" + propertyA
+			+ \\" ]\\";
+		}
+	}
+
+
+
+	public String toString() {
+		return \\"SentAt [\\"
+		+ \\" propertySubobject: \\" + propertySubobject
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
+exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 5`] = `
+"
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class SubObject {
+
+	public SubObject () {
+	}
+
+	public SubObject (
+		String propertyA) {
+		this.propertyA = propertyA;
+	}
+
+
+	private String propertyA;
+
+	public String getPropertyA() {
+		return propertyA;
+	}
+
+	public SubObject setPropertyA(String propertyA) {
+		this.propertyA = propertyA;
+		return this;
+	}
+
+
+	public String toString() {
+		return \\"SubObject [\\"
+		+ \\" propertyA: \\" + propertyA
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
+exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 6`] = `
+"
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class TurnOnOffPayload {
+
+	public TurnOnOffPayload () {
+	}
+
+	public TurnOnOffPayload (
+		Command command, 
+		SentAt sentAt) {
+		this.command = command;
+		this.sentAt = sentAt;
+	}
+
+
+	private Command command;
+	private SentAt sentAt;
+
+	public Command getCommand() {
+		return command;
+	}
+
+	public TurnOnOffPayload setCommand(Command command) {
+		this.command = command;
+		return this;
+	}
+
+	public static enum Command { on,off }
+
+
+	public SentAt getSentAt() {
+		return sentAt;
+	}
+
+	public TurnOnOffPayload setSentAt(SentAt sentAt) {
+		this.sentAt = sentAt;
+		return this;
+	}
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class SentAt {
+
+		public SentAt () {
+		}
+
+		public SentAt (
+			PropertySubobject propertySubobject) {
+			this.propertySubobject = propertySubobject;
+		}
+
+
+		private PropertySubobject propertySubobject;
+
+		public PropertySubobject getPropertySubobject() {
+			return propertySubobject;
+		}
+
+		public SentAt setPropertySubobject(PropertySubobject propertySubobject) {
+			this.propertySubobject = propertySubobject;
+			return this;
+		}
+
+
+		@JsonInclude(JsonInclude.Include.NON_NULL)
+		public static class SubObject {
+
+			public SubObject () {
+			}
+
+			public SubObject (
+				String propertyA) {
+				this.propertyA = propertyA;
+			}
+
+
+			private String propertyA;
+
+			public String getPropertyA() {
+				return propertyA;
+			}
+
+			public SubObject setPropertyA(String propertyA) {
+				this.propertyA = propertyA;
+				return this;
+			}
+
+
+			public String toString() {
+				return \\"SubObject [\\"
+				+ \\" propertyA: \\" + propertyA
+				+ \\" ]\\";
+			}
+		}
+
+
+
+		public String toString() {
+			return \\"SentAt [\\"
+			+ \\" propertySubobject: \\" + propertySubobject
+			+ \\" ]\\";
+		}
+	}
+
+
+
+	public String toString() {
+		return \\"TurnOnOffPayload [\\"
+		+ \\" command: \\" + command
+		+ \\" sentAt: \\" + sentAt
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
 exports[`template integration tests using the generator should generate extra config when using the paramatersToHeaders parameter 1`] = `
 "package com.acme;
 
@@ -508,6 +1040,617 @@ logging:
     root: info
     org:
       springframework: info
+
+"
+`;
+
+exports[`template integration tests using the generator should generate schemas with nested arrays 1`] = `
+"
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.context.annotation.Bean;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+
+@SpringBootApplication
+public class Application {
+
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+
+	@Autowired
+	private StreamBridge streamBridge;
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class);
+	}
+
+	@Bean
+	public Consumer<Dossier> companyCustomerCompanyDebtorDebtorIdDossierDossierIdCreatedConsumer() {
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+	}
+
+	@Bean
+	public Consumer<Debtor> companyCustomerCompanyDebtorDebtorIdCreatedConsumer() {
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+	}
+
+
+
+	public void sendCompanyCustomerCompanyDebtorCreate(
+		Debtor payload, String customerCompany
+		) {
+		String topic = String.format(\\"Company/%s/debtor/create\\",
+			customerCompany);
+		streamBridge.send(topic, payload);
+	}
+	public void sendCompanyCustomerCompanyDebtorDebtorIdDossierCreate(
+		Dossier payload, String customerCompany, String debtorId
+		) {
+		String topic = String.format(\\"Company/%s/debtor/%s/Dossier/create\\",
+			customerCompany, debtorId);
+		streamBridge.send(topic, payload);
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate schemas with nested arrays 2`] = `
+"
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Dossier {
+
+	public Dossier () {
+	}
+
+	public Dossier (
+		java.math.BigDecimal premium, 
+		java.math.BigDecimal appliedDiscount, 
+		String productId, 
+		Options[] options, 
+		String id, 
+		String clientId) {
+		this.premium = premium;
+		this.appliedDiscount = appliedDiscount;
+		this.productId = productId;
+		this.options = options;
+		this.id = id;
+		this.clientId = clientId;
+	}
+
+
+	private java.math.BigDecimal premium;
+	@JsonProperty(\\"applied_discount\\")
+	private java.math.BigDecimal appliedDiscount;
+	@JsonProperty(\\"product_id\\")
+	private String productId;
+	private Options[] options;
+	private String id;
+	@JsonProperty(\\"client_id\\")
+	private String clientId;
+
+	public java.math.BigDecimal getPremium() {
+		return premium;
+	}
+
+	public Dossier setPremium(java.math.BigDecimal premium) {
+		this.premium = premium;
+		return this;
+	}
+
+
+	public java.math.BigDecimal getAppliedDiscount() {
+		return appliedDiscount;
+	}
+
+	public Dossier setAppliedDiscount(java.math.BigDecimal appliedDiscount) {
+		this.appliedDiscount = appliedDiscount;
+		return this;
+	}
+
+
+	public String getProductId() {
+		return productId;
+	}
+
+	public Dossier setProductId(String productId) {
+		this.productId = productId;
+		return this;
+	}
+
+
+	public Options[] getOptions() {
+		return options;
+	}
+
+	public Dossier setOptions(Options[] options) {
+		this.options = options;
+		return this;
+	}
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class Options {
+
+		public Options () {
+		}
+
+		public Options (
+			String name, 
+			String id) {
+			this.name = name;
+			this.id = id;
+		}
+
+
+		private String name;
+		private String id;
+
+		public String getName() {
+			return name;
+		}
+
+		public Options setName(String name) {
+			this.name = name;
+			return this;
+		}
+
+
+		public String getId() {
+			return id;
+		}
+
+		public Options setId(String id) {
+			this.id = id;
+			return this;
+		}
+
+
+		public String toString() {
+			return \\"Options [\\"
+			+ \\" name: \\" + name
+			+ \\" id: \\" + id
+			+ \\" ]\\";
+		}
+	}
+
+
+
+	public String getId() {
+		return id;
+	}
+
+	public Dossier setId(String id) {
+		this.id = id;
+		return this;
+	}
+
+
+	public String getClientId() {
+		return clientId;
+	}
+
+	public Dossier setClientId(String clientId) {
+		this.clientId = clientId;
+		return this;
+	}
+
+
+	public String toString() {
+		return \\"Dossier [\\"
+		+ \\" premium: \\" + premium
+		+ \\" appliedDiscount: \\" + appliedDiscount
+		+ \\" productId: \\" + productId
+		+ \\" options: \\" + options
+		+ \\" id: \\" + id
+		+ \\" clientId: \\" + clientId
+		+ \\" ]\\";
+	}
+}
+
+"
+`;
+
+exports[`template integration tests using the generator should generate schemas with nested arrays 3`] = `
+"
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Debtor {
+
+	public Debtor () {
+	}
+
+	public Debtor (
+		Emails[] emails, 
+		String birthdate, 
+		Address address, 
+		String lastName, 
+		Phones[] phones, 
+		String id, 
+		String firstName, 
+		BankAccount bankAccount) {
+		this.emails = emails;
+		this.birthdate = birthdate;
+		this.address = address;
+		this.lastName = lastName;
+		this.phones = phones;
+		this.id = id;
+		this.firstName = firstName;
+		this.bankAccount = bankAccount;
+	}
+
+
+	private Emails[] emails;
+	private String birthdate;
+	private Address address;
+	@JsonProperty(\\"last_name\\")
+	private String lastName;
+	private Phones[] phones;
+	private String id;
+	@JsonProperty(\\"first_name\\")
+	private String firstName;
+	@JsonProperty(\\"bank_account\\")
+	private BankAccount bankAccount;
+
+	public Emails[] getEmails() {
+		return emails;
+	}
+
+	public Debtor setEmails(Emails[] emails) {
+		this.emails = emails;
+		return this;
+	}
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class Emails {
+
+		public Emails () {
+		}
+
+		public Emails (
+			String type, 
+			String email, 
+			Boolean preferred) {
+			this.type = type;
+			this.email = email;
+			this.preferred = preferred;
+		}
+
+
+		private String type;
+		private String email;
+		private Boolean preferred;
+
+		public String getType() {
+			return type;
+		}
+
+		public Emails setType(String type) {
+			this.type = type;
+			return this;
+		}
+
+
+		public String getEmail() {
+			return email;
+		}
+
+		public Emails setEmail(String email) {
+			this.email = email;
+			return this;
+		}
+
+
+		public Boolean getPreferred() {
+			return preferred;
+		}
+
+		public Emails setPreferred(Boolean preferred) {
+			this.preferred = preferred;
+			return this;
+		}
+
+
+		public String toString() {
+			return \\"Emails [\\"
+			+ \\" type: \\" + type
+			+ \\" email: \\" + email
+			+ \\" preferred: \\" + preferred
+			+ \\" ]\\";
+		}
+	}
+
+
+
+	public String getBirthdate() {
+		return birthdate;
+	}
+
+	public Debtor setBirthdate(String birthdate) {
+		this.birthdate = birthdate;
+		return this;
+	}
+
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public Debtor setAddress(Address address) {
+		this.address = address;
+		return this;
+	}
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class Address {
+
+		public Address () {
+		}
+
+		public Address (
+			String countryCode, 
+			String city, 
+			String street, 
+			String postalCode) {
+			this.countryCode = countryCode;
+			this.city = city;
+			this.street = street;
+			this.postalCode = postalCode;
+		}
+
+
+		@JsonProperty(\\"country_code\\")
+		private String countryCode;
+		private String city;
+		private String street;
+		@JsonProperty(\\"postal_code\\")
+		private String postalCode;
+
+		public String getCountryCode() {
+			return countryCode;
+		}
+
+		public Address setCountryCode(String countryCode) {
+			this.countryCode = countryCode;
+			return this;
+		}
+
+
+		public String getCity() {
+			return city;
+		}
+
+		public Address setCity(String city) {
+			this.city = city;
+			return this;
+		}
+
+
+		public String getStreet() {
+			return street;
+		}
+
+		public Address setStreet(String street) {
+			this.street = street;
+			return this;
+		}
+
+
+		public String getPostalCode() {
+			return postalCode;
+		}
+
+		public Address setPostalCode(String postalCode) {
+			this.postalCode = postalCode;
+			return this;
+		}
+
+
+		public String toString() {
+			return \\"Address [\\"
+			+ \\" countryCode: \\" + countryCode
+			+ \\" city: \\" + city
+			+ \\" street: \\" + street
+			+ \\" postalCode: \\" + postalCode
+			+ \\" ]\\";
+		}
+	}
+
+
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public Debtor setLastName(String lastName) {
+		this.lastName = lastName;
+		return this;
+	}
+
+
+	public Phones[] getPhones() {
+		return phones;
+	}
+
+	public Debtor setPhones(Phones[] phones) {
+		this.phones = phones;
+		return this;
+	}
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class Phones {
+
+		public Phones () {
+		}
+
+		public Phones (
+			String phone, 
+			String type, 
+			Boolean preferred) {
+			this.phone = phone;
+			this.type = type;
+			this.preferred = preferred;
+		}
+
+
+		private String phone;
+		private String type;
+		private Boolean preferred;
+
+		public String getPhone() {
+			return phone;
+		}
+
+		public Phones setPhone(String phone) {
+			this.phone = phone;
+			return this;
+		}
+
+
+		public String getType() {
+			return type;
+		}
+
+		public Phones setType(String type) {
+			this.type = type;
+			return this;
+		}
+
+
+		public Boolean getPreferred() {
+			return preferred;
+		}
+
+		public Phones setPreferred(Boolean preferred) {
+			this.preferred = preferred;
+			return this;
+		}
+
+
+		public String toString() {
+			return \\"Phones [\\"
+			+ \\" phone: \\" + phone
+			+ \\" type: \\" + type
+			+ \\" preferred: \\" + preferred
+			+ \\" ]\\";
+		}
+	}
+
+
+
+	public String getId() {
+		return id;
+	}
+
+	public Debtor setId(String id) {
+		this.id = id;
+		return this;
+	}
+
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public Debtor setFirstName(String firstName) {
+		this.firstName = firstName;
+		return this;
+	}
+
+
+	public BankAccount getBankAccount() {
+		return bankAccount;
+	}
+
+	public Debtor setBankAccount(BankAccount bankAccount) {
+		this.bankAccount = bankAccount;
+		return this;
+	}
+
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class BankAccount {
+
+		public BankAccount () {
+		}
+
+		public BankAccount (
+			String iban, 
+			String bic) {
+			this.iban = iban;
+			this.bic = bic;
+		}
+
+
+		@JsonProperty(\\"IBAN\\")
+		private String iban;
+		@JsonProperty(\\"BIC\\")
+		private String bic;
+
+		public String getIban() {
+			return iban;
+		}
+
+		public BankAccount setIban(String iban) {
+			this.iban = iban;
+			return this;
+		}
+
+
+		public String getBic() {
+			return bic;
+		}
+
+		public BankAccount setBic(String bic) {
+			this.bic = bic;
+			return this;
+		}
+
+
+		public String toString() {
+			return \\"BankAccount [\\"
+			+ \\" iban: \\" + iban
+			+ \\" bic: \\" + bic
+			+ \\" ]\\";
+		}
+	}
+
+
+
+	public String toString() {
+		return \\"Debtor [\\"
+		+ \\" emails: \\" + emails
+		+ \\" birthdate: \\" + birthdate
+		+ \\" address: \\" + address
+		+ \\" lastName: \\" + lastName
+		+ \\" phones: \\" + phones
+		+ \\" id: \\" + id
+		+ \\" firstName: \\" + firstName
+		+ \\" bankAccount: \\" + bankAccount
+		+ \\" ]\\";
+	}
+}
 
 "
 `;

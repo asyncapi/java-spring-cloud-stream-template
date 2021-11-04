@@ -1,0 +1,177 @@
+asyncapi: 2.0.0
+info:
+  description: ''
+  title: IntegrationTask
+  version: 0.0.1
+servers:
+  production:
+    url: tcp://service.messaging.solace.cloud:55555
+    protocol: SMF
+    description: Company Production Broker
+    variables:
+      port:
+        description: Secure connection (TLS) is available through port 55443. Non SSL Compressed protocol is available through port 55003
+        default: '55555'
+        enum:
+          - '55555'
+          - '55443'
+          - '55003'
+components:
+  schemas:
+    Debtor:
+      description: Debtor
+      type: object
+      properties:
+        emails:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              email:
+                format: email
+                type: string
+              preferred:
+                type: boolean
+        birthdate:
+          type: string
+        address:
+          type: object
+          properties:
+            country_code:
+              minLength: 2
+              type: string
+              maxLength: 2
+            city:
+              type: string
+            street:
+              type: string
+            postal_code:
+              type: string
+        last_name:
+          type: string
+        phones:
+          type: array
+          items:
+            type: object
+            properties:
+              phone:
+                type: string
+              type:
+                type: string
+              preferred:
+                type: boolean
+        id:
+          type: string
+        first_name:
+          type: string
+        bank_account:
+          type: object
+          properties:
+            IBAN:
+              pattern: '[A-Z]{2}\d{2} ?\d{4} ?\d{4} ?\d{4} ?\d{4} ?[\d]{0,2}'
+              type: string
+            BIC:
+              type: string
+    Dossier:
+      description: Contract info
+      type: object
+      properties:
+        premium:
+          type: number
+        applied_discount:
+          type: number
+        product_id:
+          type: string
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              id:
+                type: string
+        id:
+          type: string
+        client_id:
+          type: string
+  messages:
+    CreateDebtorCommand:
+      payload:
+        $ref: '#/components/schemas/Debtor'
+      description: |-
+        This event contains information about the debtor creation;
+        DebtorId is expected to be null
+      schemaFormat: application/vnd.aai.asyncapi+json;version=2.0.0
+      contentType: application/json
+    DebtorCreatedEvent:
+      payload:
+        $ref: '#/components/schemas/Debtor'
+      description: |-
+        The event that notify of debtor creation.
+        the debtorId is the only information filled in this event
+      schemaFormat: application/vnd.aai.asyncapi+json;version=2.0.0
+      contentType: application/json
+    CreateDossierCommand:
+      payload:
+        $ref: '#/components/schemas/Dossier'
+      description: |-
+        This event contains the informaiton about a dossier creation.
+        The dossier ID is expected to be empty as it's a creation.
+      schemaFormat: application/vnd.aai.asyncapi+json;version=2.0.0
+      contentType: application/json
+    DossierCreatedEvent:
+      payload:
+        $ref: '#/components/schemas/Dossier'
+      description: |-
+        The dossier has been created.
+        The event contains only the Dossier ID
+      schemaFormat: application/vnd.aai.asyncapi+json;version=2.0.0
+      contentType: application/json
+channels:
+  'Company/{customerCompany}/debtor/{debtorId}/Dossier/{dossierId}/created':
+    publish:
+      message:
+        $ref: '#/components/messages/DossierCreatedEvent'
+    parameters:
+      customerCompany:
+        schema:
+          type: string
+      dossierId:
+        schema:
+          type: string
+      debtorId:
+        schema:
+          type: string
+  'Company/{customerCompany}/debtor/{debtorId}/created':
+    publish:
+      message:
+        $ref: '#/components/messages/DebtorCreatedEvent'
+    parameters:
+      customerCompany:
+        schema:
+          type: string
+      debtorId:
+        schema:
+          type: string
+  'Company/{customerCompany}/debtor/create':
+    subscribe:
+      message:
+        $ref: '#/components/messages/CreateDebtorCommand'
+    parameters:
+      customerCompany:
+        schema:
+          type: string
+  'Company/{customerCompany}/debtor/{debtorId}/Dossier/create':
+    subscribe:
+      message:
+        $ref: '#/components/messages/CreateDossierCommand'
+    parameters:
+      customerCompany:
+        schema:
+          type: string
+      debtorId:
+        schema:
+          type: string
