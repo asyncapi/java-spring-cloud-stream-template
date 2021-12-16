@@ -6,6 +6,7 @@ exports[`template integration tests using the generator avro schemas should appe
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
 
@@ -21,11 +22,9 @@ public class User {
 		this.age = age;
 	}
 
-
 	private String displayName;
 	private String email;
 	private Integer age;
-
 	public String getDisplayName() {
 		return displayName;
 	}
@@ -55,7 +54,6 @@ public class User {
 		return this;
 	}
 
-
 	public String toString() {
 		return \\"User [\\"
 		+ \\" displayName: \\" + displayName
@@ -64,7 +62,6 @@ public class User {
 		+ \\" ]\\";
 	}
 }
-
 "
 `;
 
@@ -74,6 +71,7 @@ exports[`template integration tests using the generator avro schemas should appe
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User {
 
@@ -89,11 +87,9 @@ public class User {
 		this.age = age;
 	}
 
-
 	private String displayName;
 	private String email;
 	private Integer age;
-
 	public String getDisplayName() {
 		return displayName;
 	}
@@ -123,7 +119,6 @@ public class User {
 		return this;
 	}
 
-
 	public String toString() {
 		return \\"User [\\"
 		+ \\" displayName: \\" + displayName
@@ -132,7 +127,6 @@ public class User {
 		+ \\" ]\\";
 	}
 }
-
 "
 `;
 
@@ -189,6 +183,10 @@ exports[`template integration tests using the generator should generate a model 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
+
+	
+	
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ExtendedErrorModel extends ErrorModel {
 
@@ -200,9 +198,7 @@ public class ExtendedErrorModel extends ErrorModel {
 		this.rootCause = rootCause;
 	}
 
-
 	private String rootCause;
-
 	public String getRootCause() {
 		return rootCause;
 	}
@@ -212,7 +208,6 @@ public class ExtendedErrorModel extends ErrorModel {
 		return this;
 	}
 
-
 	public String toString() {
 		return \\"ExtendedErrorModel [\\"
 		+ \\" rootCause: \\" + rootCause
@@ -220,7 +215,6 @@ public class ExtendedErrorModel extends ErrorModel {
 		+ \\" ]\\";
 	}
 }
-
 "
 `;
 
@@ -351,6 +345,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MySchema {
 
@@ -364,11 +359,9 @@ public class MySchema {
 		this._long = _long;
 	}
 
-
 	private String prop1;
 	@JsonProperty(\\"long\\")
 	private String _long;
-
 	public String getProp1() {
 		return prop1;
 	}
@@ -379,15 +372,14 @@ public class MySchema {
 	}
 
 
-	public String get_long() {
+	public String getLong() {
 		return _long;
 	}
 
-	public MySchema set_long(String _long) {
+	public MySchema setLong(String _long) {
 		this._long = _long;
 		return this;
 	}
-
 
 	public String toString() {
 		return \\"MySchema [\\"
@@ -396,7 +388,6 @@ public class MySchema {
 		+ \\" ]\\";
 	}
 }
-
 "
 `;
 
@@ -497,6 +488,7 @@ exports[`template integration tests using the generator should generate code fro
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DimLightPayload {
 
@@ -510,10 +502,8 @@ public class DimLightPayload {
 		this.sentAt = sentAt;
 	}
 
-
 	private Integer percentage;
 	private SentAt sentAt;
-
 	public Integer getPercentage() {
 		return percentage;
 	}
@@ -533,73 +523,6 @@ public class DimLightPayload {
 		return this;
 	}
 
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class SentAt {
-
-		public SentAt () {
-		}
-
-		public SentAt (
-			PropertySubobject propertySubobject) {
-			this.propertySubobject = propertySubobject;
-		}
-
-
-		private PropertySubobject propertySubobject;
-
-		public PropertySubobject getPropertySubobject() {
-			return propertySubobject;
-		}
-
-		public SentAt setPropertySubobject(PropertySubobject propertySubobject) {
-			this.propertySubobject = propertySubobject;
-			return this;
-		}
-
-
-		@JsonInclude(JsonInclude.Include.NON_NULL)
-		public static class SubObject {
-
-			public SubObject () {
-			}
-
-			public SubObject (
-				String propertyA) {
-				this.propertyA = propertyA;
-			}
-
-
-			private String propertyA;
-
-			public String getPropertyA() {
-				return propertyA;
-			}
-
-			public SubObject setPropertyA(String propertyA) {
-				this.propertyA = propertyA;
-				return this;
-			}
-
-
-			public String toString() {
-				return \\"SubObject [\\"
-				+ \\" propertyA: \\" + propertyA
-				+ \\" ]\\";
-			}
-		}
-
-
-
-		public String toString() {
-			return \\"SentAt [\\"
-			+ \\" propertySubobject: \\" + propertySubobject
-			+ \\" ]\\";
-		}
-	}
-
-
-
 	public String toString() {
 		return \\"DimLightPayload [\\"
 		+ \\" percentage: \\" + percentage
@@ -607,13 +530,13 @@ public class DimLightPayload {
 		+ \\" ]\\";
 	}
 }
-
 "
 `;
 
 exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 3`] = `
 "
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -629,10 +552,8 @@ public class LightMeasuredPayload {
 		this.sentAt = sentAt;
 	}
 
-
 	private Integer lumens;
 	private SentAt sentAt;
-
 	public Integer getLumens() {
 		return lumens;
 	}
@@ -652,73 +573,6 @@ public class LightMeasuredPayload {
 		return this;
 	}
 
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class SentAt {
-
-		public SentAt () {
-		}
-
-		public SentAt (
-			PropertySubobject propertySubobject) {
-			this.propertySubobject = propertySubobject;
-		}
-
-
-		private PropertySubobject propertySubobject;
-
-		public PropertySubobject getPropertySubobject() {
-			return propertySubobject;
-		}
-
-		public SentAt setPropertySubobject(PropertySubobject propertySubobject) {
-			this.propertySubobject = propertySubobject;
-			return this;
-		}
-
-
-		@JsonInclude(JsonInclude.Include.NON_NULL)
-		public static class SubObject {
-
-			public SubObject () {
-			}
-
-			public SubObject (
-				String propertyA) {
-				this.propertyA = propertyA;
-			}
-
-
-			private String propertyA;
-
-			public String getPropertyA() {
-				return propertyA;
-			}
-
-			public SubObject setPropertyA(String propertyA) {
-				this.propertyA = propertyA;
-				return this;
-			}
-
-
-			public String toString() {
-				return \\"SubObject [\\"
-				+ \\" propertyA: \\" + propertyA
-				+ \\" ]\\";
-			}
-		}
-
-
-
-		public String toString() {
-			return \\"SentAt [\\"
-			+ \\" propertySubobject: \\" + propertySubobject
-			+ \\" ]\\";
-		}
-	}
-
-
-
 	public String toString() {
 		return \\"LightMeasuredPayload [\\"
 		+ \\" lumens: \\" + lumens
@@ -726,13 +580,13 @@ public class LightMeasuredPayload {
 		+ \\" ]\\";
 	}
 }
-
 "
 `;
 
 exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 4`] = `
 "
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -742,63 +596,27 @@ public class SentAt {
 	}
 
 	public SentAt (
-		PropertySubobject propertySubobject) {
-		this.propertySubobject = propertySubobject;
+		SubObject subObject) {
+		this.subObject = subObject;
 	}
 
-
-	private PropertySubobject propertySubobject;
-
-	public PropertySubobject getPropertySubobject() {
-		return propertySubobject;
+	@JsonProperty(\\"propertySubobject\\")
+	private SubObject subObject;
+	public SubObject getSubObject() {
+		return subObject;
 	}
 
-	public SentAt setPropertySubobject(PropertySubobject propertySubobject) {
-		this.propertySubobject = propertySubobject;
+	public SentAt setSubObject(SubObject subObject) {
+		this.subObject = subObject;
 		return this;
 	}
 
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class SubObject {
-
-		public SubObject () {
-		}
-
-		public SubObject (
-			String propertyA) {
-			this.propertyA = propertyA;
-		}
-
-
-		private String propertyA;
-
-		public String getPropertyA() {
-			return propertyA;
-		}
-
-		public SubObject setPropertyA(String propertyA) {
-			this.propertyA = propertyA;
-			return this;
-		}
-
-
-		public String toString() {
-			return \\"SubObject [\\"
-			+ \\" propertyA: \\" + propertyA
-			+ \\" ]\\";
-		}
-	}
-
-
-
 	public String toString() {
 		return \\"SentAt [\\"
-		+ \\" propertySubobject: \\" + propertySubobject
+		+ \\" subObject: \\" + subObject
 		+ \\" ]\\";
 	}
 }
-
 "
 `;
 
@@ -806,44 +624,6 @@ exports[`template integration tests using the generator should generate code fro
 "
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class SubObject {
-
-	public SubObject () {
-	}
-
-	public SubObject (
-		String propertyA) {
-		this.propertyA = propertyA;
-	}
-
-
-	private String propertyA;
-
-	public String getPropertyA() {
-		return propertyA;
-	}
-
-	public SubObject setPropertyA(String propertyA) {
-		this.propertyA = propertyA;
-		return this;
-	}
-
-
-	public String toString() {
-		return \\"SubObject [\\"
-		+ \\" propertyA: \\" + propertyA
-		+ \\" ]\\";
-	}
-}
-
-"
-`;
-
-exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 6`] = `
-"
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -859,10 +639,8 @@ public class TurnOnOffPayload {
 		this.sentAt = sentAt;
 	}
 
-
 	private Command command;
 	private SentAt sentAt;
-
 	public Command getCommand() {
 		return command;
 	}
@@ -872,9 +650,8 @@ public class TurnOnOffPayload {
 		return this;
 	}
 
+
 	public static enum Command { on,off }
-
-
 	public SentAt getSentAt() {
 		return sentAt;
 	}
@@ -884,73 +661,6 @@ public class TurnOnOffPayload {
 		return this;
 	}
 
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class SentAt {
-
-		public SentAt () {
-		}
-
-		public SentAt (
-			PropertySubobject propertySubobject) {
-			this.propertySubobject = propertySubobject;
-		}
-
-
-		private PropertySubobject propertySubobject;
-
-		public PropertySubobject getPropertySubobject() {
-			return propertySubobject;
-		}
-
-		public SentAt setPropertySubobject(PropertySubobject propertySubobject) {
-			this.propertySubobject = propertySubobject;
-			return this;
-		}
-
-
-		@JsonInclude(JsonInclude.Include.NON_NULL)
-		public static class SubObject {
-
-			public SubObject () {
-			}
-
-			public SubObject (
-				String propertyA) {
-				this.propertyA = propertyA;
-			}
-
-
-			private String propertyA;
-
-			public String getPropertyA() {
-				return propertyA;
-			}
-
-			public SubObject setPropertyA(String propertyA) {
-				this.propertyA = propertyA;
-				return this;
-			}
-
-
-			public String toString() {
-				return \\"SubObject [\\"
-				+ \\" propertyA: \\" + propertyA
-				+ \\" ]\\";
-			}
-		}
-
-
-
-		public String toString() {
-			return \\"SentAt [\\"
-			+ \\" propertySubobject: \\" + propertySubobject
-			+ \\" ]\\";
-		}
-	}
-
-
-
 	public String toString() {
 		return \\"TurnOnOffPayload [\\"
 		+ \\" command: \\" + command
@@ -958,7 +668,42 @@ public class TurnOnOffPayload {
 		+ \\" ]\\";
 	}
 }
+"
+`;
 
+exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 6`] = `
+"
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class SubObject {
+
+	public SubObject () {
+	}
+
+	public SubObject (
+		String propertyA) {
+		this.propertyA = propertyA;
+	}
+
+	private String propertyA;
+	public String getPropertyA() {
+		return propertyA;
+	}
+
+	public SubObject setPropertyA(String propertyA) {
+		this.propertyA = propertyA;
+		return this;
+	}
+
+	public String toString() {
+		return \\"SubObject [\\"
+		+ \\" propertyA: \\" + propertyA
+		+ \\" ]\\";
+	}
+}
 "
 `;
 
@@ -1112,6 +857,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Dossier {
 
@@ -1133,7 +879,6 @@ public class Dossier {
 		this.clientId = clientId;
 	}
 
-
 	private java.math.BigDecimal premium;
 	@JsonProperty(\\"applied_discount\\")
 	private java.math.BigDecimal appliedDiscount;
@@ -1143,7 +888,6 @@ public class Dossier {
 	private String id;
 	@JsonProperty(\\"client_id\\")
 	private String clientId;
-
 	public java.math.BigDecimal getPremium() {
 		return premium;
 	}
@@ -1184,23 +928,17 @@ public class Dossier {
 	}
 
 
+
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public static class Options {
 
 		public Options () {
 		}
 
-		public Options (
-			String name, 
-			String id) {
-			this.name = name;
-			this.id = id;
-		}
 
 
 		private String name;
 		private String id;
-
 		public String getName() {
 			return name;
 		}
@@ -1220,7 +958,6 @@ public class Dossier {
 			return this;
 		}
 
-
 		public String toString() {
 			return \\"Options [\\"
 			+ \\" name: \\" + name
@@ -1228,8 +965,6 @@ public class Dossier {
 			+ \\" ]\\";
 		}
 	}
-
-
 
 	public String getId() {
 		return id;
@@ -1250,7 +985,6 @@ public class Dossier {
 		return this;
 	}
 
-
 	public String toString() {
 		return \\"Dossier [\\"
 		+ \\" premium: \\" + premium
@@ -1262,7 +996,6 @@ public class Dossier {
 		+ \\" ]\\";
 	}
 }
-
 "
 `;
 
@@ -1270,6 +1003,7 @@ exports[`template integration tests using the generator should generate schemas 
 "
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -1297,7 +1031,6 @@ public class Debtor {
 		this.bankAccount = bankAccount;
 	}
 
-
 	private Emails[] emails;
 	private String birthdate;
 	private Address address;
@@ -1309,7 +1042,6 @@ public class Debtor {
 	private String firstName;
 	@JsonProperty(\\"bank_account\\")
 	private BankAccount bankAccount;
-
 	public Emails[] getEmails() {
 		return emails;
 	}
@@ -1320,26 +1052,18 @@ public class Debtor {
 	}
 
 
+
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public static class Emails {
 
 		public Emails () {
 		}
 
-		public Emails (
-			String type, 
-			String email, 
-			Boolean preferred) {
-			this.type = type;
-			this.email = email;
-			this.preferred = preferred;
-		}
 
 
 		private String type;
 		private String email;
 		private Boolean preferred;
-
 		public String getType() {
 			return type;
 		}
@@ -1369,7 +1093,6 @@ public class Debtor {
 			return this;
 		}
 
-
 		public String toString() {
 			return \\"Emails [\\"
 			+ \\" type: \\" + type
@@ -1378,8 +1101,6 @@ public class Debtor {
 			+ \\" ]\\";
 		}
 	}
-
-
 
 	public String getBirthdate() {
 		return birthdate;
@@ -1401,6 +1122,7 @@ public class Debtor {
 	}
 
 
+
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public static class Address {
 
@@ -1418,14 +1140,12 @@ public class Debtor {
 			this.postalCode = postalCode;
 		}
 
-
 		@JsonProperty(\\"country_code\\")
 		private String countryCode;
 		private String city;
 		private String street;
 		@JsonProperty(\\"postal_code\\")
 		private String postalCode;
-
 		public String getCountryCode() {
 			return countryCode;
 		}
@@ -1465,7 +1185,6 @@ public class Debtor {
 			return this;
 		}
 
-
 		public String toString() {
 			return \\"Address [\\"
 			+ \\" countryCode: \\" + countryCode
@@ -1475,8 +1194,6 @@ public class Debtor {
 			+ \\" ]\\";
 		}
 	}
-
-
 
 	public String getLastName() {
 		return lastName;
@@ -1498,26 +1215,18 @@ public class Debtor {
 	}
 
 
+
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public static class Phones {
 
 		public Phones () {
 		}
 
-		public Phones (
-			String phone, 
-			String type, 
-			Boolean preferred) {
-			this.phone = phone;
-			this.type = type;
-			this.preferred = preferred;
-		}
 
 
 		private String phone;
 		private String type;
 		private Boolean preferred;
-
 		public String getPhone() {
 			return phone;
 		}
@@ -1547,7 +1256,6 @@ public class Debtor {
 			return this;
 		}
 
-
 		public String toString() {
 			return \\"Phones [\\"
 			+ \\" phone: \\" + phone
@@ -1556,8 +1264,6 @@ public class Debtor {
 			+ \\" ]\\";
 		}
 	}
-
-
 
 	public String getId() {
 		return id;
@@ -1589,6 +1295,7 @@ public class Debtor {
 	}
 
 
+
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public static class BankAccount {
 
@@ -1602,12 +1309,10 @@ public class Debtor {
 			this.bic = bic;
 		}
 
-
 		@JsonProperty(\\"IBAN\\")
 		private String iban;
 		@JsonProperty(\\"BIC\\")
 		private String bic;
-
 		public String getIban() {
 			return iban;
 		}
@@ -1627,7 +1332,6 @@ public class Debtor {
 			return this;
 		}
 
-
 		public String toString() {
 			return \\"BankAccount [\\"
 			+ \\" iban: \\" + iban
@@ -1635,9 +1339,6 @@ public class Debtor {
 			+ \\" ]\\";
 		}
 	}
-
-
-
 	public String toString() {
 		return \\"Debtor [\\"
 		+ \\" emails: \\" + emails
@@ -1651,7 +1352,6 @@ public class Debtor {
 		+ \\" ]\\";
 	}
 }
-
 "
 `;
 

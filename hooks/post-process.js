@@ -77,7 +77,7 @@ function processSchema(generator, schemaName, schema, sourcePath, defaultJavaPac
   debugPostProcess(schema);
   const modelClass = applicationModel.getModelClass({schema: schema, schemaName: schemaName});
   const javaName = modelClass.getClassName();
-  if (schema.type() !== 'object' || _.startsWith(javaName, 'Anonymous')) {
+  if ((schema.type() && schema.type() !== 'object') || _.startsWith(javaName, 'Anonymous')) {
     debugPostProcess(`deleting ${filePath}`);
     fs.existsSync(filePath) && fs.unlinkSync(filePath);
   } else {

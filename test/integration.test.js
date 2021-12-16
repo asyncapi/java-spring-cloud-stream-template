@@ -1,6 +1,6 @@
 const path = require('path');
 const Generator = require('@asyncapi/generator');
-const { readFile } = require('fs').promises;
+const { readFile, readdir } = require('fs').promises;
 const crypto = require('crypto');
 
 const MAIN_TEST_RESULT_PATH = path.join('test', 'temp', 'integrationTestResult');
@@ -143,6 +143,8 @@ describe('template integration tests using the generator', () => {
     const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true });
     await generator.generateFromFile(path.resolve('test', 'mocks/nested-arrays.yaml'));
 
+	// TODO: The All args constructor is broken for arrays
+
     const expectedFiles = [
       'src/main/java/Application.java',
       'src/main/java/Dossier.java',
@@ -162,8 +164,8 @@ describe('template integration tests using the generator', () => {
       'src/main/java/DimLightPayload.java',
       'src/main/java/LightMeasuredPayload.java',
       'src/main/java/SentAt.java',
-      'src/main/java/SubObject.java',
-      'src/main/java/TurnOnOffPayload.java'
+      'src/main/java/TurnOnOffPayload.java',
+	  'src/main/java/SubObject.java'
     ];
     await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });

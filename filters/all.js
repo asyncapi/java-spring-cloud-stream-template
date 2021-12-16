@@ -426,8 +426,12 @@ const getMethods = (obj) => {
 function getModelClass(customSchemaObject) {
   return applicationModel.getModelClass(customSchemaObject);
 }
-
 filter.getModelClass = getModelClass;
+
+function getAnonymousSchemaForRef(schemaName) {
+	return applicationModel.getAnonymousSchemaForRef(schemaName);
+}
+filter.getAnonymousSchemaForRef = getAnonymousSchemaForRef;
 
 function getRealPublisher([info, params, channel]) {
   return scsLib.getRealPublisher(info, params, channel);
