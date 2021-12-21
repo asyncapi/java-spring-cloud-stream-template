@@ -1,3 +1,4 @@
+{% from "partials/all-args-constructor" import allArgsConstructor -%}
 {%- macro javaClass(schemaName, schema, properties, indentLevel, isStatic) %}
 {%- set modelClass = {schema: schema, schemaName: schemaName} | getModelClass %}
 {%- set schemaForRef = schemaName | getAnonymousSchemaForRef %}
@@ -18,39 +19,13 @@
 {# Default constructor #}
 {{ indent2 }}public {{ className }} () {
 {{ indent2 }}}
-
 {# If the top level object is an array, we need to deal with that specially. -#}
 {%- if schema and schema.type() === 'array' -%}
+{{ allArgsConstructor(className, schema.items().properties(), indentLevel) }}
 {{ javaClass(type, null, schema.items().properties(), indentLevel+1, true) }}
 {%- else -%} {# not an array at the top level. #}
-{%- set first = true -%}
-{#- Constructor with all properties -#}
-{%- set hasNoProperties = properties | isEmpty -%}
-{%- if not hasNoProperties -%}
-{{ indent2 }}public {{ className }} (
-{%- for name, prop in properties -%}
-{%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
-{%- set realClassName = propModelClass.getClassName() %}
-{%- set variableName = realClassName | identifierName %}
-{%- set typeInfo = [name, realClassName, prop] | fixType %}
-{%- set type = typeInfo[0] -%}
-{%- if first -%}
-{%- set first = false -%}
-{%- else -%}
-, {% endif %}
-{{ indent3 }}{{ type }} {{ variableName }}
-{%- endfor -%}
-) {
-{% for name, prop in properties -%}
-{%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
-{%- set realClassName = propModelClass.getClassName() %}
-{%- set variableName = realClassName | identifierName -%}
-{{ indent3 }}this.{{ variableName }} = {{ variableName }};
-{% endfor -%}
-{{ indent2 }}}
+{{ allArgsConstructor(className, properties, indentLevel) }}
 {% endif -%}
-{% endif -%}
-
 {# Members #}
 {%- for name, prop in properties %}
 {%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}

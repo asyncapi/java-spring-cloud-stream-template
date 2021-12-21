@@ -934,7 +934,12 @@ public class Dossier {
 
 		public Options () {
 		}
-
+		public Options (
+			String name, 
+			String id) {
+			this.name = name;
+			this.id = id;
+		}
 
 
 		private String name;
@@ -1058,7 +1063,14 @@ public class Debtor {
 
 		public Emails () {
 		}
-
+		public Emails (
+			String type, 
+			String email, 
+			Boolean preferred) {
+			this.type = type;
+			this.email = email;
+			this.preferred = preferred;
+		}
 
 
 		private String type;
@@ -1221,7 +1233,14 @@ public class Debtor {
 
 		public Phones () {
 		}
-
+		public Phones (
+			String phone, 
+			String type, 
+			Boolean preferred) {
+			this.phone = phone;
+			this.type = type;
+			this.preferred = preferred;
+		}
 
 
 		private String phone;
