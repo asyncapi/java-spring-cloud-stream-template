@@ -3,8 +3,8 @@
 {%- set modelClass = {schema: schema, schemaName: schemaName} | getModelClass %}
 {%- set schemaForRef = schemaName | getAnonymousSchemaForRef %}
 {% if schemaForRef %}
-	{% set schema = schemaForRef %}
-	{% set properties = schemaForRef.properties() %}
+{% set schema = schemaForRef %}
+{% set properties = schemaForRef.properties() %}
 {% endif %}
 {%- if modelClass %}
 {%- set className = modelClass.getClassName() %}
@@ -41,7 +41,6 @@
 
 {#- Getters and Setters #}
 {%- for name, prop in properties %}
-{#- TODO: This writes in the object names based on property name but the property name isn't always right because it might just be a ref - translate that into a real class name by ... getting the model class? yeah we can do that. pass in a null schema. -#}
 {%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
 {%- set realClassName = propModelClass.getClassName() %}
 {%- set variableName = realClassName | identifierName -%}
