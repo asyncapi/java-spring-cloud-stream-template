@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const ApplicationModel = require('../lib/applicationModel.js');
+const _ = require('lodash');
 const applicationModel = new ApplicationModel('post');
 // To enable debug logging, set the env var DEBUG="postProcess" with whatever things you want to see.
 const debugPostProcess = require('debug')('postProcess');
@@ -74,12 +75,14 @@ function processSchema(generator, schemaName, schema, sourcePath, defaultJavaPac
   const filePath = path.resolve(sourcePath, fileName);
   debugPostProcess(`processSchema ${schemaName}`);
   debugPostProcess(schema);
-  if (schema.type() !== 'object') {
+  const modelClass = applicationModel.getModelClass({schema, schemaName});
+  const javaName = modelClass.getClassName();
+  if ((schema.type() && schema.type() !== 'object') || _.startsWith(javaName, 'Anonymous')) {
     debugPostProcess(`deleting ${filePath}`);
-    fs.unlinkSync(filePath);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
   } else {
-    const modelClass = applicationModel.getModelClass(schemaName);
-    const javaName = modelClass.getClassName();
     const packageDir = getPackageDir(generator, defaultJavaPackageDir, modelClass);
     debugPostProcess(`packageDir: ${packageDir}`);
 

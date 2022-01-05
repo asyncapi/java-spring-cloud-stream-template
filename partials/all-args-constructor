@@ -1,0 +1,30 @@
+{%- macro allArgsConstructor(className, properties, indentLevel) -%}
+{% set indent1 = indentLevel | indent1 -%}
+{% set indent2 = indentLevel | indent2 -%}
+{% set indent3 = indentLevel | indent3 -%}
+{% set first = true -%}
+{%- set hasNoProperties = properties | isEmpty -%}
+{%- if not hasNoProperties -%}
+{{ indent2 }}public {{ className }} (
+{%- for name, prop in properties -%}
+{%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
+{%- set realClassName = propModelClass.getClassName() %}
+{%- set variableName = realClassName | identifierName %}
+{%- set typeInfo = [name, realClassName, prop] | fixType %}
+{%- set type = typeInfo[0] -%}
+{%- if first -%}
+{%- set first = false -%}
+{%- else -%}
+, {% endif %}
+{{ indent3 }}{{ type }} {{ variableName }}
+{%- endfor -%}
+) {
+{% for name, prop in properties -%}
+{%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
+{%- set realClassName = propModelClass.getClassName() %}
+{%- set variableName = realClassName | identifierName -%}
+{{ indent3 }}this.{{ variableName }} = {{ variableName }};
+{% endfor -%}
+{{ indent2 }}}
+{%- endif -%}
+{% endmacro %}

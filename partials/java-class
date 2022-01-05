@@ -1,5 +1,12 @@
+{% from "partials/all-args-constructor" import allArgsConstructor -%}
 {%- macro javaClass(schemaName, schema, properties, indentLevel, isStatic) %}
-{%- set modelClass = schemaName | getModelClass %}
+{%- set modelClass = {schema: schema, schemaName: schemaName} | getModelClass %}
+{%- set schemaForRef = schemaName | getAnonymousSchemaForRef %}
+{% if schemaForRef %}
+{% set schema = schemaForRef %}
+{% set properties = schemaForRef.properties() %}
+{% endif %}
+{%- if modelClass %}
 {%- set className = modelClass.getClassName() %}
 {{ 'javaClass' | logJavaClass -}}
 {{ className | logJavaClass -}}
@@ -12,94 +19,67 @@
 {# Default constructor #}
 {{ indent2 }}public {{ className }} () {
 {{ indent2 }}}
-
 {# If the top level object is an array, we need to deal with that specially. -#}
 {%- if schema and schema.type() === 'array' -%}
-{%- set name = schema.title() | camelCase -%}
-{%- set type = name | upperFirst -%}
-{%- set arrayType = type + '[]' -%}
-{{ indent2 }}public {{ className }} ({{ arrayType }} {{ name }}) {
-{{ indent3 }}this.{{ name }} = {{ name }};
-{{ indent2 }}}
-{{ indent2 }}private {{ arrayType }} {{ name }};
-
-{{ indent2 }}public {{ arrayType }} get{{ type }}() { return {{ name }}; }
-{{ indent2 }}public void set{{ type }}({{ arrayType }} {{ name }}) { this.{{ name }} = {{name}}; }
-
+{{ allArgsConstructor(className, schema.items().properties(), indentLevel) }}
 {{ javaClass(type, null, schema.items().properties(), indentLevel+1, true) }}
 {%- else -%} {# not an array at the top level. #}
-{%- set first = true -%}
-{#- Constructor with all properties -#}
-{%- set hasNoProperties = properties | isEmpty -%}
-{%- if not hasNoProperties -%}
-{{ indent2 }}public {{ className }} (
-{%- for name, prop in properties -%}
-{%- set javaName = name | identifierName -%}
-{%- set typeInfo = [name, javaName, prop] | fixType -%}
-{%- set type = typeInfo[0] -%}
-{%- if first -%}
-{%- set first = false -%}
-{%- else -%}
-, {% endif %}
-{{ indent3 }}{{ type }} {{ javaName }}
-{%- endfor -%}
-) {
-{% for name, prop in properties -%}
-{%- set javaName = name | identifierName -%}
-{{ indent3 }}this.{{ javaName }} = {{ javaName }};
-{% endfor -%}
-{{ indent2 }}}
+{{ allArgsConstructor(className, properties, indentLevel) }}
 {% endif -%}
-{% endif -%}
-
 {# Members #}
-{% for name, prop in properties -%}
-{% set javaName = name | identifierName -%}
-{% set typeInfo = [javaName, javaName, prop] | fixType -%}
-{% set type = typeInfo[0] %}
-{% if javaName !== name -%}
+{%- for name, prop in properties %}
+{%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
+{%- set realClassName = propModelClass.getClassName() %}
+{%- set variableName = realClassName | identifierName -%}
+{%- set typeInfo = [realClassName, realClassName, prop] | fixType -%}
+{%- set type = typeInfo[0] %}
+{% if variableName !== name -%}
 {{ indent2 }}@JsonProperty("{{name}}")
 {% endif -%}
-{{ indent2 }}private {{ type }} {{ javaName }};
-{%- endfor -%}
+{{ indent2 }}private {{ type }} {{ variableName }};
+{%- endfor %}
 
-{# Getters and Setters #}
+{#- Getters and Setters #}
 {%- for name, prop in properties %}
-{% set javaName = name | identifierName -%}
-{% set typeInfo = [name, javaName, prop] | fixType -%}
+{%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
+{%- set realClassName = propModelClass.getClassName() %}
+{%- set variableName = realClassName | identifierName -%}
+{%- set typeInfo = [name, realClassName, prop] | fixType -%}
 {% set type = typeInfo[0] -%}
 {% set isArrayOfObjects = typeInfo[1] %}
-{{ indent2 }}public {{ type }} get{{- javaName | upperFirst }}() {
-{{ indent3 }}return {{ javaName }};
+{{ indent2 }}public {{ type }} get{{- realClassName }}() {
+{{ indent3 }}return {{ variableName }};
 {{ indent2 }}}
 
-{{ indent2 }}public {{ className }} set{{- javaName | upperFirst }}({{ type }} {{ javaName }}) {
-{{ indent3 }}this.{{-javaName }} = {{ javaName }};
+{{ indent2 }}public {{ className }} set{{- realClassName }}({{ type }} {{ variableName }}) {
+{{ indent3 }}this.{{-variableName }} = {{ variableName }};
 {{ indent3 }}return this;
 {{ indent2 }}}
 {# Inner classes #}
-{%- if prop.type() === 'object' %}
-{{ javaClass(javaName, null, prop.properties(), indentLevel+1, true) }}
-{% endif -%}
-{%- if isArrayOfObjects %}
-{{ javaClass(javaName, null, prop.items().properties(), indentLevel+1, true) }}
-{% endif -%}
+{%- set innerModelClass = {schema: prop, schemaName: variableName} | getModelClass %}
+{%- if prop.type() === 'object' and innerModelClass and innerModelClass.canBeInnerClass() %}
+{{ javaClass(variableName, prop, prop.properties(), indentLevel+1, true) }}
+{%- endif %}
+{%- if isArrayOfObjects and innerModelClass and innerModelClass.canBeInnerClass() %}
+{{ javaClass(variableName, prop, prop.items().properties(), indentLevel+1, true) }}
+{%- endif %}
 {# Enums #}
 {%- if prop.enum() %}
-
 {{ indent2 }}public static enum {{ type }} { {{ prop.enum() }} }
-{% endif -%}
-{%- endfor %}
+{%- endif %}
+{%- endfor -%}
 
 {{ indent2 }}public String toString() {
 {{ indent3 }}return "{{ className }} ["
 {%- for name, prop in properties %}
-{%- set javaName = name | identifierName %}
-{{ indent3 }}+ " {{ javaName }}: " + {{ javaName }}
+{%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
+{%- set realClassName = propModelClass.getClassName() %}
+{%- set variableName = realClassName | identifierName %}
+{{ indent3 }}+ " {{ variableName }}: " + {{ variableName }}
 {%- endfor %}
 {%- if modelClass.isSubClass() %}
 {{ indent3 }}+ " super: " + super.toString(){% endif %}
 {{ indent3 }}+ " ]";
 {{ indent2 }}}
-{{ indent1 }}}
-{% endmacro -%}
+{{ indent1 }}}{% endif -%}
+{%- endmacro -%}

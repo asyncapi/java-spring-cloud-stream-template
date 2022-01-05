@@ -11,7 +11,8 @@
     "test": "jest --maxWorkers=50% --detectOpenHandles",
     "test:watch": "npm run test -- --watch",
     "test:watchAll": "npm run test -- --watchAll",
-    "test:coverage": "npm run test -- --coverage"
+    "test:coverage": "npm run test -- --coverage",
+    "test:updateSnapshots": "npm run test -- -u"
   },
   "keywords": [
     "asyncapi",

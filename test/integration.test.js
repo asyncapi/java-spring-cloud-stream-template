@@ -6,12 +6,19 @@ const crypto = require('crypto');
 const MAIN_TEST_RESULT_PATH = path.join('test', 'temp', 'integrationTestResult');
 
 describe('template integration tests using the generator', () => {
+  jest.setTimeout(30000);
+
   const generateFolderName = () => {
     // you always want to generate to new directory to make sure test runs in clear environment
     return path.resolve(MAIN_TEST_RESULT_PATH, crypto.randomBytes(4).toString('hex'));
   };
 
-  jest.setTimeout(30000);
+  const assertExpectedFiles = async (outputDirectory, expectedFiles) => {
+    for (const index in expectedFiles) {
+      const file = await readFile(path.join(outputDirectory, expectedFiles[index]), 'utf8');
+      expect(file).toMatchSnapshot();
+    }
+  };
 
   it('should generate application files using the solace binder', async () => {
     const OUTPUT_DIR = generateFolderName();
@@ -37,10 +44,7 @@ describe('template integration tests using the generator', () => {
       `src/main/java/${PACKAGE_PATH}/MySchema.java`,
       'src/main/resources/application.yml'
     ];
-    for (const index in expectedFiles) {
-      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
-      expect(file).toMatchSnapshot();
-    }
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });
 
   it('should return payload when using x-scs-function-name instead of logging the message', async () => {
@@ -52,10 +56,7 @@ describe('template integration tests using the generator', () => {
     const expectedFiles = [
       'src/main/java/Application.java'
     ];
-    for (const index in expectedFiles) {
-      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
-      expect(file).toMatchSnapshot();
-    }
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });
 
   it('should generate extra config when using the paramatersToHeaders parameter', async () => {
@@ -80,10 +81,7 @@ describe('template integration tests using the generator', () => {
       `src/main/java/${PACKAGE_PATH}/Application.java`,
       'src/main/resources/application.yml'
     ];
-    for (const index in expectedFiles) {
-      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
-      expect(file).toMatchSnapshot();
-    }
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });
 
   it('should generate a comment for a consumer receiving multiple messages', async () => {
@@ -95,10 +93,7 @@ describe('template integration tests using the generator', () => {
     const expectedFiles = [
       'src/main/java/Application.java'
     ];
-    for (const index in expectedFiles) {
-      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
-      expect(file).toMatchSnapshot();
-    }
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });
 
   it('avro schemas should appear in a package based on their namespace, if any.', async () => {
@@ -120,10 +115,7 @@ describe('template integration tests using the generator', () => {
       `src/main/java/${PACKAGE_PATH}/User.java`,
       `src/main/java/${AVRO_PACKAGE_PATH}/User.java`,
     ];
-    for (const index in expectedFiles) {
-      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
-      expect(file).toMatchSnapshot();
-    }
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });
 
   it('should generate a model subclass when it sees an allOf', async () => {
@@ -141,9 +133,37 @@ describe('template integration tests using the generator', () => {
     const expectedFiles = [
       `src/main/java/${PACKAGE_PATH}/ExtendedErrorModel.java`
     ];
-    for (const index in expectedFiles) {
-      const file = await readFile(path.join(OUTPUT_DIR, expectedFiles[index]), 'utf8');
-      expect(file).toMatchSnapshot();
-    }
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
+  });
+
+  it('should generate schemas with nested arrays', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true });
+    await generator.generateFromFile(path.resolve('test', 'mocks/nested-arrays.yaml'));
+
+    const expectedFiles = [
+      'src/main/java/Application.java',
+      'src/main/java/Dossier.java',
+      'src/main/java/Debtor.java'
+    ];
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
+  });
+
+  it('should generate code from the smarty lighting streetlights example', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true });
+    await generator.generateFromFile(path.resolve('test', 'mocks/smarty-lighting-streetlights.yaml'));
+
+    const expectedFiles = [
+      'src/main/java/Application.java',
+      'src/main/java/DimLightPayload.java',
+      'src/main/java/LightMeasuredPayload.java',
+      'src/main/java/SentAt.java',
+      'src/main/java/TurnOnOffPayload.java',
+      'src/main/java/SubObject.java'
+    ];
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });
 });
