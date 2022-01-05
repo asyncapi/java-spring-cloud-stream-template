@@ -429,7 +429,7 @@ function getModelClass(customSchemaObject) {
 filter.getModelClass = getModelClass;
 
 function getAnonymousSchemaForRef(schemaName) {
-	return applicationModel.getAnonymousSchemaForRef(schemaName);
+  return applicationModel.getAnonymousSchemaForRef(schemaName);
 }
 filter.getAnonymousSchemaForRef = getAnonymousSchemaForRef;
 

@@ -6,7 +6,6 @@ const crypto = require('crypto');
 const MAIN_TEST_RESULT_PATH = path.join('test', 'temp', 'integrationTestResult');
 
 describe('template integration tests using the generator', () => {
-
   jest.setTimeout(30000);
 
   const generateFolderName = () => {
@@ -19,7 +18,7 @@ describe('template integration tests using the generator', () => {
       const file = await readFile(path.join(outputDirectory, expectedFiles[index]), 'utf8');
       expect(file).toMatchSnapshot();
     }
-  }
+  };
 
   it('should generate application files using the solace binder', async () => {
     const OUTPUT_DIR = generateFolderName();
@@ -163,7 +162,7 @@ describe('template integration tests using the generator', () => {
       'src/main/java/LightMeasuredPayload.java',
       'src/main/java/SentAt.java',
       'src/main/java/TurnOnOffPayload.java',
-	  'src/main/java/SubObject.java'
+      'src/main/java/SubObject.java'
     ];
     await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });

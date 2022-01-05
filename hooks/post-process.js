@@ -75,11 +75,13 @@ function processSchema(generator, schemaName, schema, sourcePath, defaultJavaPac
   const filePath = path.resolve(sourcePath, fileName);
   debugPostProcess(`processSchema ${schemaName}`);
   debugPostProcess(schema);
-  const modelClass = applicationModel.getModelClass({schema: schema, schemaName: schemaName});
+  const modelClass = applicationModel.getModelClass({schema, schemaName});
   const javaName = modelClass.getClassName();
   if ((schema.type() && schema.type() !== 'object') || _.startsWith(javaName, 'Anonymous')) {
     debugPostProcess(`deleting ${filePath}`);
-    fs.existsSync(filePath) && fs.unlinkSync(filePath);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
   } else {
     const packageDir = getPackageDir(generator, defaultJavaPackageDir, modelClass);
     debugPostProcess(`packageDir: ${packageDir}`);
