@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const MAIN_TEST_RESULT_PATH = path.join('test', 'temp', 'integrationTestResult');
 
 describe('template integration tests using the generator', () => {
-  jest.setTimeout(30000);
+  jest.setTimeout(999000);
 
   const generateFolderName = () => {
     // you always want to generate to new directory to make sure test runs in clear environment
@@ -163,6 +163,19 @@ describe('template integration tests using the generator', () => {
       'src/main/java/SentAt.java',
       'src/main/java/TurnOnOffPayload.java',
       'src/main/java/SubObject.java'
+    ];
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
+  });
+
+  it('should generate code using schemas that have $id set', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true });
+    await generator.generateFromFile(path.resolve('test', 'mocks/using-$id-field.yaml'));
+
+    const expectedFiles = [
+      'src/main/java/Application.java',
+      'src/main/java/DefaultMessageSchema.java'
     ];
     await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });
