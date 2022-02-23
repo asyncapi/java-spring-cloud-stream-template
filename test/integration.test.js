@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const MAIN_TEST_RESULT_PATH = path.join('test', 'temp', 'integrationTestResult');
 
 describe('template integration tests using the generator', () => {
-  jest.setTimeout(999000);
+  jest.setTimeout(30000);
 
   const generateFolderName = () => {
     // you always want to generate to new directory to make sure test runs in clear environment
