@@ -707,6 +707,134 @@ public class SubObject {
 "
 `;
 
+exports[`template integration tests using the generator should generate code using schemas that have $id set 1`] = `
+"
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class Application {
+
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class);
+	}
+
+	@Bean
+	public Consumer<DefaultMessageSchema> acmeRideshareRideRequested001Consumer() {
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+	}
+
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate code using schemas that have $id set 2`] = `
+"
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class DefaultMessageSchema {
+
+	public DefaultMessageSchema () {
+	}
+
+	public DefaultMessageSchema (
+		java.math.BigDecimal avgMeterReading, 
+		Integer windowDurationSec, 
+		java.math.BigDecimal avgPassengerCount, 
+		Integer windowRideCount, 
+		String timestamp) {
+		this.avgMeterReading = avgMeterReading;
+		this.windowDurationSec = windowDurationSec;
+		this.avgPassengerCount = avgPassengerCount;
+		this.windowRideCount = windowRideCount;
+		this.timestamp = timestamp;
+	}
+
+	@JsonProperty(\\"avg_meter_reading\\")
+	private java.math.BigDecimal avgMeterReading;
+	@JsonProperty(\\"window_duration_sec\\")
+	private Integer windowDurationSec;
+	@JsonProperty(\\"avg_passenger_count\\")
+	private java.math.BigDecimal avgPassengerCount;
+	@JsonProperty(\\"window_ride_count\\")
+	private Integer windowRideCount;
+	private String timestamp;
+	public java.math.BigDecimal getAvgMeterReading() {
+		return avgMeterReading;
+	}
+
+	public DefaultMessageSchema setAvgMeterReading(java.math.BigDecimal avgMeterReading) {
+		this.avgMeterReading = avgMeterReading;
+		return this;
+	}
+
+
+	public Integer getWindowDurationSec() {
+		return windowDurationSec;
+	}
+
+	public DefaultMessageSchema setWindowDurationSec(Integer windowDurationSec) {
+		this.windowDurationSec = windowDurationSec;
+		return this;
+	}
+
+
+	public java.math.BigDecimal getAvgPassengerCount() {
+		return avgPassengerCount;
+	}
+
+	public DefaultMessageSchema setAvgPassengerCount(java.math.BigDecimal avgPassengerCount) {
+		this.avgPassengerCount = avgPassengerCount;
+		return this;
+	}
+
+
+	public Integer getWindowRideCount() {
+		return windowRideCount;
+	}
+
+	public DefaultMessageSchema setWindowRideCount(Integer windowRideCount) {
+		this.windowRideCount = windowRideCount;
+		return this;
+	}
+
+
+	public String getTimestamp() {
+		return timestamp;
+	}
+
+	public DefaultMessageSchema setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
+		return this;
+	}
+
+	public String toString() {
+		return \\"DefaultMessageSchema [\\"
+		+ \\" avgMeterReading: \\" + avgMeterReading
+		+ \\" windowDurationSec: \\" + windowDurationSec
+		+ \\" avgPassengerCount: \\" + avgPassengerCount
+		+ \\" windowRideCount: \\" + windowRideCount
+		+ \\" timestamp: \\" + timestamp
+		+ \\" ]\\";
+	}
+}
+"
+`;
+
 exports[`template integration tests using the generator should generate extra config when using the paramatersToHeaders parameter 1`] = `
 "package com.acme;
 

@@ -166,4 +166,17 @@ describe('template integration tests using the generator', () => {
     ];
     await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });
+
+  it('should generate code using schemas that have $id set', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true });
+    await generator.generateFromFile(path.resolve('test', 'mocks/using-$id-field.yaml'));
+
+    const expectedFiles = [
+      'src/main/java/Application.java',
+      'src/main/java/DefaultMessageSchema.java'
+    ];
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
+  });
 });

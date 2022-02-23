@@ -1,0 +1,86 @@
+---
+components:
+  schemas:
+    default message schema:
+      default: {}
+      $schema: "http://json-schema.org/draft-07/schema"
+      $id: "http://example.com/example.json"
+      examples:
+      - avg_meter_reading: 21.615217
+        window_duration_sec: 300
+        avg_passenger_count: 1.5
+        window_ride_count: 5
+        timestamp: "2020-06-04T20:09:59.99832-04:00"
+      description: "default placeholder for schema"
+      additionalProperties: true
+      type: "object"
+      title: "The root schema"
+      required:
+      - "timestamp"
+      - "avg_meter_reading"
+      - "avg_passenger_count"
+      - "window_duration_sec"
+      - "window_ride_count"
+      properties:
+        avg_meter_reading:
+          default: 0
+          examples:
+          - 21.615217
+          description: "An explanation about the purpose of this instance."
+          type: "number"
+          title: "The avg_meter_reading schema"
+          $id: "#/properties/avg_meter_reading"
+        window_duration_sec:
+          default: 0
+          examples:
+          - 300
+          description: "An explanation about the purpose of this instance."
+          type: "integer"
+          title: "The window_duration_sec schema"
+          $id: "#/properties/window_duration_sec"
+        avg_passenger_count:
+          default: 0
+          examples:
+          - 1.5
+          description: "An explanation about the purpose of this instance."
+          type: "number"
+          title: "The avg_passenger_count schema"
+          $id: "#/properties/avg_passenger_count"
+        window_ride_count:
+          default: 0
+          examples:
+          - 5
+          description: "An explanation about the purpose of this instance."
+          type: "integer"
+          title: "The window_ride_count schema"
+          $id: "#/properties/window_ride_count"
+        timestamp:
+          default: ""
+          examples:
+          - "2020-06-04T20:09:59.99832-04:00"
+          description: "An explanation about the purpose of this instance."
+          type: "string"
+          title: "The timestamp schema"
+          $id: "#/properties/timestamp"
+  messages:
+    ride requested 2:
+      payload:
+        $ref: "#/components/schemas/default message schema"
+      schemaFormat: "application/vnd.aai.asyncapi+json;version=2.0.0"
+      contentType: "application/json"
+servers:
+  production:
+    protocol: "smf"
+    url: "my_server"
+channels:
+  acme/rideshare/ride/requested/0.0.1:
+    publish:
+      message:
+        $ref: "#/components/messages/ride requested 2"
+asyncapi: "2.0.0"
+info:
+  x-generated-time: "2021-09-29 13:44 UTC"
+  description: "test\n\n---\n\ntest"
+  title: "mh acme 2"
+  x-view: "provider"
+  version: "1"
