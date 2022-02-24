@@ -24,7 +24,7 @@ describe('template integration tests using the generator', () => {
   const generate = (asyncApiFilePath, params) => {
     const generator = new Generator(path.normalize('./'), outputDirectory, { forceWrite: true, templateParams: params });
     return generator.generateFromFile(path.resolve(TEST_FOLDER_NAME, asyncApiFilePath));
-  }
+  };
 
   const assertExpectedFiles = async (expectedFiles) => {
     for (const index in expectedFiles) {
