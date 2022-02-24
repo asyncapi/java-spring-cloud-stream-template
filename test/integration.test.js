@@ -47,11 +47,23 @@ describe('template integration tests using the generator', () => {
     await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
   });
 
-  it('should return payload when using x-scs-function-name instead of logging the message', async () => {
+  it('should generate a consumer and return a payload when using x-scs-function-name and dynamic topic binding', async () => {
     const OUTPUT_DIR = generateFolderName();
     
     const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true });
-    await generator.generateFromFile(path.resolve('test', 'mocks/test-scs-function-name.yaml'));
+    await generator.generateFromFile(path.resolve('test', 'mocks/scs-function-name/dynamic-topic-same-function-name.yaml'));
+  
+    const expectedFiles = [
+      'src/main/java/Application.java'
+    ];
+    await assertExpectedFiles(OUTPUT_DIR, expectedFiles);
+  });
+
+  it('should generate a function and return a payload when using x-scs-function-name and a static topic', async () => {
+    const OUTPUT_DIR = generateFolderName();
+    
+    const generator = new Generator(path.normalize('./'), OUTPUT_DIR, { forceWrite: true });
+    await generator.generateFromFile(path.resolve('test', 'mocks/scs-function-name/animals-same-function-name.yaml'));
   
     const expectedFiles = [
       'src/main/java/Application.java'
