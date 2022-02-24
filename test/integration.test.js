@@ -21,12 +21,12 @@ describe('template integration tests using the generator', () => {
     return path.resolve(MAIN_TEST_RESULT_PATH, crypto.randomBytes(4).toString('hex'));
   };
 
-  const generate = async (asyncApiFilePath, params) => {
+  const generate = (asyncApiFilePath, params) => {
     const generator = new Generator(path.normalize('./'), outputDirectory, { forceWrite: true, templateParams: params });
-    return await generator.generateFromFile(path.resolve(TEST_FOLDER_NAME, asyncApiFilePath));
+    return generator.generateFromFile(path.resolve(TEST_FOLDER_NAME, asyncApiFilePath));
   }
 
-  const assertExpectedFiles = async (outputDirectory, expectedFiles) => {
+  const assertExpectedFiles = async (expectedFiles) => {
     for (const index in expectedFiles) {
       const file = await readFile(path.join(outputDirectory, expectedFiles[index]), 'utf8');
       expect(file).toMatchSnapshot();
@@ -57,7 +57,7 @@ describe('template integration tests using the generator', () => {
       `src/main/java/${DEFAULT_PACKAGE_PATH}/MySchema.java`,
       'src/main/resources/application.yml'
     ];
-    await assertExpectedFiles(outputDirectory, validatedFiles);
+    await assertExpectedFiles(validatedFiles);
   });
 
   it('should generate a consumer and return a payload when using x-scs-function-name and dynamic topic binding', async () => {
@@ -66,7 +66,7 @@ describe('template integration tests using the generator', () => {
     const validatedFiles = [
       'src/main/java/Application.java'
     ];
-    await assertExpectedFiles(outputDirectory, validatedFiles);
+    await assertExpectedFiles(validatedFiles);
   });
 
   it('should generate a function and return a payload when using x-scs-function-name and a static topic', async () => {
@@ -75,7 +75,7 @@ describe('template integration tests using the generator', () => {
     const validatedFiles = [
       'src/main/java/Application.java'
     ];
-    await assertExpectedFiles(outputDirectory, validatedFiles);
+    await assertExpectedFiles(validatedFiles);
   });
 
   it('should generate extra config when using the paramatersToHeaders parameter', async () => {
@@ -96,7 +96,7 @@ describe('template integration tests using the generator', () => {
       `src/main/java/${DEFAULT_PACKAGE_PATH}/Application.java`,
       'src/main/resources/application.yml'
     ];
-    await assertExpectedFiles(outputDirectory, validatedFiles);
+    await assertExpectedFiles(validatedFiles);
   });
 
   it('should generate a comment for a consumer receiving multiple messages', async () => {
@@ -105,7 +105,7 @@ describe('template integration tests using the generator', () => {
     const validatedFiles = [
       'src/main/java/Application.java'
     ];
-    await assertExpectedFiles(outputDirectory, validatedFiles);
+    await assertExpectedFiles(validatedFiles);
   });
 
   it('avro schemas should appear in a package based on their namespace, if any.', async () => {
@@ -122,7 +122,7 @@ describe('template integration tests using the generator', () => {
       `src/main/java/${DEFAULT_PACKAGE_PATH}/User.java`,
       `src/main/java/${AVRO_PACKAGE_PATH}/User.java`,
     ];
-    await assertExpectedFiles(outputDirectory, validatedFiles);
+    await assertExpectedFiles(validatedFiles);
   });
 
   it('should generate a model subclass when it sees an allOf', async () => {
@@ -135,7 +135,7 @@ describe('template integration tests using the generator', () => {
     const validatedFiles = [
       `src/main/java/${DEFAULT_PACKAGE_PATH}/ExtendedErrorModel.java`
     ];
-    await assertExpectedFiles(outputDirectory, validatedFiles);
+    await assertExpectedFiles(validatedFiles);
   });
 
   it('should generate schemas with nested arrays', async () => {
@@ -146,7 +146,7 @@ describe('template integration tests using the generator', () => {
       'src/main/java/Dossier.java',
       'src/main/java/Debtor.java'
     ];
-    await assertExpectedFiles(outputDirectory, validatedFiles);
+    await assertExpectedFiles(validatedFiles);
   });
 
   it('should generate code from the smarty lighting streetlights example', async () => {
@@ -160,7 +160,7 @@ describe('template integration tests using the generator', () => {
       'src/main/java/TurnOnOffPayload.java',
       'src/main/java/SubObject.java'
     ];
-    await assertExpectedFiles(outputDirectory, validatedFiles);
+    await assertExpectedFiles(validatedFiles);
   });
 
   it('should generate code using schemas that have $id set', async () => {
@@ -170,6 +170,6 @@ describe('template integration tests using the generator', () => {
       'src/main/java/Application.java',
       'src/main/java/DefaultMessageSchema.java'
     ];
-    await assertExpectedFiles(outputDirectory, validatedFiles);
+    await assertExpectedFiles(validatedFiles);
   });
 });
