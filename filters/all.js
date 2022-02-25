@@ -256,11 +256,11 @@ function addtoExtraIncludesFromFunctionSpecs(asyncapi, params, extraIncludes) {
       extraIncludes.needBean = true;
       extraIncludes.needFunction = true;
     }
-    if ((spec.type === 'supplier' && !(spec.dynamic && spec.dynamicType === 'streamBridge')) || spec.functionAsConsumer) {
+    if ((spec.type === 'supplier' && !(spec.dynamic && spec.dynamicType === 'streamBridge'))) {
       extraIncludes.needBean = true;
       extraIncludes.needSupplier = true;
     }
-    if (spec.type === 'consumer') {
+    if (spec.type === 'consumer' || spec.functionAsConsumer) {
       extraIncludes.needBean = true;
       extraIncludes.needConsumer = true;
     }
