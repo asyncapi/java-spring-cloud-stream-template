@@ -172,4 +172,13 @@ describe('template integration tests using the generator', () => {
     ];
     await assertExpectedFiles(validatedFiles);
   });
+
+  it('should return object when avro union type is used specifying many possible types', async () => {
+    await generate('mocks/avro-union-object.yaml');
+
+    // const validatedFiles = [
+    //   'src/main/java/Application.java'
+    // ];
+    // await assertExpectedFiles(validatedFiles);
+  });
 });
