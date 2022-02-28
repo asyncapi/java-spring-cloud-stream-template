@@ -172,4 +172,15 @@ describe('template integration tests using the generator', () => {
     ];
     await assertExpectedFiles(validatedFiles);
   });
+
+  it('should package and import schemas in another avro namespace', async () => {
+    await generate('mocks/avro-schema-namespace.yaml');
+
+    const validatedFiles = [
+      'src/main/java/Application.java',
+      'src/main/java/com/example/api/jobOrder/JobOrder.java',
+	  'src/main/java/com/example/api/jobAck/JobAcknowledge.java'
+    ];
+    await assertExpectedFiles(validatedFiles);
+  });
 });

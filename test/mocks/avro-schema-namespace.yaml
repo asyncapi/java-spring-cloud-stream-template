@@ -1,0 +1,66 @@
+---
+components:
+  schemas: {}
+  messages:
+    JobOrder:
+      payload:
+        name: "JobOrder"
+        namespace: "com.example.api.jobOrder"
+        doc: "JobOrder"
+        type: "record"
+        fields:
+        - name: "jobOrderId"
+          doc: "JobOrderID"
+          type: "string"
+        - name: "jobOrderDescription"
+          doc: "JobOrderDescription"
+          type: "string"
+        - name: "jobOrderLongDescription"
+          doc: "JobOrderLongDescription"
+          type: "string"
+        - name: "jobOrderNumber"
+          doc: "JobOrderNumber"
+          type: "string"
+        - name: "isActive"
+          doc: "IsActive"
+          type: "boolean"
+        - name: "status"
+          doc: "Status"
+          type: "string"
+        - name: "statuscode"
+          doc: "StatusCode"
+          type: "int"
+      schemaFormat: "application/vnd.apache.avro+json;version=1.9.0"
+      contentType: "application/vnd.apache.avro+json"
+    JobAck:
+      payload:
+        name: "JobAcknowledge"
+        namespace: "com.example.api.jobAck"
+        doc: "JobAck"
+        type: "record"
+        fields:
+        - name: "jobAckId"
+          doc: "JobAckID"
+          type: "string"
+      schemaFormat: "application/vnd.apache.avro+json;version=1.9.0"
+      contentType: "application/vnd.apache.avro+json"
+servers:
+  production:
+    protocol: "kafka"
+    url: "pkc-ymrq7.us-east-2.aws.confluent.cloud:9092"
+channels:
+  test.jobs.order:
+    subscribe:
+      message:
+        $ref: "#/components/messages/JobOrder"
+  test.jobs.ack:
+    publish:
+      message:
+        $ref: "#/components/messages/JobAck"
+asyncapi: "2.0.0"
+info:
+  x-generated-time: "2022-02-24 01:18 UTC"
+  description: ""
+  title: "Job Events"
+  x-view: "provider"
+  version: "1"

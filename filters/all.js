@@ -4,6 +4,8 @@ const generatorFilters = require('@asyncapi/generator-filters');
 const _ = require('lodash');
 const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
+const Util = require('../lib/util.js');
+const util = new Util();
 const ApplicationModel = require('../lib/applicationModel.js');
 const applicationModel = new ApplicationModel('all');
 // To enable debug logging, set the env var DEBUG="type function" with whatever things you want to see.
@@ -539,6 +541,50 @@ function stringify(obj) {
 }
 filter.stringify = stringify;
 
+function extraImports([asyncapi, params]) {
+	return getExtraImports(asyncapi);
+}
+filter.extraImports = extraImports;
+
+function getExtraImports(asyncapi) {
+  const schemaImports = [];
+  const channelOperationInfos = [];
+  for (const channelName in asyncapi.channels()) {
+    const channel = asyncapi.channels()[channelName];
+    if (channel.hasPublish()) {
+      channelOperationInfos.push(channel.publish());
+    }
+    if (channel.hasSubscribe()) {
+      channelOperationInfos.push(channel.subscribe());
+    }
+  }
+  if (channelOperationInfos.length > 0) {
+    channelOperationInfos.forEach(channelOperationInfo => {
+      const fullPackagePath = getPayloadPackage(channelOperationInfo);
+      if (fullPackagePath) {
+        schemaImports.push(fullPackagePath);
+      }
+    });
+  }
+  return schemaImports;
+}
+
+function getPayloadPackage(pubOrSub) {
+  let fullPackagePath;
+  if (!pubOrSub.hasMultipleMessages()) {
+    const payload = pubOrSub.message()?.payload();
+    if (payload) {
+      const type = payload.type();
+      const importName = payload.ext('x-parser-schema-id');
+      // This is a schema within a package - like an avro schema in a namespace. We're hoping the full thing is part of the x-schema-parser-id.
+      if ((!type || type === 'object') && importName.includes('.')) {
+        fullPackagePath = importName;
+      }
+    }
+  }
+  return fullPackagePath;
+}
+
 // Returns true if any property names will be different between json and java.
 function checkPropertyNames(name, schema) {
   const ret = false;
@@ -896,7 +942,8 @@ function getMessagePayloadType(message) {
 
     if (!type || type === 'object') {
       ret = payload.ext('x-parser-schema-id');
-      ret = _.camelCase(ret);
+      const { className } = util.stripPackageName(ret);
+      ret = _.camelCase(className);
       ret = _.upperFirst(ret);
     } else {
       ret = getType(type, payload.format()).javaType;
