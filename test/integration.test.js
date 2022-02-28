@@ -179,7 +179,7 @@ describe('template integration tests using the generator', () => {
     const validatedFiles = [
       'src/main/java/Application.java',
       'src/main/java/com/example/api/jobOrder/JobOrder.java',
-	  'src/main/java/com/example/api/jobAck/JobAcknowledge.java'
+      'src/main/java/com/example/api/jobAck/JobAcknowledge.java'
     ];
     await assertExpectedFiles(validatedFiles);
   });

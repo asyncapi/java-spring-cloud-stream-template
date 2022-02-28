@@ -542,7 +542,7 @@ function stringify(obj) {
 filter.stringify = stringify;
 
 function extraImports([asyncapi, params]) {
-	return getExtraImports(asyncapi);
+  return getExtraImports(asyncapi);
 }
 filter.extraImports = extraImports;
 
