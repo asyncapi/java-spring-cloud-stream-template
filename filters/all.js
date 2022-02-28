@@ -4,8 +4,6 @@ const generatorFilters = require('@asyncapi/generator-filters');
 const _ = require('lodash');
 const ScsLib = require('../lib/scsLib.js');
 const scsLib = new ScsLib();
-const Util = require('../lib/util.js');
-const util = new Util();
 const ApplicationModel = require('../lib/applicationModel.js');
 const applicationModel = new ApplicationModel('all');
 // To enable debug logging, set the env var DEBUG="type function" with whatever things you want to see.
@@ -942,7 +940,7 @@ function getMessagePayloadType(message) {
 
     if (!type || type === 'object') {
       ret = payload.ext('x-parser-schema-id');
-      const { className } = util.stripPackageName(ret);
+      const { className } = scsLib.stripPackageName(ret);
       ret = _.camelCase(className);
       ret = _.upperFirst(ret);
     } else {
