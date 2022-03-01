@@ -173,15 +173,6 @@ describe('template integration tests using the generator', () => {
     await assertExpectedFiles(validatedFiles);
   });
 
-<<<<<<< HEAD
-  it('should return object when avro union type is used specifying many possible types', async () => {
-    await generate('mocks/avro-union-object.yaml');
-
-    // const validatedFiles = [
-    //   'src/main/java/Application.java'
-    // ];
-    // await assertExpectedFiles(validatedFiles);
-=======
   it('should package and import schemas in another avro namespace', async () => {
     await generate('mocks/avro-schema-namespace.yaml');
 
@@ -191,6 +182,14 @@ describe('template integration tests using the generator', () => {
       'src/main/java/com/example/api/jobAck/JobAcknowledge.java'
     ];
     await assertExpectedFiles(validatedFiles);
->>>>>>> 357cde451849f436b9008c42182d6ca685213793
+  });
+
+  it('should return object when avro union type is used specifying many possible types', async () => {
+    await generate('mocks/avro-union-object.yaml');
+
+    const validatedFiles = [
+      'src/main/java/com/example/api/jobOrder/JobOrder.java'
+    ];
+    await assertExpectedFiles(validatedFiles);
   });
 });
