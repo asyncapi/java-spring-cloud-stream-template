@@ -338,7 +338,7 @@ function fixType([name, javaName, property]) {
       typeName = _.upperFirst(javaName);
     } else if (property.oneOf() || property.anyOf() || property.allOf()) {
       // Picking a type for the user may be difficult - especially since the first avro union value must be the default value which is normally of type null.
-      typeName = "Object";
+      typeName = 'Object';
     } else {
       // check to see if it's a ref to another schema.
       typeName = property.ext('x-parser-schema-id');
