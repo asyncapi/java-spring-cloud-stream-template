@@ -1,12 +1,14 @@
 {%- include 'partials/java-package' -%}
 {%- set extraIncludes = [asyncapi, params] | appExtraIncludes %}
+{%- set funcs = [asyncapi, params] | functionSpecs %}
+{%- set imports = [asyncapi, params] | extraImports %}
 
 {%- if extraIncludes.needFunction %}
 import java.util.function.Function;
-{%- endif %}
+{%- endif -%}
 {%- if extraIncludes.needConsumer %}
 import java.util.function.Consumer;
-{%- endif %}
+{%- endif -%}
 {%- if extraIncludes.needSupplier %}
 import java.util.function.Supplier;
 {%- endif %}
@@ -37,6 +39,9 @@ import org.springframework.messaging.support.MessageBuilder;
 {%- if params.reactive === 'true' %}
 import reactor.core.publisher.Flux;
 {%- endif %}
+{%- for extraImport in imports %}
+import {{ extraImport }};
+{%- endfor %}
 {% set className = [asyncapi.info(), params] | mainClassName %}
 @SpringBootApplication
 public class {{ className }} {
@@ -51,7 +56,6 @@ public class {{ className }} {
 	public static void main(String[] args) {
 		SpringApplication.run({{ className }}.class);
 	}
-{% set funcs = [asyncapi, params] | functionSpecs -%}
 {% for funcName, funcSpec in funcs %}
 	{%- if funcSpec.type === 'function' %}
 		{%- if funcSpec.dynamic %}

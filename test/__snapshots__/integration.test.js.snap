@@ -132,6 +132,7 @@ public class User {
 
 exports[`template integration tests using the generator should generate a comment for a consumer receiving multiple messages 1`] = `
 "
+
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -179,6 +180,7 @@ public class Application {
 
 exports[`template integration tests using the generator should generate a consumer and return a payload when using x-scs-function-name and dynamic topic binding 1`] = `
 "
+
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -229,6 +231,7 @@ public class Application {
 
 exports[`template integration tests using the generator should generate a function and return a payload when using x-scs-function-name and a static topic 1`] = `
 "
+
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -506,6 +509,7 @@ logging:
 
 exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 1`] = `
 "
+
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -568,6 +572,7 @@ public class Application {
 
 exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 2`] = `
 "
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
@@ -618,6 +623,7 @@ public class DimLightPayload {
 
 exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 3`] = `
 "
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
@@ -668,6 +674,7 @@ public class LightMeasuredPayload {
 
 exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 4`] = `
 "
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
@@ -705,6 +712,7 @@ public class SentAt {
 
 exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 5`] = `
 "
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
@@ -756,6 +764,7 @@ public class TurnOnOffPayload {
 
 exports[`template integration tests using the generator should generate code from the smarty lighting streetlights example 6`] = `
 "
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 
@@ -792,6 +801,7 @@ public class SubObject {
 
 exports[`template integration tests using the generator should generate code using schemas that have $id set 1`] = `
 "
+
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -823,6 +833,7 @@ public class Application {
 
 exports[`template integration tests using the generator should generate code using schemas that have $id set 2`] = `
 "
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -1002,6 +1013,7 @@ logging:
 
 exports[`template integration tests using the generator should generate schemas with nested arrays 1`] = `
 "
+
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -1064,6 +1076,7 @@ public class Application {
 
 exports[`template integration tests using the generator should generate schemas with nested arrays 2`] = `
 "
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -1217,6 +1230,7 @@ public class Dossier {
 
 exports[`template integration tests using the generator should generate schemas with nested arrays 3`] = `
 "
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -1579,6 +1593,209 @@ public class Debtor {
 		+ \\" id: \\" + id
 		+ \\" firstName: \\" + firstName
 		+ \\" bankAccount: \\" + bankAccount
+		+ \\" ]\\";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should package and import schemas in another avro namespace 1`] = `
+"
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import com.example.api.jobOrder.JobOrder;
+import com.example.api.jobAck.JobAcknowledge;
+
+@SpringBootApplication
+public class Application {
+
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class);
+	}
+
+	@Bean
+	public Supplier<JobOrder> testJobsOrderSupplier() {
+		return () -> {
+			// Add business logic here.
+			return new JobOrder();
+		};
+	}
+
+	@Bean
+	public Consumer<JobAcknowledge> testJobsAckConsumer() {
+		return data -> {
+			// Add business logic here.	
+			logger.info(data.toString());
+		};
+	}
+
+}
+"
+`;
+
+exports[`template integration tests using the generator should package and import schemas in another avro namespace 2`] = `
+"package com.example.api.jobOrder;
+
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class JobOrder {
+
+	public JobOrder () {
+	}
+
+	public JobOrder (
+		String jobOrderId, 
+		String jobOrderDescription, 
+		String jobOrderLongDescription, 
+		String jobOrderNumber, 
+		Boolean isActive, 
+		String status, 
+		Integer statuscode) {
+		this.jobOrderId = jobOrderId;
+		this.jobOrderDescription = jobOrderDescription;
+		this.jobOrderLongDescription = jobOrderLongDescription;
+		this.jobOrderNumber = jobOrderNumber;
+		this.isActive = isActive;
+		this.status = status;
+		this.statuscode = statuscode;
+	}
+
+	private String jobOrderId;
+	private String jobOrderDescription;
+	private String jobOrderLongDescription;
+	private String jobOrderNumber;
+	private Boolean isActive;
+	private String status;
+	private Integer statuscode;
+	public String getJobOrderId() {
+		return jobOrderId;
+	}
+
+	public JobOrder setJobOrderId(String jobOrderId) {
+		this.jobOrderId = jobOrderId;
+		return this;
+	}
+
+
+	public String getJobOrderDescription() {
+		return jobOrderDescription;
+	}
+
+	public JobOrder setJobOrderDescription(String jobOrderDescription) {
+		this.jobOrderDescription = jobOrderDescription;
+		return this;
+	}
+
+
+	public String getJobOrderLongDescription() {
+		return jobOrderLongDescription;
+	}
+
+	public JobOrder setJobOrderLongDescription(String jobOrderLongDescription) {
+		this.jobOrderLongDescription = jobOrderLongDescription;
+		return this;
+	}
+
+
+	public String getJobOrderNumber() {
+		return jobOrderNumber;
+	}
+
+	public JobOrder setJobOrderNumber(String jobOrderNumber) {
+		this.jobOrderNumber = jobOrderNumber;
+		return this;
+	}
+
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public JobOrder setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+		return this;
+	}
+
+
+	public String getStatus() {
+		return status;
+	}
+
+	public JobOrder setStatus(String status) {
+		this.status = status;
+		return this;
+	}
+
+
+	public Integer getStatuscode() {
+		return statuscode;
+	}
+
+	public JobOrder setStatuscode(Integer statuscode) {
+		this.statuscode = statuscode;
+		return this;
+	}
+
+	public String toString() {
+		return \\"JobOrder [\\"
+		+ \\" jobOrderId: \\" + jobOrderId
+		+ \\" jobOrderDescription: \\" + jobOrderDescription
+		+ \\" jobOrderLongDescription: \\" + jobOrderLongDescription
+		+ \\" jobOrderNumber: \\" + jobOrderNumber
+		+ \\" isActive: \\" + isActive
+		+ \\" status: \\" + status
+		+ \\" statuscode: \\" + statuscode
+		+ \\" ]\\";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should package and import schemas in another avro namespace 3`] = `
+"package com.example.api.jobAck;
+
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class JobAcknowledge {
+
+	public JobAcknowledge () {
+	}
+
+	public JobAcknowledge (
+		String jobAckId) {
+		this.jobAckId = jobAckId;
+	}
+
+	private String jobAckId;
+	public String getJobAckId() {
+		return jobAckId;
+	}
+
+	public JobAcknowledge setJobAckId(String jobAckId) {
+		this.jobAckId = jobAckId;
+		return this;
+	}
+
+	public String toString() {
+		return \\"JobAcknowledge [\\"
+		+ \\" jobAckId: \\" + jobAckId
 		+ \\" ]\\";
 	}
 }
