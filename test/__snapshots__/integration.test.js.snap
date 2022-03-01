@@ -1801,3 +1801,69 @@ public class JobAcknowledge {
 }
 "
 `;
+
+exports[`template integration tests using the generator should return object when avro union type is used specifying many possible types 1`] = `
+"package com.example.api.jobOrder;
+
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class JobOrder {
+
+	public JobOrder () {
+	}
+
+	public JobOrder (
+		String jobOrderId, 
+		Object jobOrderDescription, 
+		Object jobOrderLongDescription) {
+		this.jobOrderId = jobOrderId;
+		this.jobOrderDescription = jobOrderDescription;
+		this.jobOrderLongDescription = jobOrderLongDescription;
+	}
+
+	private String jobOrderId;
+	private Object jobOrderDescription;
+	private Object jobOrderLongDescription;
+	public String getJobOrderId() {
+		return jobOrderId;
+	}
+
+	public JobOrder setJobOrderId(String jobOrderId) {
+		this.jobOrderId = jobOrderId;
+		return this;
+	}
+
+
+	public Object getJobOrderDescription() {
+		return jobOrderDescription;
+	}
+
+	public JobOrder setJobOrderDescription(Object jobOrderDescription) {
+		this.jobOrderDescription = jobOrderDescription;
+		return this;
+	}
+
+
+	public Object getJobOrderLongDescription() {
+		return jobOrderLongDescription;
+	}
+
+	public JobOrder setJobOrderLongDescription(Object jobOrderLongDescription) {
+		this.jobOrderLongDescription = jobOrderLongDescription;
+		return this;
+	}
+
+	public String toString() {
+		return \\"JobOrder [\\"
+		+ \\" jobOrderId: \\" + jobOrderId
+		+ \\" jobOrderDescription: \\" + jobOrderDescription.toString()
+		+ \\" jobOrderLongDescription: \\" + jobOrderLongDescription.toString()
+		+ \\" ]\\";
+	}
+}
+"
+`;

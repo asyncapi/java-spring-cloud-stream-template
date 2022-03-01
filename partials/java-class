@@ -75,7 +75,12 @@
 {%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
 {%- set realClassName = propModelClass.getClassName() %}
 {%- set variableName = realClassName | identifierName %}
+{%- set typeInfo = [realClassName, realClassName, prop] | fixType -%}
+{%- set type = typeInfo[0] %}
 {{ indent3 }}+ " {{ variableName }}: " + {{ variableName }}
+{%- if type === 'Object' -%}
+.toString()
+{%- endif -%}
 {%- endfor %}
 {%- if modelClass.isSubClass() %}
 {{ indent3 }}+ " super: " + super.toString(){% endif %}

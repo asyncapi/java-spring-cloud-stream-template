@@ -1,0 +1,42 @@
+---
+components:
+  schemas: {}
+  messages:
+    JobOrder:
+      payload:
+        name: "JobOrder"
+        namespace: "com.example.api.jobOrder"
+        doc: "JobOrder"
+        type: "record"
+        fields:
+        - name: "jobOrderId"
+          doc: "JobOrderID"
+          type: "string"
+        - name: "jobOrderDescription"
+          doc: "JobOrderDescription"
+          type:
+          - "null"
+          - "string"
+        - name: "jobOrderLongDescription"
+          doc: "JobOrderLongDescription"
+          type:
+          - "null"
+          - "string"
+      schemaFormat: "application/vnd.apache.avro+json;version=1.9.0"
+      contentType: "application/vnd.apache.avro+json"
+servers:
+  production:
+    protocol: "kafka"
+    url: "xxxxx.us-east-2.aws.confluent.cloud:9092"
+channels:
+  test.jobs.order:
+    subscribe:
+      message:
+        $ref: "#/components/messages/JobOrder"
+asyncapi: "2.0.0"
+info:
+  x-generated-time: "2022-02-24 01:18 UTC"
+  description: ""
+  title: "Union Types"
+  x-view: "provider"
+  version: "1"
