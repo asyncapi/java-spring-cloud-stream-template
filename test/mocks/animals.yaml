@@ -29,7 +29,7 @@ channels:
         oneOf:
         - $ref: '#/components/messages/CatMessage'
         - $ref: '#/components/messages/DogMessage'
-asyncapi: 2.0.0
+asyncapi: 2.3.0
 info:
   description: Testing oneOf
   title: animals

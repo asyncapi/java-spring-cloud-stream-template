@@ -10,7 +10,7 @@ Note that this template ignores the 'Servers' section of AsyncAPI documents. The
 
 ## Technical requirements
 
-- 1.8.6 =< [Generator](https://github.com/asyncapi/generator/)
+- 1.9.4 =< [Generator](https://github.com/asyncapi/generator/)
 - Generator specific [requirements](https://github.com/asyncapi/generator/#requirements)
 
 ## Specification Conformance

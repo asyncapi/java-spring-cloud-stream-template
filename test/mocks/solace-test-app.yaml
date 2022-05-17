@@ -39,7 +39,7 @@ channels:
           enum:
             - POST
             - DELETE
-asyncapi: 2.0.0
+asyncapi: 2.3.0
 info:
   title: solace-test-app
   version: 0.0.1
