@@ -67,7 +67,7 @@
     ]
   },
   "generator": {
-    "generator": ">=1.8.6 <2.0.0",
+    "generator": ">=1.8.6 <=2.3.0",
     "parameters": {
       "actuator": {
         "description": "If present, it adds the dependencies for spring-boot-starter-web, spring-boot-starter-actuator and micrometer-registry-prometheus.",
