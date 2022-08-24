@@ -750,11 +750,6 @@ function filterOutNonBeanFunctionSpecs(funcs) {
       (funcSpec.type === 'supplier' || funcSpec.dynamicType === 'streamBridge'))) {
         beanFunctionSpecs.set(iterValue.value[0], iterValue.value[1]);
     }
-    // This is the inverse of the condition in the Application template file
-    // if (funcSpec.type !== 'supplier' && funcSpec.dynamicType !== 'streamBridge') {
-    //   // If the funcSpec is not in dynamic functions, add it
-    //   beanFunctionSpecs.set(iterValue.value[0], iterValue.value[1]);
-    // }
     iterValue = entriesIterator.next();
   }
   return beanFunctionSpecs;
