@@ -3,10 +3,12 @@ const Generator = require('@asyncapi/generator');
 const { readFile } = require('fs').promises;
 const crypto = require('crypto');
 
+const TEST_SUITE_NAME = 'template integration tests using the generator';
 // Constants not overridden per test
 const TEST_FOLDER_NAME = 'test';
 const MAIN_TEST_RESULT_PATH = path.join(TEST_FOLDER_NAME, 'temp', 'integrationTestResult');
 
+// Unfortunately, the test suite name must be a hard coded string
 describe('template integration tests using the generator', () => {
   jest.setTimeout(30000);
 
@@ -18,7 +20,8 @@ describe('template integration tests using the generator', () => {
 
   const generateFolderName = () => {
     // we always want to generate to new directory to make sure test runs in clear environment
-    return path.resolve(MAIN_TEST_RESULT_PATH, crypto.randomBytes(4).toString('hex'));
+    const testName = expect.getState().currentTestName.substring(TEST_SUITE_NAME.length + 1);
+    return path.resolve(MAIN_TEST_RESULT_PATH, testName + " - " + crypto.randomBytes(4).toString('hex'));
   };
 
   const generate = (asyncApiFilePath, params) => {
@@ -191,5 +194,25 @@ describe('template integration tests using the generator', () => {
       'src/main/java/com/example/api/jobOrder/JobOrder.java'
     ];
     await assertExpectedFiles(validatedFiles);
+  });
+
+  it('should place the topic variables in the correct order', async () => {
+	  // For a topic of test/{var1}/{var2}, the listed params in the asyncapi document can be in any order
+    await generate('mocks/multivariable-topic.yaml');
+
+    const validatedFiles = [
+      'src/main/java/Application.java'
+	  ];
+	  await assertExpectedFiles(validatedFiles);
+  });
+
+  it('should not populate application yml with functions that are not beans', async () => {
+	  // If the function is a supplier or using a stream bridge, the function isn't a bean and shouldnt be in application.yml
+    await generate('mocks/multivariable-topic.yaml');
+
+    const validatedFiles = [
+      'src/main/resources/application.yml'
+	  ];
+	  await assertExpectedFiles(validatedFiles);
   });
 });

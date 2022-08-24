@@ -481,11 +481,9 @@ exports[`template integration tests using the generator should generate applicat
 "spring:
   cloud:
     function:
-      definition: testLevel1MessageIdOperationSupplier;testLevel1MessageIdOperationConsumer
+      definition: testLevel1MessageIdOperationConsumer
     stream:
       bindings:
-        testLevel1MessageIdOperationSupplier-out-0:
-          destination: 'testLevel1/{messageId}/{operation}'
         testLevel1MessageIdOperationConsumer-in-0:
           destination: testLevel1/*/*
       binders:
@@ -985,11 +983,9 @@ exports[`template integration tests using the generator should generate extra co
           input-header-mapping-expression:
             messageId: 'headers.solace_destination.getName.split(\\"/\\")[1]'
             operation: 'headers.solace_destination.getName.split(\\"/\\")[2]'
-      definition: testLevel1MessageIdOperationSupplier;testLevel1MessageIdOperationConsumer
+      definition: testLevel1MessageIdOperationConsumer
     stream:
       bindings:
-        testLevel1MessageIdOperationSupplier-out-0:
-          destination: 'testLevel1/{messageId}/{operation}'
         testLevel1MessageIdOperationConsumer-in-0:
           destination: testLevel1/*/*
       binders:
@@ -1599,6 +1595,22 @@ public class Debtor {
 "
 `;
 
+exports[`template integration tests using the generator should not populate application yml with functions that are not beans 1`] = `
+"spring:
+  cloud:
+    function:
+      definition: ''
+    stream:
+      bindings: {}
+logging:
+  level:
+    root: info
+    org:
+      springframework: info
+
+"
+`;
+
 exports[`template integration tests using the generator should package and import schemas in another avro namespace 1`] = `
 "
 
@@ -1797,6 +1809,43 @@ public class JobAcknowledge {
 		return \\"JobAcknowledge [\\"
 		+ \\" jobAckId: \\" + jobAckId
 		+ \\" ]\\";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should place the topic variables in the correct order 1`] = `
+"
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+
+@SpringBootApplication
+public class Application {
+
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
+
+	@Autowired
+	private StreamBridge streamBridge;
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class);
+	}
+
+
+	public void sendAcmeBillingReceiptsReceiptIdCreatedVersionRegionsRegionChargifyRideId(
+		RideReceipt payload, String receiptId, String version, String region, String rideId
+		) {
+		String topic = String.format(\\"acme/billing/receipts/%s/created/%s/regions/%s/chargify/%s\\",
+			receiptId, version, region, rideId);
+		streamBridge.send(topic, payload);
 	}
 }
 "
