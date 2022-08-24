@@ -737,7 +737,7 @@ function getFunctionName(channelName, operation, isSubscriber) {
 }
 
 function filterOutNonBeanFunctionSpecs(funcs) {
-  let beanFunctionSpecs = new Map();
+  const beanFunctionSpecs = new Map();
   const entriesIterator = funcs.entries();
 
   let iterValue = entriesIterator.next();
@@ -748,7 +748,7 @@ function filterOutNonBeanFunctionSpecs(funcs) {
     // Add it if its not dynamic (hasParams = true, isPublisher = true) and type is supplier or streamBridge
     if (!(funcSpec.isPublisher && funcSpec.channelInfo.hasParams &&
       (funcSpec.type === 'supplier' || funcSpec.dynamicType === 'streamBridge'))) {
-        beanFunctionSpecs.set(iterValue.value[0], iterValue.value[1]);
+      beanFunctionSpecs.set(iterValue.value[0], iterValue.value[1]);
     }
     iterValue = entriesIterator.next();
   }
@@ -978,7 +978,7 @@ function sortParametersUsingChannelName(parameters, channelName) {
   parameters.forEach(param => {
     param.indexInChannelName = channelName.indexOf(param.rawName);
   });
-  return _.sortBy(parameters, ["indexInChannelName"]);
+  return _.sortBy(parameters, ['indexInChannelName']);
 }
 
 // This returns the connection properties for a solace binder, for application.yaml.
@@ -1036,9 +1036,9 @@ function getChannelInfo(params, channelName, channel) {
   // The channel parameters aren't in any particular order when they come in.
   // This means, to be safe, we need to order them like how it is in the channel name.
   ret.parameters = sortParametersUsingChannelName(parameters, channelName);
-  ret.functionArgList = ret.parameters.map(param => param.name).join(", ");
-  ret.functionParamList = ret.parameters.map(param => `${param.type} ${param.name}`).join(", ");
-  ret.sampleArgList = ret.parameters.map(param => param.sampleArg).join(", ");
+  ret.functionArgList = ret.parameters.map(param => param.name).join(', ');
+  ret.functionParamList = ret.parameters.map(param => `${param.type} ${param.name}`).join(', ');
+  ret.sampleArgList = ret.parameters.map(param => param.sampleArg).join(', ');
   ret.channelName = channelName;
   ret.publishChannel = publishChannel;
   ret.subscribeChannel = subscribeChannel;
