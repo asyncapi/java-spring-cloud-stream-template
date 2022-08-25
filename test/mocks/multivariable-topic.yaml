@@ -1,0 +1,45 @@
+components:
+  schemas:
+    RideReceipt:
+      $schema: 'http://json-schema.org/draft-07/schema#'
+      type: object
+      title: This schema is irrelevant
+      $id: 'http://example.com/root.json'
+  messages:
+    Billing Receipt Created:
+      payload:
+        $ref: '#/components/schemas/RideReceipt'
+      schemaFormat: application/vnd.aai.asyncapi+json;version=2.0.0
+      contentType: application/json
+channels:
+  'acme/billing/receipts/{receipt_id}/created/{version}/regions/{region}/chargify/{ride_id}':
+    subscribe:
+      bindings:
+        solace:
+          bindingVersion: 0.1.0
+          destinations:
+            - destinationType: topic
+      message:
+        $ref: '#/components/messages/Billing Receipt Created'
+    parameters:
+      version:
+        schema:
+          type: string
+      receipt_id:
+        schema:
+          type: string
+      ride_id:
+        schema:
+          type: string
+      region:
+        schema:
+          type: string
+          enum:
+            - US
+            - UK
+            - CA
+            - MX
+asyncapi: 2.0.0
+info:
+  title: ExpenseReportingIntegrationApplication
+  version: 0.0.1
