@@ -9,18 +9,18 @@ function setSchemaIdsForFileName(asyncapi) {
     if (schema.$id()) {
       // Assuming one of x-parser-schema-id and $id must be present.
       let classNameForGenerator;
-      const parserSchemaId = schema.ext("x-parser-schema-id");
-      classNameForGenerator = parserSchemaId ? parserSchemaId : _.camelCase(schema.$id().substring(schema.$id().lastIndexOf("/") + 1));
+      const parserSchemaId = schema.ext('x-parser-schema-id');
+      classNameForGenerator = parserSchemaId ? parserSchemaId : _.camelCase(schema.$id().substring(schema.$id().lastIndexOf('/') + 1));
       
-      if (classNameForGenerator === "items") {
+      if (classNameForGenerator === 'items') {
         const parentSchema = schema.options?.parent;
         const parentSchemaItems = parentSchema?.items();
         if (parentSchemaItems?._json?.$id === schema.$id()) {
-          const parentParserSchemaId = parentSchema.ext("x-parser-schema-id");
-          classNameForGenerator = parentParserSchemaId ? parentParserSchemaId : _.camelCase(parentSchema.$id().substring(parentSchema.$id().lastIndexOf("/") + 1));
+          const parentParserSchemaId = parentSchema.ext('x-parser-schema-id');
+          classNameForGenerator = parentParserSchemaId ? parentParserSchemaId : _.camelCase(parentSchema.$id().substring(parentSchema.$id().lastIndexOf('/') + 1));
           // If we come across this schema later in the code generator, we'll know to rename it to its parent because the proper settings will be set in the model class.
-          schema._json["x-items-schema-name"] = classNameForGenerator;
-          classNameForGenerator += "Items";
+          schema._json['x-model-class-name'] = classNameForGenerator;
+          classNameForGenerator += 'Items';
         }
       }
       schema._json.$id = classNameForGenerator;
@@ -37,7 +37,7 @@ function setSchemaIdsForFileNameIncludingDuplicates(asyncapi) {
     numSchemas = asyncapi.allSchemas().size;
     setSchemaIdsForFileName(asyncapi);
     newNumSchemas = asyncapi.allSchemas().size;
-  } while (numSchemas != newNumSchemas);
+  } while (numSchemas !== newNumSchemas);
 }
 
 module.exports = {
