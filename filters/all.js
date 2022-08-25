@@ -691,8 +691,8 @@ function getBrokerSettings(asyncapi, params) {
 function getBindings(asyncapi, params) {
   const ret = {};
   const funcs = getFunctionSpecs(asyncapi, params);
-
-  funcs.forEach((spec, name, map) => {
+  const functionsThatAreBeans = filterOutNonBeanFunctionSpecs(funcs);
+  functionsThatAreBeans.forEach((spec, name, map) => {
     if (spec.isPublisher) {
       ret[spec.publishBindingName] = {};
       ret[spec.publishBindingName].destination = spec.publishChannel;
@@ -736,11 +736,31 @@ function getFunctionName(channelName, operation, isSubscriber) {
   return ret;
 }
 
+function filterOutNonBeanFunctionSpecs(funcs) {
+  const beanFunctionSpecs = new Map();
+  const entriesIterator = funcs.entries();
+
+  let iterValue = entriesIterator.next();
+  while (!iterValue.done) {
+    const funcSpec = iterValue.value[1];
+
+    // This is the inverse of the condition in the Application template file
+    // Add it if its not dynamic (hasParams = true, isPublisher = true) and type is supplier or streamBridge
+    if (!(funcSpec.isPublisher && funcSpec.channelInfo.hasParams &&
+      (funcSpec.type === 'supplier' || funcSpec.dynamicType === 'streamBridge'))) {
+      beanFunctionSpecs.set(iterValue.value[0], iterValue.value[1]);
+    }
+    iterValue = entriesIterator.next();
+  }
+  return beanFunctionSpecs;
+}
+
 // This returns the string that gets rendered in the function.definition part of application.yaml.
 function getFunctionDefinitions(asyncapi, params) {
   let ret = '';
   const funcs = getFunctionSpecs(asyncapi, params);
-  const names = funcs.keys();
+  const functionsThatAreBeans = filterOutNonBeanFunctionSpecs(funcs);
+  const names = functionsThatAreBeans.keys();
   ret = Array.from(names).join(';');
   return ret;
 }
@@ -953,6 +973,14 @@ function getMessagePayloadType(message) {
   return ret;
 }
 
+function sortParametersUsingChannelName(parameters, channelName) {
+  // This doesnt work if theres two of the same variables in the channel name (scenario unlikely)
+  parameters.forEach(param => {
+    param.indexInChannelName = channelName.indexOf(param.rawName);
+  });
+  return _.sortBy(parameters, ['indexInChannelName']);
+}
+
 // This returns the connection properties for a solace binder, for application.yaml.
 function getSolace(params) {
   const ret = {};
@@ -975,10 +1003,6 @@ function getChannelInfo(params, channelName, channel) {
   let publishChannel = String(channelName);
   let subscribeChannel = String(channelName);
   const parameters = [];
-  let functionParamList = '';
-  let functionArgList = '';
-  let sampleArgList = '';
-  let first = true;
 
   debugChannel('parameters:');
   debugChannel(channel.parameters());
@@ -987,12 +1011,17 @@ function getChannelInfo(params, channelName, channel) {
     const parameter = channel.parameter(name);
     const schema = parameter.schema();
     const type = getType(schema.type(), schema.format());
-    const param = { name: _.camelCase(name) };
+    const param = {
+      name: _.camelCase(name),
+      rawName: name
+    };
     debugChannel(`name: ${name} type:`);
     debugChannel(type);
     let sampleArg = 1;
 
-    // Figure out what position it's in. This is just for the parameterToHeader feature.
+    subscribeChannel = subscribeChannel.replace(nameWithBrackets, '*');
+
+    // Figure out what channel part it's in. This is just for the parameterToHeader feature.
     for (let i = 0; i < channelParts.length; i++) {
       if (channelParts[i] === nameWithBrackets) {
         param.position = i;
@@ -1000,26 +1029,17 @@ function getChannelInfo(params, channelName, channel) {
       }
     }
 
-    if (first) {
-      first = false;
-    } else {
-      functionParamList += ', ';
-      functionArgList += ', ';
-    }
-
-    sampleArgList += ', ';
     [publishChannel, sampleArg] = handleParameterType(name, param, type, publishChannel, schema, nameWithBrackets);
-    subscribeChannel = subscribeChannel.replace(nameWithBrackets, '*');
-    functionParamList += `${param.type} ${param.name}`;
-    functionArgList += param.name;
-    sampleArgList += sampleArg;
+    param.sampleArg = sampleArg;
     parameters.push(param);
   }
-  ret.functionArgList = functionArgList;
-  ret.functionParamList = functionParamList;
-  ret.sampleArgList = sampleArgList;
+  // The channel parameters aren't in any particular order when they come in.
+  // This means, to be safe, we need to order them like how it is in the channel name.
+  ret.parameters = sortParametersUsingChannelName(parameters, channelName);
+  ret.functionArgList = ret.parameters.map(param => param.name).join(', ');
+  ret.functionParamList = ret.parameters.map(param => `${param.type} ${param.name}`).join(', ');
+  ret.sampleArgList = ret.parameters.map(param => param.sampleArg).join(', ');
   ret.channelName = channelName;
-  ret.parameters = parameters;
   ret.publishChannel = publishChannel;
   ret.subscribeChannel = subscribeChannel;
   ret.hasParams = parameters.length > 0;
