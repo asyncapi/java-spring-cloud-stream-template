@@ -166,16 +166,6 @@ describe('template integration tests using the generator', () => {
     await assertExpectedFiles(validatedFiles);
   });
 
-  it('should generate code using schemas that have $id set', async () => {
-    await generate('mocks/using-$id-field.yaml');
-
-    const validatedFiles = [
-      'src/main/java/Application.java',
-      'src/main/java/DefaultMessageSchema.java'
-    ];
-    await assertExpectedFiles(validatedFiles);
-  });
-
   it('should package and import schemas in another avro namespace', async () => {
     await generate('mocks/avro-schema-namespace.yaml');
 
@@ -212,6 +202,41 @@ describe('template integration tests using the generator', () => {
 
     const validatedFiles = [
       'src/main/resources/application.yml'
+    ];
+    await assertExpectedFiles(validatedFiles);
+  });
+
+  it('should generate a class for a schema property that is an array of objects', async () => {
+    // Tests that a schema with the items keyword correctly maps the name of the parent to the content within the items
+    //  and the anonymous schema within items doesnt have a class name derived from it.
+    await generate('mocks/schema-with-array-of-objects.yaml');
+
+    const validatedFiles = [
+      'src/main/java/Application.java',
+      'src/main/java/ChargeAdjustments.java',
+      'src/main/java/RideReceipt.java',
+      'src/main/java/TestObject.java'
+    ];
+    await assertExpectedFiles(validatedFiles);
+  });
+
+  it('should generate one class for a schema with multiple references to it in the asyncapi document', async () => {
+    /*
+      For this test, there's duplicate schemas in the asyncapi document.
+      Calling allSchemas() yeilds unique results (deduplicated) based on either $id or x-parser-schema-id in that order.
+      The $id needs to be changed because the generator will write file names and such based on it which will always be faulty for this code generator.
+      Changing the $id of one schema will change the $id only for the one instance, leaving the duplicates behind with the $id they've always had.
+      This means if we started with 10 schemas, 5 being duplicates with one other schema (15 total; 10 unique), we would end up with 15 unique and 15 total if we changed the schema's $id.
+      This test ensures all schemas and their duplicates have their $ids renamed to generate the correct file name among other things.
+    */
+    await generate('mocks/schemas-with-duplicate-$ids.yaml');
+
+    const validatedFiles = [
+      'src/main/java/Application.java',
+      'src/main/java/Driver.java',
+      'src/main/java/Passenger.java',
+      'src/main/java/PaymentCharged.java',
+      'src/main/java/RideUpdated1.java'
     ];
     await assertExpectedFiles(validatedFiles);
   });

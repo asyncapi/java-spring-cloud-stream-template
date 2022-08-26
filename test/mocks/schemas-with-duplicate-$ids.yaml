@@ -1,0 +1,530 @@
+components:
+  schemas:
+    PaymentCharged:
+      default: {}
+      $schema: 'http://json-schema.org/draft-07/schema'
+      examples:
+        - ride_id: 2345234
+          entity_type: Driver
+          amount_charged: 12.32
+          driver:
+            driver_id: 1234132
+            rating: 4
+            last_name: Smith
+            car_class: SUV
+            first_name: Frank
+          payment_charged_id: '23232323'
+          passenger:
+            passenger_id: 2345243
+            rating: 2
+            last_name: Menning
+            first_name: Jesse
+          payment_status: accepted
+          invoice_system_id: PSG-32923
+          information_source: ProcessPayment
+          timestamp: '2020-06-03T16:51:47.29612-04:00'
+      description: The root schema comprises the entire JSON document.
+      additionalProperties: true
+      type: object
+      title: The root schema
+      required:
+        - payment_charged_id
+        - timestamp
+        - information_source
+        - payment_status
+        - invoice_system_id
+        - amount_charged
+        - ride_id
+        - entity_type
+        - driver
+        - passenger
+      properties:
+        ride_id:
+          default: 0
+          examples:
+            - 2345234
+          description: An explanation about the purpose of this instance.
+          type: integer
+          title: The ride_id schema
+          $id: '#/properties/ride_id'
+        entity_type:
+          default: ''
+          examples:
+            - Driver
+          description: An explanation about the purpose of this instance.
+          type: string
+          title: The entity_type schema
+          $id: '#/properties/entity_type'
+        amount_charged:
+          default: 0
+          examples:
+            - 12.32
+          description: An explanation about the purpose of this instance.
+          type: number
+          title: The amount_charged schema
+          $id: '#/properties/amount_charged'
+        driver:
+          default: {}
+          examples:
+            - driver_id: 1234132
+              rating: 4
+              last_name: Smith
+              car_class: SUV
+              first_name: Frank
+          description: An explanation about the purpose of this instance.
+          additionalProperties: true
+          type: object
+          title: The driver schema
+          required:
+            - driver_id
+            - first_name
+            - last_name
+            - rating
+            - car_class
+          properties:
+            driver_id:
+              default: 0
+              examples:
+                - 1234132
+              description: An explanation about the purpose of this instance.
+              type: integer
+              title: The driver_id schema
+              $id: '#/properties/driver/properties/driver_id'
+            rating:
+              default: 0
+              examples:
+                - 4
+              description: An explanation about the purpose of this instance.
+              type: integer
+              title: The rating schema
+              $id: '#/properties/driver/properties/rating'
+            last_name:
+              default: ''
+              examples:
+                - Smith
+              description: An explanation about the purpose of this instance.
+              type: string
+              title: The last_name schema
+              $id: '#/properties/driver/properties/last_name'
+            car_class:
+              default: ''
+              examples:
+                - SUV
+              description: An explanation about the purpose of this instance.
+              type: string
+              title: The car_class schema
+              $id: '#/properties/driver/properties/car_class'
+            first_name:
+              default: ''
+              examples:
+                - Frank
+              description: An explanation about the purpose of this instance.
+              type: string
+              title: The first_name schema
+              $id: '#/properties/driver/properties/first_name'
+          $id: '#/properties/driver'
+        payment_charged_id:
+          default: ''
+          examples:
+            - '23232323'
+          description: An explanation about the purpose of this instance.
+          type: string
+          title: The payment_charged_id schema
+          $id: '#/properties/payment_charged_id'
+        passenger:
+          default: {}
+          examples:
+            - passenger_id: 2345243
+              rating: 2
+              last_name: Menning
+              first_name: Jesse
+          description: An explanation about the purpose of this instance.
+          additionalProperties: true
+          type: object
+          title: The passenger schema
+          required:
+            - passenger_id
+            - first_name
+            - last_name
+            - rating
+          properties:
+            passenger_id:
+              default: 0
+              examples:
+                - 2345243
+              description: An explanation about the purpose of this instance.
+              type: integer
+              title: The passenger_id schema
+              $id: '#/properties/passenger/properties/passenger_id'
+            rating:
+              default: 0
+              examples:
+                - 2
+              description: An explanation about the purpose of this instance.
+              type: integer
+              title: The rating schema
+              $id: '#/properties/passenger/properties/rating'
+            last_name:
+              default: ''
+              examples:
+                - Menning
+              description: An explanation about the purpose of this instance.
+              type: string
+              title: The last_name schema
+              $id: '#/properties/passenger/properties/last_name'
+            first_name:
+              default: ''
+              examples:
+                - Jesse
+              description: An explanation about the purpose of this instance.
+              type: string
+              title: The first_name schema
+              $id: '#/properties/passenger/properties/first_name'
+          $id: '#/properties/passenger'
+        payment_status:
+          default: ''
+          examples:
+            - accepted
+          description: An explanation about the purpose of this instance.
+          type: string
+          title: The payment_status schema
+          $id: '#/properties/payment_status'
+        invoice_system_id:
+          default: ''
+          examples:
+            - PSG-32923
+          description: An explanation about the purpose of this instance.
+          type: string
+          title: The invoice_system_id schema
+          $id: '#/properties/invoice_system_id'
+        information_source:
+          default: ''
+          examples:
+            - ProcessPayment
+          description: An explanation about the purpose of this instance.
+          type: string
+          title: The information_source schema
+          $id: '#/properties/information_source'
+        timestamp:
+          default: ''
+          examples:
+            - '2020-06-03T16:51:47.29612-04:00'
+          description: An explanation about the purpose of this instance.
+          type: string
+          title: The timestamp schema
+          $id: '#/properties/timestamp'
+      $id: 'http://example.com/example.json'
+    RideUpdated-1:
+      default: {}
+      $schema: 'http://json-schema.org/draft-07/schema'
+      examples:
+        - ride_id: 545496c5-a334-4344-9662-efde68c0b98a
+          heading: 111
+          latitude: 40.75473
+          passenger_count: 1
+          point_idx: 107
+          information_source: RideDispatcher
+          speed: 8
+          driver:
+            driver_id: 1234132
+            rating: 4.75
+            last_name: Smith
+            car_class: SUV
+            first_name: Frank
+          passenger:
+            passenger_id: 2345243
+            rating: 2.23
+            last_name: Menning
+            first_name: Tamimi
+          meter_increment: 0.02278058
+          longitude: -73.98385
+          timestamp: '2020-06-03T16:51:47.292-04:00'
+          meter_reading: 2.4375222
+          ride_status: enroute
+      description: The root schema comprises the entire JSON document.
+      additionalProperties: true
+      type: object
+      title: The root schema
+      properties:
+        ride_id:
+          default: ''
+          examples:
+            - 545496c5-a334-4344-9662-efde68c0b98a
+          description: A UUID identifying the ride.
+          type: string
+          title: The ride identifier
+          $id: '#/properties/ride_id'
+        heading:
+          default: 0
+          examples:
+            - 111
+          maximum: 359
+          description: 0-359 degrees approximate heading of the vehicle.
+          type: integer
+          title: The heading schema
+          minimum: 0
+          $id: '#/properties/heading'
+        latitude:
+          default: 0
+          examples:
+            - -40.75473
+          maximum: 90
+          description: Current latitude of the vehicle.
+          type: number
+          title: The latitude schema
+          minimum: -90
+          $id: '#/properties/latitude'
+        passenger_count:
+          default: 0
+          examples:
+            - 1
+          description: The number of passengers in the car during this ride.
+          type: integer
+          title: The passenger_count schema
+          minimum: 0
+          $id: '#/properties/passenger_count'
+        point_idx:
+          default: 0
+          examples:
+            - 107
+          description: >-
+            The update number for the ride. This increments for each RideUpdate
+            for a given ride.
+          type: integer
+          title: The point_idx schema
+          $id: '#/properties/point_idx'
+        information_source:
+          default: ''
+          examples:
+            - RideDispatcher
+          description: The app that sent this event.
+          type: string
+          title: The information_source schema
+          $id: '#/properties/information_source'
+        speed:
+          default: 0
+          examples:
+            - 20
+          description: Speed of the taxi in unknown units.
+          type: integer
+          title: The speed schema
+          minimum: 0
+          $id: '#/properties/speed'
+        driver:
+          default: {}
+          examples:
+            - driver_id: 1234132
+              rating: 4.73
+              last_name: Smith
+              car_class: SUV
+              first_name: Frank
+          description: Information about the driver.
+          additionalProperties: true
+          type: object
+          title: The driver schema
+          required:
+            - driver_id
+            - first_name
+            - last_name
+            - rating
+            - car_class
+          properties:
+            driver_id:
+              default: 0
+              examples:
+                - 1234132
+              description: A unique ID for the driver.
+              type: integer
+              title: The driver_id schema
+              $id: '#/properties/driver/properties/driver_id'
+            rating:
+              default: 0
+              examples:
+                - 4.32
+              maximum: 5
+              description: >-
+                The driver's current 5-star rating, showing 2 decimal places of
+                accuracy.
+              type: number
+              title: The rating schema
+              minimum: 0
+              $id: '#/properties/driver/properties/rating'
+            last_name:
+              default: ''
+              examples:
+                - Smith
+              description: The Driver's Last Name.
+              type: string
+              title: The last_name schema
+              $id: '#/properties/driver/properties/last_name'
+            car_class:
+              default: ''
+              examples:
+                - SUV
+                - Minivan
+                - Sedan
+                - Coupe
+              description: The class of the vehicle.
+              type: string
+              title: The car_class schema
+              $id: '#/properties/driver/properties/car_class'
+            first_name:
+              default: ''
+              examples:
+                - Frank
+              description: The Driver's first name.
+              type: string
+              title: The first_name schema
+              $id: '#/properties/driver/properties/first_name'
+          $id: '#/properties/driver'
+        passenger:
+          default: {}
+          examples:
+            - passenger_id: 2345243
+              rating: 2.25
+              last_name: Menning
+              first_name: Tamimi
+          description: Information about the Passenger.
+          additionalProperties: true
+          type: object
+          title: The passenger schema
+          required:
+            - passenger_id
+            - first_name
+            - last_name
+            - rating
+          properties:
+            passenger_id:
+              default: 0
+              examples:
+                - 2345243
+              description: A unique ID for the passenger.
+              type: integer
+              title: The passenger_id schema
+              $id: '#/properties/passenger/properties/passenger_id'
+            rating:
+              default: 0
+              examples:
+                - 2.25
+              maximum: 5
+              description: >-
+                The passenger's current 5-star rating, showing 2 decimal places
+                of accuracy.
+              type: number
+              title: The rating schema
+              minimum: 0
+              $id: '#/properties/passenger/properties/rating'
+            last_name:
+              default: ''
+              examples:
+                - Menning
+              description: The passenger's last name.
+              type: string
+              title: The last_name schema
+              $id: '#/properties/passenger/properties/last_name'
+            first_name:
+              default: ''
+              examples:
+                - Jesse
+              description: The passenger's first name.
+              type: string
+              title: The first_name schema
+              $id: '#/properties/passenger/properties/first_name'
+          $id: '#/properties/passenger'
+        meter_increment:
+          default: 0
+          examples:
+            - 0.02278058
+          description: The meter increment rate.
+          type: number
+          title: The meter_increment schema
+          $id: '#/properties/meter_increment'
+        longitude:
+          default: 0
+          examples:
+            - -123.98385
+          maximum: 180
+          description: Current longitude of the vehicle.
+          type: number
+          title: The longitude schema
+          minimum: -180
+          $id: '#/properties/longitude'
+        timestamp:
+          default: ''
+          examples:
+            - '2020-06-03T16:51:47.292-04:00'
+          description: The time the RideUpdate is being sent.
+          type: string
+          title: The timestamp schema
+          $id: '#/properties/timestamp'
+        meter_reading:
+          default: 0
+          examples:
+            - 2.42
+          description: >-
+            The current value of the taxi's meter, in dollars $.  Float value
+            will always be shown with 2 decimal places (cents).
+          type: number
+          title: The meter_reading schema
+          minimum: 0
+          $id: '#/properties/meter_reading'
+        ride_status:
+          default: ''
+          examples:
+            - enroute
+          description: The current status of the ride.
+          type: string
+          title: The ride_status schema
+          enum:
+            - accepted
+            - pickup
+            - enroute
+            - dropoff
+          $id: '#/properties/ride_status'
+      $id: 'http://example.com/example.json'
+  messages:
+    RideUpdated:
+      payload:
+        $ref: '#/components/schemas/RideUpdated-1'
+      schemaFormat: application/vnd.aai.asyncapi+json;version=2.0.0
+      contentType: application/json
+    PaymentCharged:
+      payload:
+        $ref: '#/components/schemas/PaymentCharged'
+      description: ''
+      schemaFormat: application/vnd.aai.asyncapi+json;version=2.0.0
+      contentType: application/json
+channels:
+  'taxinyc/backoffice/payment/charged/v1/{payment_status}/{driver_id}/{passenger_id}':
+    subscribe:
+      message:
+        $ref: '#/components/messages/PaymentCharged'
+    parameters:
+      driver_id:
+        schema:
+          type: string
+      payment_status:
+        schema:
+          type: string
+      passenger_id:
+        schema:
+          type: string
+  'taxinyc/ops/ride/updated/v1/{ride_status}/{driver_id}/{passenger_id}':
+    publish:
+      message:
+        $ref: '#/components/messages/RideUpdated'
+    parameters:
+      driver_id:
+        schema:
+          type: string
+      passenger_id:
+        schema:
+          type: string
+      ride_status:
+        schema:
+          type: string
+asyncapi: 2.0.0
+info:
+  description: ''
+  title: ProcessPayment
+  version: 0.0.1

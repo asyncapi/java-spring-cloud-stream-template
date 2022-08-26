@@ -1,15 +1,48 @@
 const ApplicationModel = require('../lib/applicationModel.js');
+const _ = require('lodash');
+
+function setSchemaIdsForFileName(asyncapi) {
+  asyncapi.allSchemas().forEach((schema, schemaName) => {
+    // If we leave the $id the way it is, the generator will name the schema files what their $id is, which is always a bad idea.
+    // So we leave it in, but $id is going to be changed to be the class name we want.
+    // If we remove the $id and there's no x-parser-schema-id, then it wont be returned by allSchemas().
+    if (schema.$id()) {
+      // Assuming one of x-parser-schema-id and $id must be present.
+      let classNameForGenerator;
+      const parserSchemaId = schema.ext('x-parser-schema-id');
+      classNameForGenerator = parserSchemaId ? parserSchemaId : _.camelCase(schema.$id().substring(schema.$id().lastIndexOf('/') + 1));
+      
+      if (classNameForGenerator === 'items') {
+        const parentSchema = schema.options?.parent;
+        const parentSchemaItems = parentSchema?.items();
+        if (parentSchemaItems?._json?.$id === schema.$id()) {
+          const parentParserSchemaId = parentSchema.ext('x-parser-schema-id');
+          classNameForGenerator = parentParserSchemaId ? parentParserSchemaId : _.camelCase(parentSchema.$id().substring(parentSchema.$id().lastIndexOf('/') + 1));
+          // If we come across this schema later in the code generator, we'll know to rename it to its parent because the proper settings will be set in the model class.
+          schema._json['x-model-class-name'] = classNameForGenerator;
+          classNameForGenerator += 'Items';
+        }
+      }
+      schema._json.$id = classNameForGenerator;
+    }
+  });
+}
+
+function setSchemaIdsForFileNameIncludingDuplicates(asyncapi) {
+  // We do this multiple times because allSchemas() returns a list of deduplicated schemas, so if we change the $id of a schema,
+  //  we wont change any of the duplicates. We continue until there are no more duplicates to change.
+  let numSchemas;
+  let newNumSchemas;
+  do {
+    numSchemas = asyncapi.allSchemas().size;
+    setSchemaIdsForFileName(asyncapi);
+    newNumSchemas = asyncapi.allSchemas().size;
+  } while (numSchemas !== newNumSchemas);
+}
 
 module.exports = {
   'generate:before': generator => {
-    generator.asyncapi.allSchemas().forEach((schema, schemaName) => {
-      // The generator will create file names based on the schema's $id. Instead of guessing what the generator named the file so we can fix it in post,
-      // ... it's easier to process $id here first. Since we don't use it, removing it is easiest.
-      if (schema.$id()) {
-        delete schema._json.$id;
-      }
-    });
-
+    setSchemaIdsForFileNameIncludingDuplicates(generator.asyncapi);
     ApplicationModel.asyncapi = generator.asyncapi;
   }
 };

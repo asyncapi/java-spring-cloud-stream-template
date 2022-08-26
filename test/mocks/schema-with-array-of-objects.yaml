@@ -1,0 +1,167 @@
+components:
+  schemas:
+    RideReceipt:
+      $schema: 'http://json-schema.org/draft-07/schema#'
+      type: object
+      title: The Root Schema
+      definitions: {}
+      required:
+        - request_id
+        - subtotal
+        - total_charged
+        - total_owed
+        - total_fare
+        - currency_code
+        - charge_adjustments
+        - duration
+        - distance
+        - distance_label
+      properties:
+        total_owed:
+          default: ''
+          examples:
+            - $12.78
+          type: string
+          title: The Total_owed Schema
+          $id: '#/properties/total_owed'
+        duration:
+          default: ''
+          examples:
+            - '00:11:35'
+          pattern: ^(.*)$
+          type: string
+          title: The Duration Schema
+          $id: '#/properties/duration'
+        test_object:
+          title: The test schema
+          $id: '#/properties/test_object'
+          type: object
+          properties:
+            field1:
+              default: ''
+              examples:
+                - $12.78
+              type: string
+              title: field1 schema
+              $id: '#/properties/test_object/properties/field1'
+        charge_adjustments:
+          default: []
+          examples:
+            - - amount: '-2.43'
+                name: Promotion
+                type: promotion
+              - amount: '1.00'
+                name: Booking Fee
+                type: booking_fee
+              - amount: '0.78'
+                name: Rounding Down
+                type: rounding_down
+          additionalItems: true
+          description: An explanation about the purpose of this instance.
+          type: array
+          title: The Charge_adjustments Schema
+          items:
+            default: {}
+            examples:
+              - amount: '-2.43'
+                name: Promotion
+                type: promotion
+              - amount: '1.00'
+                name: Booking Fee
+                type: booking_fee
+              - amount: '0.78'
+                name: Rounding Down
+                type: rounding_down
+            description: An explanation about the purpose of this instance.
+            type: object
+            title: The Items Schema
+            required:
+              - name
+              - amount
+              - type
+            properties:
+              amount:
+                default: ''
+                examples:
+                  - '-2.43'
+                description: An explanation about the purpose of this instance.
+                type: string
+                title: The Amount Schema
+                $id: '#/properties/charge_adjustments/items/properties/amount'
+              name:
+                default: ''
+                examples:
+                  - Promotion
+                description: An explanation about the purpose of this instance.
+                type: string
+                title: The Name Schema
+                $id: '#/properties/charge_adjustments/items/properties/name'
+              type:
+                default: ''
+                examples:
+                  - promotion
+                description: An explanation about the purpose of this instance.
+                type: string
+                title: The Type Schema
+                $id: '#/properties/charge_adjustments/items/properties/type'
+            $id: '#/properties/charge_adjustments/items'
+          $id: '#/properties/charge_adjustments'
+        currency_code:
+          default: ''
+          examples:
+            - USD
+          pattern: ^(.*)$
+          type: string
+          title: The Currency_code Schema
+          $id: '#/properties/currency_code'
+      $id: 'http://example.com/root.json'
+  messages:
+    Billing Receipt Created:
+      payload:
+        $ref: '#/components/schemas/RideReceipt'
+      description: >-
+        This event is generated when a trip is completed and the credit charge
+        has occurred.
+      schemaFormat: application/vnd.aai.asyncapi+json;version=2.0.0
+      contentType: application/json
+channels:
+  'acme/rideshare/billing/receipt/created/0.0.1/{region}/chargify/{ride_id}':
+    subscribe:
+      bindings:
+        solace:
+          bindingVersion: 0.1.0
+          destinations:
+            - destinationType: topic
+      message:
+        $ref: '#/components/messages/Billing Receipt Created'
+    parameters:
+      ride_id:
+        schema:
+          type: string
+      region:
+        schema:
+          type: string
+          enum:
+            - US
+            - UK
+            - CA
+            - MX
+asyncapi: 2.0.0
+info:
+  description: >-
+    Simplify expense, travel, and invoice management with SAP Concur partner
+    integrations
+
+
+    Our open platform makes it possible for partners to develop apps and
+    services that easily integrate with SAP Concur solutions and extend the
+    value of our products. With our partner apps you can:
+
+
+    *   Use data to make more-informed business decisions
+
+    *   Reduce costs, improve compliance, and increase efficiency
+
+    *   Give employees a better, smoother travel experience
+  title: ExpenseReportingIntegrationApplication
+  version: 0.0.1
