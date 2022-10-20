@@ -340,12 +340,7 @@ function fixType([name, javaName, property]) {
       // Picking a type for the user may be difficult - especially since the first avro union value must be the default value which is normally of type null.
       typeName = 'Object';
     } else {
-      // check to see if it's a ref to another schema.
-      typeName = property.ext('x-parser-schema-id');
-
-      if (!typeName) {
-        throw new Error(`Can't determine the type of property ${  name}`);
-      }
+      throw new Error(`Can't determine the type of property ${  name  }`);
     }
   } else if (type === 'array') {
     if (!property.items()) {
