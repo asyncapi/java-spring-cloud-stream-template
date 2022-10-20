@@ -240,5 +240,4 @@ describe('template integration tests using the generator', () => {
     ];
     await assertExpectedFiles(validatedFiles);
   });
-
 });
