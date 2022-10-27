@@ -13,9 +13,19 @@ function setSchemaIdsForFileName(asyncapi) {
       classNameForGenerator = parserSchemaId ? parserSchemaId : _.camelCase(schema.$id().substring(schema.$id().lastIndexOf('/') + 1));
       
       if (classNameForGenerator === 'items') {
-        const parentSchema = schema.options?.parent;
-        const parentSchemaItems = parentSchema?.items();
-        if (parentSchemaItems?._json?.$id === schema.$id()) {
+        let parentSchema;
+		if (schema.options) {
+			parentSchema = schema.options.parent;
+		}
+        let parentSchemaItems;
+		if (parentSchema) {
+			parentSchemaItems = parentSchema.items();
+		}
+		let parentSchemaItemsId;
+		if (parentSchemaItems && parentSchemaItems._json) {
+			parentSchemaItemsId = parentSchemaItems._json.$id;
+		}
+        if (parentSchemaItemsId === schema.$id()) {
           const parentParserSchemaId = parentSchema.ext('x-parser-schema-id');
           classNameForGenerator = parentParserSchemaId ? parentParserSchemaId : _.camelCase(parentSchema.$id().substring(parentSchema.$id().lastIndexOf('/') + 1));
           // If we come across this schema later in the code generator, we'll know to rename it to its parent because the proper settings will be set in the model class.
