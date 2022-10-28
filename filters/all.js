@@ -569,9 +569,9 @@ function getPayloadPackage(pubOrSub) {
   let fullPackagePath;
   if (!pubOrSub.hasMultipleMessages()) {
     let payload;
-	if (pubOrSub.message()) {
-		payload = pubOrSub.message().payload();
-	}
+    if (pubOrSub.message()) {
+      payload = pubOrSub.message().payload();
+    }
     if (payload) {
       const type = payload.type();
       const importName = payload.ext('x-parser-schema-id');

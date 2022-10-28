@@ -14,17 +14,17 @@ function setSchemaIdsForFileName(asyncapi) {
       
       if (classNameForGenerator === 'items') {
         let parentSchema;
-		if (schema.options) {
-			parentSchema = schema.options.parent;
-		}
+        if (schema.options) {
+          parentSchema = schema.options.parent;
+        }
         let parentSchemaItems;
-		if (parentSchema) {
-			parentSchemaItems = parentSchema.items();
-		}
-		let parentSchemaItemsId;
-		if (parentSchemaItems && parentSchemaItems._json) {
-			parentSchemaItemsId = parentSchemaItems._json.$id;
-		}
+        if (parentSchema) {
+          parentSchemaItems = parentSchema.items();
+        }
+        let parentSchemaItemsId;
+        if (parentSchemaItems && parentSchemaItems._json) {
+          parentSchemaItemsId = parentSchemaItems._json.$id;
+        }
         if (parentSchemaItemsId === schema.$id()) {
           const parentParserSchemaId = parentSchema.ext('x-parser-schema-id');
           classNameForGenerator = parentParserSchemaId ? parentParserSchemaId : _.camelCase(parentSchema.$id().substring(parentSchema.$id().lastIndexOf('/') + 1));
