@@ -568,7 +568,10 @@ function getExtraImports(asyncapi) {
 function getPayloadPackage(pubOrSub) {
   let fullPackagePath;
   if (!pubOrSub.hasMultipleMessages()) {
-    const payload = pubOrSub.message()?.payload();
+    let payload;
+    if (pubOrSub.message()) {
+      payload = pubOrSub.message().payload();
+    }
     if (payload) {
       const type = payload.type();
       const importName = payload.ext('x-parser-schema-id');
