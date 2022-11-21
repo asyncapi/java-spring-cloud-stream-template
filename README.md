@@ -98,7 +98,7 @@ binder | | kafka | The name of the binder implementation, one of kafka, rabbit o
 dynamicType | | streamBridge | If you publish to a channel with parameters, i.e. a topic that can change with every message, the standard way to do this is to use StreamBridge. But some binders such as Solace can do the dynamic routing using just a message header. If you use such a binder, then you can set this value to 'header' and the generated code will set the topic on the header rather than use StreamBridge.
 groupId | info.x-group-id | com.company | The Maven group id.
 host | | tcp://localhost:55555 | The host connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
-javaPackage | info.x-java-package | | The Java package of the generated classes. If not set then the classes will be in the default package.
+[javaPackage](https://www.scaler.com/topics/java/packages-in-java/) | info.x-java-package | | The Java package of the generated classes. If not set then the classes will be in the default package.
 msgVpn | | default | The message vpn connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
 password | | default | The client password connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
 parametersToHeaders | | false | If true, this will create headers on the incoming messages for each channel parameter. Currently this only works with messages originating from Solace (using the solace_destination header) and RabbitMQ (using the amqp_receivedRoutingKey header.)
