@@ -4,6 +4,7 @@ filters:
   - javascript
   technology:
   - Spring Cloud Streams
+  - Maven
   categories:
   - generator-template
   hasCommercial: false
