@@ -544,6 +544,7 @@ function extraImports([asyncapi, params]) {
 }
 filter.extraImports = extraImports;
 
+// TODO: Use those SCSFunctions to determine the input parameter objects and output objects
 function getExtraImports(asyncapi) {
   const schemaImports = [];
   const channelOperationInfos = [];

@@ -76,7 +76,7 @@ function processSchema(generator, schemaName, schema, sourcePath, defaultJavaPac
   const modelClass = applicationModel.getModelClass({schema, schemaName});
   const javaName = modelClass.getClassName();
   // Might be easier to delete based on the file name determined by the file name hook. We should have enough info to make the name DELETEME to mark them.
-  if ((schema.type() && schema.type() !== 'object') || _.startsWith(javaName, 'Anonymous') || modelClass.canBeInnerClass()) {
+  if ((schema.type() && schema.type() !== 'object') || _.startsWith(javaName, 'Anonymous')) {
     debugPostProcess(`deleting ${filePath}`);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

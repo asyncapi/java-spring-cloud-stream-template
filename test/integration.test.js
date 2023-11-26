@@ -40,7 +40,6 @@ describe('template integration tests using the generator', () => {
     outputDirectory = generateFolderName();
   });
 
-  // PASS
   it('should generate application files using the solace binder', async () => {
     const params = {
       binder: 'solace',
@@ -64,7 +63,6 @@ describe('template integration tests using the generator', () => {
     await assertExpectedFiles(validatedFiles);
   });
 
-  // PASS
   it('should generate a consumer and return a payload when using x-scs-function-name and dynamic topic binding', async () => {
     await generate('mocks/scs-function-name/dynamic-topic-same-function-name.yaml');
   
@@ -149,7 +147,12 @@ describe('template integration tests using the generator', () => {
     const validatedFiles = [
       'src/main/java/Application.java',
       'src/main/java/Dossier.java',
-      'src/main/java/Debtor.java'
+      'src/main/java/Debtor.java',
+	  'src/main/java/Address.java',
+	  'src/main/java/BankAccount.java',
+	  'src/main/java/Emails.java',
+	  'src/main/java/Options.java',
+	  'src/main/java/Phones.java'
     ];
     await assertExpectedFiles(validatedFiles);
   });
