@@ -15,6 +15,8 @@ const debugProperty = require('debug')('property');
 const debugChannel = require('debug')('channel');
 const debugType = require('debug')('type');
 
+const PACKAGE_NAME_REGEX = /^([A-Za-z]{1}[\w]*\.)+[A-Za-z][\w]*$/gi;
+
 const stringMap = new Map();
 stringMap.set('date',{javaType: 'java.time.LocalDate', printFormat: '%s', sample: '2000-12-31'});
 stringMap.set('date-time',{javaType: 'java.time.OffsetDateTime', printFormat: '%s', sample: '2000-12-31T23:59:59+01:00'});
@@ -565,6 +567,11 @@ function getExtraImports(asyncapi) {
   return schemaImports;
 }
 
+/**
+ * 
+ * @param {ChannelOperationInfo} pubOrSub
+ * @returns {String} The package path to import if it's not in the default package, otherwise undefined.
+ */
 function getPayloadPackage(pubOrSub) {
   let fullPackagePath;
   if (!pubOrSub.hasMultipleMessages()) {
@@ -574,9 +581,9 @@ function getPayloadPackage(pubOrSub) {
     }
     if (payload) {
       const type = payload.type();
-      const importName = payload.ext('x-parser-schema-id');
-      // This is a schema within a package - like an avro schema in a namespace. We're hoping the full thing is part of the x-schema-parser-id.
-      if ((!type || type === 'object') && importName.includes('.')) {
+	  const importName = payload.ext("x-parser-schema-id");
+      // This is a schema within a package - like an avro schema in a namespace.
+      if ((!type || type === 'object') && importName.match(PACKAGE_NAME_REGEX)) {
         fullPackagePath = importName;
       }
     }
@@ -960,10 +967,11 @@ function getMessagePayloadType(message) {
     debugPayload(type);
 
     if (!type || type === 'object') {
-      ret = payload.ext('x-parser-schema-id');
-      const { className } = scsLib.stripPackageName(ret);
-      ret = _.camelCase(className);
-      ret = _.upperFirst(ret);
+		ret = applicationModel.getModelClass({ schemaName: payload.ext('x-parser-schema-id') }).getClassName();
+    //   ret = payload.ext('x-parser-schema-id');
+    //   const { className } = scsLib.stripPackageName(ret);
+    //   ret = _.camelCase(className);
+    //   ret = _.upperFirst(ret);
     } else {
       ret = getType(type, payload.format()).javaType;
     }
