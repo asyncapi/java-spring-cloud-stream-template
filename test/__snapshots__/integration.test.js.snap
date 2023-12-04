@@ -159,7 +159,7 @@ public class Application {
 	public void sendAcmeRideshareBillingReceiptCreated001RegionChargifyRideId(
 		RideReceipt payload, String region, String rideId
 		) {
-		String topic = String.format(\\"acme/rideshare/billing/receipt/created/0.0.1/%s/chargify/%s\\",
+		String topic = String.format("acme/rideshare/billing/receipt/created/0.0.1/%s/chargify/%s",
 			region, rideId);
 		streamBridge.send(topic, payload);
 	}
@@ -168,6 +168,141 @@ public class Application {
 `;
 
 exports[`template integration tests using the generator should generate a class for a schema property that is an array of objects 2`] = `
+"
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class RideReceipt {
+
+	public RideReceipt () {
+	}
+
+	public RideReceipt (
+		String totalOwed, 
+		String duration, 
+		TestObject testObject, 
+		ChargeAdjustments[] chargeAdjustments, 
+		String currencyCode) {
+		this.totalOwed = totalOwed;
+		this.duration = duration;
+		this.testObject = testObject;
+		this.chargeAdjustments = chargeAdjustments;
+		this.currencyCode = currencyCode;
+	}
+
+	@JsonProperty("total_owed")
+	private String totalOwed;
+	private String duration;
+	@JsonProperty("test_object")
+	private TestObject testObject;
+	@JsonProperty("charge_adjustments")
+	private ChargeAdjustments[] chargeAdjustments;
+	@JsonProperty("currency_code")
+	private String currencyCode;
+	public String getTotalOwed() {
+		return totalOwed;
+	}
+
+	public RideReceipt setTotalOwed(String totalOwed) {
+		this.totalOwed = totalOwed;
+		return this;
+	}
+
+
+	public String getDuration() {
+		return duration;
+	}
+
+	public RideReceipt setDuration(String duration) {
+		this.duration = duration;
+		return this;
+	}
+
+
+	public TestObject getTestObject() {
+		return testObject;
+	}
+
+	public RideReceipt setTestObject(TestObject testObject) {
+		this.testObject = testObject;
+		return this;
+	}
+
+
+	public ChargeAdjustments[] getChargeAdjustments() {
+		return chargeAdjustments;
+	}
+
+	public RideReceipt setChargeAdjustments(ChargeAdjustments[] chargeAdjustments) {
+		this.chargeAdjustments = chargeAdjustments;
+		return this;
+	}
+
+
+	public String getCurrencyCode() {
+		return currencyCode;
+	}
+
+	public RideReceipt setCurrencyCode(String currencyCode) {
+		this.currencyCode = currencyCode;
+		return this;
+	}
+
+	public String toString() {
+		return "RideReceipt ["
+		+ " totalOwed: " + totalOwed
+		+ " duration: " + duration
+		+ " testObject: " + testObject
+		+ " chargeAdjustments: " + chargeAdjustments
+		+ " currencyCode: " + currencyCode
+		+ " ]";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate a class for a schema property that is an array of objects 3`] = `
+"
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class TestObject {
+
+	public TestObject () {
+	}
+
+	public TestObject (
+		String field1) {
+		this.field1 = field1;
+	}
+
+	private String field1;
+	public String getField1() {
+		return field1;
+	}
+
+	public TestObject setField1(String field1) {
+		this.field1 = field1;
+		return this;
+	}
+
+	public String toString() {
+		return "TestObject ["
+		+ " field1: " + field1
+		+ " ]";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate a class for a schema property that is an array of objects 4`] = `
 "
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -222,232 +357,11 @@ public class ChargeAdjustments {
 	}
 
 	public String toString() {
-		return \\"ChargeAdjustments [\\"
-		+ \\" amount: \\" + amount
-		+ \\" name: \\" + name
-		+ \\" type: \\" + type
-		+ \\" ]\\";
-	}
-}
-"
-`;
-
-exports[`template integration tests using the generator should generate a class for a schema property that is an array of objects 3`] = `
-"
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class RideReceipt {
-
-	public RideReceipt () {
-	}
-
-	public RideReceipt (
-		String totalOwed, 
-		String duration, 
-		TestObject testObject, 
-		ChargeAdjustments[] chargeAdjustments, 
-		String currencyCode) {
-		this.totalOwed = totalOwed;
-		this.duration = duration;
-		this.testObject = testObject;
-		this.chargeAdjustments = chargeAdjustments;
-		this.currencyCode = currencyCode;
-	}
-
-	@JsonProperty(\\"total_owed\\")
-	private String totalOwed;
-	private String duration;
-	@JsonProperty(\\"test_object\\")
-	private TestObject testObject;
-	@JsonProperty(\\"charge_adjustments\\")
-	private ChargeAdjustments[] chargeAdjustments;
-	@JsonProperty(\\"currency_code\\")
-	private String currencyCode;
-	public String getTotalOwed() {
-		return totalOwed;
-	}
-
-	public RideReceipt setTotalOwed(String totalOwed) {
-		this.totalOwed = totalOwed;
-		return this;
-	}
-
-
-	public String getDuration() {
-		return duration;
-	}
-
-	public RideReceipt setDuration(String duration) {
-		this.duration = duration;
-		return this;
-	}
-
-
-	public TestObject getTestObject() {
-		return testObject;
-	}
-
-	public RideReceipt setTestObject(TestObject testObject) {
-		this.testObject = testObject;
-		return this;
-	}
-
-
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class TestObject {
-
-		public TestObject () {
-		}
-
-		public TestObject (
-			String field1) {
-			this.field1 = field1;
-		}
-
-		private String field1;
-		public String getField1() {
-			return field1;
-		}
-
-		public TestObject setField1(String field1) {
-			this.field1 = field1;
-			return this;
-		}
-
-		public String toString() {
-			return \\"TestObject [\\"
-			+ \\" field1: \\" + field1
-			+ \\" ]\\";
-		}
-	}
-
-	public ChargeAdjustments[] getChargeAdjustments() {
-		return chargeAdjustments;
-	}
-
-	public RideReceipt setChargeAdjustments(ChargeAdjustments[] chargeAdjustments) {
-		this.chargeAdjustments = chargeAdjustments;
-		return this;
-	}
-
-
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class ChargeAdjustments {
-
-		public ChargeAdjustments () {
-		}
-		public ChargeAdjustments (
-			String amount, 
-			String name, 
-			String type) {
-			this.amount = amount;
-			this.name = name;
-			this.type = type;
-		}
-
-
-		private String amount;
-		private String name;
-		private String type;
-		public String getAmount() {
-			return amount;
-		}
-
-		public ChargeAdjustments setAmount(String amount) {
-			this.amount = amount;
-			return this;
-		}
-
-
-		public String getName() {
-			return name;
-		}
-
-		public ChargeAdjustments setName(String name) {
-			this.name = name;
-			return this;
-		}
-
-
-		public String getType() {
-			return type;
-		}
-
-		public ChargeAdjustments setType(String type) {
-			this.type = type;
-			return this;
-		}
-
-		public String toString() {
-			return \\"ChargeAdjustments [\\"
-			+ \\" amount: \\" + amount
-			+ \\" name: \\" + name
-			+ \\" type: \\" + type
-			+ \\" ]\\";
-		}
-	}
-
-	public String getCurrencyCode() {
-		return currencyCode;
-	}
-
-	public RideReceipt setCurrencyCode(String currencyCode) {
-		this.currencyCode = currencyCode;
-		return this;
-	}
-
-	public String toString() {
-		return \\"RideReceipt [\\"
-		+ \\" totalOwed: \\" + totalOwed
-		+ \\" duration: \\" + duration
-		+ \\" testObject: \\" + testObject
-		+ \\" chargeAdjustments: \\" + chargeAdjustments
-		+ \\" currencyCode: \\" + currencyCode
-		+ \\" ]\\";
-	}
-}
-"
-`;
-
-exports[`template integration tests using the generator should generate a class for a schema property that is an array of objects 4`] = `
-"
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class TestObject {
-
-	public TestObject () {
-	}
-
-	public TestObject (
-		String field1) {
-		this.field1 = field1;
-	}
-
-	private String field1;
-	public String getField1() {
-		return field1;
-	}
-
-	public TestObject setField1(String field1) {
-		this.field1 = field1;
-		return this;
-	}
-
-	public String toString() {
-		return \\"TestObject [\\"
-		+ \\" field1: \\" + field1
-		+ \\" ]\\";
+		return "ChargeAdjustments ["
+		+ " amount: " + amount
+		+ " name: " + name
+		+ " type: " + type
+		+ " ]";
 	}
 }
 "
@@ -534,8 +448,8 @@ public class Application {
 		return data -> {
 			// Add business logic here.
 			logger.info(data.toString());
-			String messageId = \\"string\\";
-			String operation = \\"string\\";
+			String messageId = "string";
+			String operation = "string";
 			MyOtherSchema payload = new MyOtherSchema();
 			sendSameFunctionName(payload, messageId, operation);
 		};
@@ -544,7 +458,7 @@ public class Application {
 	public void sendSameFunctionName(
 		MyOtherSchema payload, String messageId, String operation
 		) {
-		String topic = String.format(\\"testLevel1/%s/%s\\",
+		String topic = String.format("testLevel1/%s/%s",
 			messageId, operation);
 		streamBridge.send(topic, payload);
 	}
@@ -593,6 +507,57 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ErrorModel {
+
+	public ErrorModel () {
+	}
+
+	public ErrorModel (
+		String message, 
+		Integer code) {
+		this.message = message;
+		this.code = code;
+	}
+
+	private String message;
+	private Integer code;
+	public String getMessage() {
+		return message;
+	}
+
+	public ErrorModel setMessage(String message) {
+		this.message = message;
+		return this;
+	}
+
+
+	public Integer getCode() {
+		return code;
+	}
+
+	public ErrorModel setCode(Integer code) {
+		this.code = code;
+		return this;
+	}
+
+	public String toString() {
+		return "ErrorModel ["
+		+ " message: " + message
+		+ " code: " + code
+		+ " ]";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate a model subclass when it sees an allOf 2`] = `
+"package com.acme;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+
 
 
 
@@ -618,18 +583,18 @@ public class ExtendedErrorModel extends ErrorModel {
 	}
 
 	public String toString() {
-		return \\"ExtendedErrorModel [\\"
-		+ \\" rootCause: \\" + rootCause
-		+ \\" super: \\" + super.toString()
-		+ \\" ]\\";
+		return "ExtendedErrorModel ["
+		+ " rootCause: " + rootCause
+		+ " super: " + super.toString()
+		+ " ]";
 	}
 }
 "
 `;
 
 exports[`template integration tests using the generator should generate application files using the solace binder 1`] = `
-"<?xml version=\\"1.0\\" encoding=\\"UTF-8\\"?>
-<project xmlns=\\"http://maven.apache.org/POM/4.0.0\\" xmlns:xsi=\\"http://www.w3.org/2001/XMLSchema-instance\\" xsi:schemaLocation=\\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\\">
+"<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.company</groupId>
@@ -739,7 +704,7 @@ public class Application {
 	public void sendTestLevel1MessageIdOperation(
 		MySchema payload, String messageId, String operation
 		) {
-		String topic = String.format(\\"testLevel1/%s/%s\\",
+		String topic = String.format("testLevel1/%s/%s",
 			messageId, operation);
 		streamBridge.send(topic, payload);
 	}
@@ -769,7 +734,7 @@ public class MySchema {
 	}
 
 	private String prop1;
-	@JsonProperty(\\"long\\")
+	@JsonProperty("long")
 	private String _long;
 	public String getProp1() {
 		return prop1;
@@ -791,10 +756,10 @@ public class MySchema {
 	}
 
 	public String toString() {
-		return \\"MySchema [\\"
-		+ \\" prop1: \\" + prop1
-		+ \\" _long: \\" + _long
-		+ \\" ]\\";
+		return "MySchema ["
+		+ " prop1: " + prop1
+		+ " _long: " + _long
+		+ " ]";
 	}
 }
 "
@@ -869,21 +834,21 @@ public class Application {
 	public void sendTurnOn(
 		TurnOnOffPayload payload, String streetlightId
 		) {
-		String topic = String.format(\\"smartylighting/streetlights/1/0/action/%s/turn/on\\",
+		String topic = String.format("smartylighting/streetlights/1/0/action/%s/turn/on",
 			streetlightId);
 		streamBridge.send(topic, payload);
 	}
 	public void sendTurnOff(
 		TurnOnOffPayload payload, String streetlightId
 		) {
-		String topic = String.format(\\"smartylighting/streetlights/1/0/action/%s/turn/off\\",
+		String topic = String.format("smartylighting/streetlights/1/0/action/%s/turn/off",
 			streetlightId);
 		streamBridge.send(topic, payload);
 	}
 	public void sendDimLight(
 		DimLightPayload payload, String streetlightId
 		) {
-		String topic = String.format(\\"smartylighting/streetlights/1/0/action/%s/dim\\",
+		String topic = String.format("smartylighting/streetlights/1/0/action/%s/dim",
 			streetlightId);
 		streamBridge.send(topic, payload);
 	}
@@ -933,10 +898,10 @@ public class DimLightPayload {
 	}
 
 	public String toString() {
-		return \\"DimLightPayload [\\"
-		+ \\" percentage: \\" + percentage
-		+ \\" sentAt: \\" + sentAt
-		+ \\" ]\\";
+		return "DimLightPayload ["
+		+ " percentage: " + percentage
+		+ " sentAt: " + sentAt
+		+ " ]";
 	}
 }
 "
@@ -984,10 +949,10 @@ public class LightMeasuredPayload {
 	}
 
 	public String toString() {
-		return \\"LightMeasuredPayload [\\"
-		+ \\" lumens: \\" + lumens
-		+ \\" sentAt: \\" + sentAt
-		+ \\" ]\\";
+		return "LightMeasuredPayload ["
+		+ " lumens: " + lumens
+		+ " sentAt: " + sentAt
+		+ " ]";
 	}
 }
 "
@@ -1011,7 +976,7 @@ public class SentAt {
 		this.subObject = subObject;
 	}
 
-	@JsonProperty(\\"propertySubobject\\")
+	@JsonProperty("propertySubobject")
 	private SubObject subObject;
 	public SubObject getSubObject() {
 		return subObject;
@@ -1023,9 +988,9 @@ public class SentAt {
 	}
 
 	public String toString() {
-		return \\"SentAt [\\"
-		+ \\" subObject: \\" + subObject
-		+ \\" ]\\";
+		return "SentAt ["
+		+ " subObject: " + subObject
+		+ " ]";
 	}
 }
 "
@@ -1074,10 +1039,10 @@ public class TurnOnOffPayload {
 	}
 
 	public String toString() {
-		return \\"TurnOnOffPayload [\\"
-		+ \\" command: \\" + command
-		+ \\" sentAt: \\" + sentAt
-		+ \\" ]\\";
+		return "TurnOnOffPayload ["
+		+ " command: " + command
+		+ " sentAt: " + sentAt
+		+ " ]";
 	}
 }
 "
@@ -1112,9 +1077,9 @@ public class SubObject {
 	}
 
 	public String toString() {
-		return \\"SubObject [\\"
-		+ \\" propertyA: \\" + propertyA
-		+ \\" ]\\";
+		return "SubObject ["
+		+ " propertyA: " + propertyA
+		+ " ]";
 	}
 }
 "
@@ -1159,7 +1124,7 @@ public class Application {
 	public void sendTestLevel1MessageIdOperation(
 		MySchema payload, String messageId, String operation
 		) {
-		String topic = String.format(\\"testLevel1/%s/%s\\",
+		String topic = String.format("testLevel1/%s/%s",
 			messageId, operation);
 		streamBridge.send(topic, payload);
 	}
@@ -1174,8 +1139,8 @@ exports[`template integration tests using the generator should generate extra co
       configuration:
         testLevel1MessageIdOperationConsumer:
           input-header-mapping-expression:
-            messageId: 'headers.solace_destination.getName.split(\\"/\\")[1]'
-            operation: 'headers.solace_destination.getName.split(\\"/\\")[2]'
+            messageId: 'headers.solace_destination.getName.split("/")[1]'
+            operation: 'headers.solace_destination.getName.split("/")[2]'
       definition: testLevel1MessageIdOperationConsumer
     stream:
       bindings:
@@ -1239,7 +1204,7 @@ public class Application {
 	public void sendTaxinycBackofficePaymentChargedV1PaymentStatusDriverIdPassengerId(
 		PaymentCharged payload, String paymentStatus, String driverId, String passengerId
 		) {
-		String topic = String.format(\\"taxinyc/backoffice/payment/charged/v1/%s/%s/%s\\",
+		String topic = String.format("taxinyc/backoffice/payment/charged/v1/%s/%s/%s",
 			paymentStatus, driverId, passengerId);
 		streamBridge.send(topic, payload);
 	}
@@ -1274,14 +1239,14 @@ public class Driver {
 		this.firstName = firstName;
 	}
 
-	@JsonProperty(\\"driver_id\\")
+	@JsonProperty("driver_id")
 	private Integer driverId;
 	private java.math.BigDecimal rating;
-	@JsonProperty(\\"last_name\\")
+	@JsonProperty("last_name")
 	private String lastName;
-	@JsonProperty(\\"car_class\\")
+	@JsonProperty("car_class")
 	private String carClass;
-	@JsonProperty(\\"first_name\\")
+	@JsonProperty("first_name")
 	private String firstName;
 	public Integer getDriverId() {
 		return driverId;
@@ -1333,13 +1298,13 @@ public class Driver {
 	}
 
 	public String toString() {
-		return \\"Driver [\\"
-		+ \\" driverId: \\" + driverId
-		+ \\" rating: \\" + rating
-		+ \\" lastName: \\" + lastName
-		+ \\" carClass: \\" + carClass
-		+ \\" firstName: \\" + firstName
-		+ \\" ]\\";
+		return "Driver ["
+		+ " driverId: " + driverId
+		+ " rating: " + rating
+		+ " lastName: " + lastName
+		+ " carClass: " + carClass
+		+ " firstName: " + firstName
+		+ " ]";
 	}
 }
 "
@@ -1370,12 +1335,12 @@ public class Passenger {
 		this.firstName = firstName;
 	}
 
-	@JsonProperty(\\"passenger_id\\")
+	@JsonProperty("passenger_id")
 	private Integer passengerId;
 	private java.math.BigDecimal rating;
-	@JsonProperty(\\"last_name\\")
+	@JsonProperty("last_name")
 	private String lastName;
-	@JsonProperty(\\"first_name\\")
+	@JsonProperty("first_name")
 	private String firstName;
 	public Integer getPassengerId() {
 		return passengerId;
@@ -1417,12 +1382,12 @@ public class Passenger {
 	}
 
 	public String toString() {
-		return \\"Passenger [\\"
-		+ \\" passengerId: \\" + passengerId
-		+ \\" rating: \\" + rating
-		+ \\" lastName: \\" + lastName
-		+ \\" firstName: \\" + firstName
-		+ \\" ]\\";
+		return "Passenger ["
+		+ " passengerId: " + passengerId
+		+ " rating: " + rating
+		+ " lastName: " + lastName
+		+ " firstName: " + firstName
+		+ " ]";
 	}
 }
 "
@@ -1465,21 +1430,21 @@ public class PaymentCharged {
 		this.timestamp = timestamp;
 	}
 
-	@JsonProperty(\\"ride_id\\")
+	@JsonProperty("ride_id")
 	private Integer rideId;
-	@JsonProperty(\\"entity_type\\")
+	@JsonProperty("entity_type")
 	private String entityType;
-	@JsonProperty(\\"amount_charged\\")
+	@JsonProperty("amount_charged")
 	private java.math.BigDecimal amountCharged;
 	private Driver driver;
-	@JsonProperty(\\"payment_charged_id\\")
+	@JsonProperty("payment_charged_id")
 	private String paymentChargedId;
 	private Passenger passenger;
-	@JsonProperty(\\"payment_status\\")
+	@JsonProperty("payment_status")
 	private String paymentStatus;
-	@JsonProperty(\\"invoice_system_id\\")
+	@JsonProperty("invoice_system_id")
 	private String invoiceSystemId;
-	@JsonProperty(\\"information_source\\")
+	@JsonProperty("information_source")
 	private String informationSource;
 	private String timestamp;
 	public Integer getRideId() {
@@ -1522,95 +1487,6 @@ public class PaymentCharged {
 	}
 
 
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class Driver {
-
-		public Driver () {
-		}
-
-		public Driver (
-			Integer driverId, 
-			Integer rating, 
-			String lastName, 
-			String carClass, 
-			String firstName) {
-			this.driverId = driverId;
-			this.rating = rating;
-			this.lastName = lastName;
-			this.carClass = carClass;
-			this.firstName = firstName;
-		}
-
-		@JsonProperty(\\"driver_id\\")
-		private Integer driverId;
-		private Integer rating;
-		@JsonProperty(\\"last_name\\")
-		private String lastName;
-		@JsonProperty(\\"car_class\\")
-		private String carClass;
-		@JsonProperty(\\"first_name\\")
-		private String firstName;
-		public Integer getDriverId() {
-			return driverId;
-		}
-
-		public Driver setDriverId(Integer driverId) {
-			this.driverId = driverId;
-			return this;
-		}
-
-
-		public Integer getRating() {
-			return rating;
-		}
-
-		public Driver setRating(Integer rating) {
-			this.rating = rating;
-			return this;
-		}
-
-
-		public String getLastName() {
-			return lastName;
-		}
-
-		public Driver setLastName(String lastName) {
-			this.lastName = lastName;
-			return this;
-		}
-
-
-		public String getCarClass() {
-			return carClass;
-		}
-
-		public Driver setCarClass(String carClass) {
-			this.carClass = carClass;
-			return this;
-		}
-
-
-		public String getFirstName() {
-			return firstName;
-		}
-
-		public Driver setFirstName(String firstName) {
-			this.firstName = firstName;
-			return this;
-		}
-
-		public String toString() {
-			return \\"Driver [\\"
-			+ \\" driverId: \\" + driverId
-			+ \\" rating: \\" + rating
-			+ \\" lastName: \\" + lastName
-			+ \\" carClass: \\" + carClass
-			+ \\" firstName: \\" + firstName
-			+ \\" ]\\";
-		}
-	}
-
 	public String getPaymentChargedId() {
 		return paymentChargedId;
 	}
@@ -1630,80 +1506,6 @@ public class PaymentCharged {
 		return this;
 	}
 
-
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class Passenger {
-
-		public Passenger () {
-		}
-
-		public Passenger (
-			Integer passengerId, 
-			Integer rating, 
-			String lastName, 
-			String firstName) {
-			this.passengerId = passengerId;
-			this.rating = rating;
-			this.lastName = lastName;
-			this.firstName = firstName;
-		}
-
-		@JsonProperty(\\"passenger_id\\")
-		private Integer passengerId;
-		private Integer rating;
-		@JsonProperty(\\"last_name\\")
-		private String lastName;
-		@JsonProperty(\\"first_name\\")
-		private String firstName;
-		public Integer getPassengerId() {
-			return passengerId;
-		}
-
-		public Passenger setPassengerId(Integer passengerId) {
-			this.passengerId = passengerId;
-			return this;
-		}
-
-
-		public Integer getRating() {
-			return rating;
-		}
-
-		public Passenger setRating(Integer rating) {
-			this.rating = rating;
-			return this;
-		}
-
-
-		public String getLastName() {
-			return lastName;
-		}
-
-		public Passenger setLastName(String lastName) {
-			this.lastName = lastName;
-			return this;
-		}
-
-
-		public String getFirstName() {
-			return firstName;
-		}
-
-		public Passenger setFirstName(String firstName) {
-			this.firstName = firstName;
-			return this;
-		}
-
-		public String toString() {
-			return \\"Passenger [\\"
-			+ \\" passengerId: \\" + passengerId
-			+ \\" rating: \\" + rating
-			+ \\" lastName: \\" + lastName
-			+ \\" firstName: \\" + firstName
-			+ \\" ]\\";
-		}
-	}
 
 	public String getPaymentStatus() {
 		return paymentStatus;
@@ -1745,18 +1547,18 @@ public class PaymentCharged {
 	}
 
 	public String toString() {
-		return \\"PaymentCharged [\\"
-		+ \\" rideId: \\" + rideId
-		+ \\" entityType: \\" + entityType
-		+ \\" amountCharged: \\" + amountCharged
-		+ \\" driver: \\" + driver
-		+ \\" paymentChargedId: \\" + paymentChargedId
-		+ \\" passenger: \\" + passenger
-		+ \\" paymentStatus: \\" + paymentStatus
-		+ \\" invoiceSystemId: \\" + invoiceSystemId
-		+ \\" informationSource: \\" + informationSource
-		+ \\" timestamp: \\" + timestamp
-		+ \\" ]\\";
+		return "PaymentCharged ["
+		+ " rideId: " + rideId
+		+ " entityType: " + entityType
+		+ " amountCharged: " + amountCharged
+		+ " driver: " + driver
+		+ " paymentChargedId: " + paymentChargedId
+		+ " passenger: " + passenger
+		+ " paymentStatus: " + paymentStatus
+		+ " invoiceSystemId: " + invoiceSystemId
+		+ " informationSource: " + informationSource
+		+ " timestamp: " + timestamp
+		+ " ]";
 	}
 }
 "
@@ -1807,26 +1609,26 @@ public class RideUpdated1 {
 		this.rideStatus = rideStatus;
 	}
 
-	@JsonProperty(\\"ride_id\\")
+	@JsonProperty("ride_id")
 	private String rideId;
 	private Integer heading;
 	private java.math.BigDecimal latitude;
-	@JsonProperty(\\"passenger_count\\")
+	@JsonProperty("passenger_count")
 	private Integer passengerCount;
-	@JsonProperty(\\"point_idx\\")
+	@JsonProperty("point_idx")
 	private Integer pointIdx;
-	@JsonProperty(\\"information_source\\")
+	@JsonProperty("information_source")
 	private String informationSource;
 	private Integer speed;
 	private Driver driver;
 	private Passenger passenger;
-	@JsonProperty(\\"meter_increment\\")
+	@JsonProperty("meter_increment")
 	private java.math.BigDecimal meterIncrement;
 	private java.math.BigDecimal longitude;
 	private String timestamp;
-	@JsonProperty(\\"meter_reading\\")
+	@JsonProperty("meter_reading")
 	private java.math.BigDecimal meterReading;
-	@JsonProperty(\\"ride_status\\")
+	@JsonProperty("ride_status")
 	private RideStatus rideStatus;
 	public String getRideId() {
 		return rideId;
@@ -1908,95 +1710,6 @@ public class RideUpdated1 {
 	}
 
 
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class Driver {
-
-		public Driver () {
-		}
-
-		public Driver (
-			Integer driverId, 
-			java.math.BigDecimal rating, 
-			String lastName, 
-			String carClass, 
-			String firstName) {
-			this.driverId = driverId;
-			this.rating = rating;
-			this.lastName = lastName;
-			this.carClass = carClass;
-			this.firstName = firstName;
-		}
-
-		@JsonProperty(\\"driver_id\\")
-		private Integer driverId;
-		private java.math.BigDecimal rating;
-		@JsonProperty(\\"last_name\\")
-		private String lastName;
-		@JsonProperty(\\"car_class\\")
-		private String carClass;
-		@JsonProperty(\\"first_name\\")
-		private String firstName;
-		public Integer getDriverId() {
-			return driverId;
-		}
-
-		public Driver setDriverId(Integer driverId) {
-			this.driverId = driverId;
-			return this;
-		}
-
-
-		public java.math.BigDecimal getRating() {
-			return rating;
-		}
-
-		public Driver setRating(java.math.BigDecimal rating) {
-			this.rating = rating;
-			return this;
-		}
-
-
-		public String getLastName() {
-			return lastName;
-		}
-
-		public Driver setLastName(String lastName) {
-			this.lastName = lastName;
-			return this;
-		}
-
-
-		public String getCarClass() {
-			return carClass;
-		}
-
-		public Driver setCarClass(String carClass) {
-			this.carClass = carClass;
-			return this;
-		}
-
-
-		public String getFirstName() {
-			return firstName;
-		}
-
-		public Driver setFirstName(String firstName) {
-			this.firstName = firstName;
-			return this;
-		}
-
-		public String toString() {
-			return \\"Driver [\\"
-			+ \\" driverId: \\" + driverId
-			+ \\" rating: \\" + rating
-			+ \\" lastName: \\" + lastName
-			+ \\" carClass: \\" + carClass
-			+ \\" firstName: \\" + firstName
-			+ \\" ]\\";
-		}
-	}
-
 	public Passenger getPassenger() {
 		return passenger;
 	}
@@ -2006,80 +1719,6 @@ public class RideUpdated1 {
 		return this;
 	}
 
-
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class Passenger {
-
-		public Passenger () {
-		}
-
-		public Passenger (
-			Integer passengerId, 
-			java.math.BigDecimal rating, 
-			String lastName, 
-			String firstName) {
-			this.passengerId = passengerId;
-			this.rating = rating;
-			this.lastName = lastName;
-			this.firstName = firstName;
-		}
-
-		@JsonProperty(\\"passenger_id\\")
-		private Integer passengerId;
-		private java.math.BigDecimal rating;
-		@JsonProperty(\\"last_name\\")
-		private String lastName;
-		@JsonProperty(\\"first_name\\")
-		private String firstName;
-		public Integer getPassengerId() {
-			return passengerId;
-		}
-
-		public Passenger setPassengerId(Integer passengerId) {
-			this.passengerId = passengerId;
-			return this;
-		}
-
-
-		public java.math.BigDecimal getRating() {
-			return rating;
-		}
-
-		public Passenger setRating(java.math.BigDecimal rating) {
-			this.rating = rating;
-			return this;
-		}
-
-
-		public String getLastName() {
-			return lastName;
-		}
-
-		public Passenger setLastName(String lastName) {
-			this.lastName = lastName;
-			return this;
-		}
-
-
-		public String getFirstName() {
-			return firstName;
-		}
-
-		public Passenger setFirstName(String firstName) {
-			this.firstName = firstName;
-			return this;
-		}
-
-		public String toString() {
-			return \\"Passenger [\\"
-			+ \\" passengerId: \\" + passengerId
-			+ \\" rating: \\" + rating
-			+ \\" lastName: \\" + lastName
-			+ \\" firstName: \\" + firstName
-			+ \\" ]\\";
-		}
-	}
 
 	public java.math.BigDecimal getMeterIncrement() {
 		return meterIncrement;
@@ -2132,22 +1771,22 @@ public class RideUpdated1 {
 
 
 	public static enum RideStatus { accepted,pickup,enroute,dropoff }	public String toString() {
-		return \\"RideUpdated1 [\\"
-		+ \\" rideId: \\" + rideId
-		+ \\" heading: \\" + heading
-		+ \\" latitude: \\" + latitude
-		+ \\" passengerCount: \\" + passengerCount
-		+ \\" pointIdx: \\" + pointIdx
-		+ \\" informationSource: \\" + informationSource
-		+ \\" speed: \\" + speed
-		+ \\" driver: \\" + driver
-		+ \\" passenger: \\" + passenger
-		+ \\" meterIncrement: \\" + meterIncrement
-		+ \\" longitude: \\" + longitude
-		+ \\" timestamp: \\" + timestamp
-		+ \\" meterReading: \\" + meterReading
-		+ \\" rideStatus: \\" + rideStatus
-		+ \\" ]\\";
+		return "RideUpdated1 ["
+		+ " rideId: " + rideId
+		+ " heading: " + heading
+		+ " latitude: " + latitude
+		+ " passengerCount: " + passengerCount
+		+ " pointIdx: " + pointIdx
+		+ " informationSource: " + informationSource
+		+ " speed: " + speed
+		+ " driver: " + driver
+		+ " passenger: " + passenger
+		+ " meterIncrement: " + meterIncrement
+		+ " longitude: " + longitude
+		+ " timestamp: " + timestamp
+		+ " meterReading: " + meterReading
+		+ " rideStatus: " + rideStatus
+		+ " ]";
 	}
 }
 "
@@ -2201,14 +1840,14 @@ public class Application {
 	public void sendCompanyCustomerCompanyDebtorCreate(
 		Debtor payload, String customerCompany
 		) {
-		String topic = String.format(\\"Company/%s/debtor/create\\",
+		String topic = String.format("Company/%s/debtor/create",
 			customerCompany);
 		streamBridge.send(topic, payload);
 	}
 	public void sendCompanyCustomerCompanyDebtorDebtorIdDossierCreate(
 		Dossier payload, String customerCompany, String debtorId
 		) {
-		String topic = String.format(\\"Company/%s/debtor/%s/Dossier/create\\",
+		String topic = String.format("Company/%s/debtor/%s/Dossier/create",
 			customerCompany, debtorId);
 		streamBridge.send(topic, payload);
 	}
@@ -2246,13 +1885,13 @@ public class Dossier {
 	}
 
 	private java.math.BigDecimal premium;
-	@JsonProperty(\\"applied_discount\\")
+	@JsonProperty("applied_discount")
 	private java.math.BigDecimal appliedDiscount;
-	@JsonProperty(\\"product_id\\")
+	@JsonProperty("product_id")
 	private String productId;
 	private Options[] options;
 	private String id;
-	@JsonProperty(\\"client_id\\")
+	@JsonProperty("client_id")
 	private String clientId;
 	public java.math.BigDecimal getPremium() {
 		return premium;
@@ -2294,49 +1933,6 @@ public class Dossier {
 	}
 
 
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class Options {
-
-		public Options () {
-		}
-		public Options (
-			String name, 
-			String id) {
-			this.name = name;
-			this.id = id;
-		}
-
-
-		private String name;
-		private String id;
-		public String getName() {
-			return name;
-		}
-
-		public Options setName(String name) {
-			this.name = name;
-			return this;
-		}
-
-
-		public String getId() {
-			return id;
-		}
-
-		public Options setId(String id) {
-			this.id = id;
-			return this;
-		}
-
-		public String toString() {
-			return \\"Options [\\"
-			+ \\" name: \\" + name
-			+ \\" id: \\" + id
-			+ \\" ]\\";
-		}
-	}
-
 	public String getId() {
 		return id;
 	}
@@ -2357,14 +1953,14 @@ public class Dossier {
 	}
 
 	public String toString() {
-		return \\"Dossier [\\"
-		+ \\" premium: \\" + premium
-		+ \\" appliedDiscount: \\" + appliedDiscount
-		+ \\" productId: \\" + productId
-		+ \\" options: \\" + options
-		+ \\" id: \\" + id
-		+ \\" clientId: \\" + clientId
-		+ \\" ]\\";
+		return "Dossier ["
+		+ " premium: " + premium
+		+ " appliedDiscount: " + appliedDiscount
+		+ " productId: " + productId
+		+ " options: " + options
+		+ " id: " + id
+		+ " clientId: " + clientId
+		+ " ]";
 	}
 }
 "
@@ -2406,13 +2002,13 @@ public class Debtor {
 	private Emails[] emails;
 	private String birthdate;
 	private Address address;
-	@JsonProperty(\\"last_name\\")
+	@JsonProperty("last_name")
 	private String lastName;
 	private Phones[] phones;
 	private String id;
-	@JsonProperty(\\"first_name\\")
+	@JsonProperty("first_name")
 	private String firstName;
-	@JsonProperty(\\"bank_account\\")
+	@JsonProperty("bank_account")
 	private BankAccount bankAccount;
 	public Emails[] getEmails() {
 		return emails;
@@ -2423,63 +2019,6 @@ public class Debtor {
 		return this;
 	}
 
-
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class Emails {
-
-		public Emails () {
-		}
-		public Emails (
-			String type, 
-			String email, 
-			Boolean preferred) {
-			this.type = type;
-			this.email = email;
-			this.preferred = preferred;
-		}
-
-
-		private String type;
-		private String email;
-		private Boolean preferred;
-		public String getType() {
-			return type;
-		}
-
-		public Emails setType(String type) {
-			this.type = type;
-			return this;
-		}
-
-
-		public String getEmail() {
-			return email;
-		}
-
-		public Emails setEmail(String email) {
-			this.email = email;
-			return this;
-		}
-
-
-		public Boolean getPreferred() {
-			return preferred;
-		}
-
-		public Emails setPreferred(Boolean preferred) {
-			this.preferred = preferred;
-			return this;
-		}
-
-		public String toString() {
-			return \\"Emails [\\"
-			+ \\" type: \\" + type
-			+ \\" email: \\" + email
-			+ \\" preferred: \\" + preferred
-			+ \\" ]\\";
-		}
-	}
 
 	public String getBirthdate() {
 		return birthdate;
@@ -2501,79 +2040,6 @@ public class Debtor {
 	}
 
 
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class Address {
-
-		public Address () {
-		}
-
-		public Address (
-			String countryCode, 
-			String city, 
-			String street, 
-			String postalCode) {
-			this.countryCode = countryCode;
-			this.city = city;
-			this.street = street;
-			this.postalCode = postalCode;
-		}
-
-		@JsonProperty(\\"country_code\\")
-		private String countryCode;
-		private String city;
-		private String street;
-		@JsonProperty(\\"postal_code\\")
-		private String postalCode;
-		public String getCountryCode() {
-			return countryCode;
-		}
-
-		public Address setCountryCode(String countryCode) {
-			this.countryCode = countryCode;
-			return this;
-		}
-
-
-		public String getCity() {
-			return city;
-		}
-
-		public Address setCity(String city) {
-			this.city = city;
-			return this;
-		}
-
-
-		public String getStreet() {
-			return street;
-		}
-
-		public Address setStreet(String street) {
-			this.street = street;
-			return this;
-		}
-
-
-		public String getPostalCode() {
-			return postalCode;
-		}
-
-		public Address setPostalCode(String postalCode) {
-			this.postalCode = postalCode;
-			return this;
-		}
-
-		public String toString() {
-			return \\"Address [\\"
-			+ \\" countryCode: \\" + countryCode
-			+ \\" city: \\" + city
-			+ \\" street: \\" + street
-			+ \\" postalCode: \\" + postalCode
-			+ \\" ]\\";
-		}
-	}
-
 	public String getLastName() {
 		return lastName;
 	}
@@ -2593,63 +2059,6 @@ public class Debtor {
 		return this;
 	}
 
-
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class Phones {
-
-		public Phones () {
-		}
-		public Phones (
-			String phone, 
-			String type, 
-			Boolean preferred) {
-			this.phone = phone;
-			this.type = type;
-			this.preferred = preferred;
-		}
-
-
-		private String phone;
-		private String type;
-		private Boolean preferred;
-		public String getPhone() {
-			return phone;
-		}
-
-		public Phones setPhone(String phone) {
-			this.phone = phone;
-			return this;
-		}
-
-
-		public String getType() {
-			return type;
-		}
-
-		public Phones setType(String type) {
-			this.type = type;
-			return this;
-		}
-
-
-		public Boolean getPreferred() {
-			return preferred;
-		}
-
-		public Phones setPreferred(Boolean preferred) {
-			this.preferred = preferred;
-			return this;
-		}
-
-		public String toString() {
-			return \\"Phones [\\"
-			+ \\" phone: \\" + phone
-			+ \\" type: \\" + type
-			+ \\" preferred: \\" + preferred
-			+ \\" ]\\";
-		}
-	}
 
 	public String getId() {
 		return id;
@@ -2680,62 +2089,334 @@ public class Debtor {
 		return this;
 	}
 
-
-
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class BankAccount {
-
-		public BankAccount () {
-		}
-
-		public BankAccount (
-			String iban, 
-			String bic) {
-			this.iban = iban;
-			this.bic = bic;
-		}
-
-		@JsonProperty(\\"IBAN\\")
-		private String iban;
-		@JsonProperty(\\"BIC\\")
-		private String bic;
-		public String getIban() {
-			return iban;
-		}
-
-		public BankAccount setIban(String iban) {
-			this.iban = iban;
-			return this;
-		}
-
-
-		public String getBic() {
-			return bic;
-		}
-
-		public BankAccount setBic(String bic) {
-			this.bic = bic;
-			return this;
-		}
-
-		public String toString() {
-			return \\"BankAccount [\\"
-			+ \\" iban: \\" + iban
-			+ \\" bic: \\" + bic
-			+ \\" ]\\";
-		}
-	}
 	public String toString() {
-		return \\"Debtor [\\"
-		+ \\" emails: \\" + emails
-		+ \\" birthdate: \\" + birthdate
-		+ \\" address: \\" + address
-		+ \\" lastName: \\" + lastName
-		+ \\" phones: \\" + phones
-		+ \\" id: \\" + id
-		+ \\" firstName: \\" + firstName
-		+ \\" bankAccount: \\" + bankAccount
-		+ \\" ]\\";
+		return "Debtor ["
+		+ " emails: " + emails
+		+ " birthdate: " + birthdate
+		+ " address: " + address
+		+ " lastName: " + lastName
+		+ " phones: " + phones
+		+ " id: " + id
+		+ " firstName: " + firstName
+		+ " bankAccount: " + bankAccount
+		+ " ]";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate schemas with nested arrays 4`] = `
+"
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Address {
+
+	public Address () {
+	}
+
+	public Address (
+		String countryCode, 
+		String city, 
+		String street, 
+		String postalCode) {
+		this.countryCode = countryCode;
+		this.city = city;
+		this.street = street;
+		this.postalCode = postalCode;
+	}
+
+	@JsonProperty("country_code")
+	private String countryCode;
+	private String city;
+	private String street;
+	@JsonProperty("postal_code")
+	private String postalCode;
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	public Address setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+		return this;
+	}
+
+
+	public String getCity() {
+		return city;
+	}
+
+	public Address setCity(String city) {
+		this.city = city;
+		return this;
+	}
+
+
+	public String getStreet() {
+		return street;
+	}
+
+	public Address setStreet(String street) {
+		this.street = street;
+		return this;
+	}
+
+
+	public String getPostalCode() {
+		return postalCode;
+	}
+
+	public Address setPostalCode(String postalCode) {
+		this.postalCode = postalCode;
+		return this;
+	}
+
+	public String toString() {
+		return "Address ["
+		+ " countryCode: " + countryCode
+		+ " city: " + city
+		+ " street: " + street
+		+ " postalCode: " + postalCode
+		+ " ]";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate schemas with nested arrays 5`] = `
+"
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class BankAccount {
+
+	public BankAccount () {
+	}
+
+	public BankAccount (
+		String iban, 
+		String bic) {
+		this.iban = iban;
+		this.bic = bic;
+	}
+
+	@JsonProperty("IBAN")
+	private String iban;
+	@JsonProperty("BIC")
+	private String bic;
+	public String getIban() {
+		return iban;
+	}
+
+	public BankAccount setIban(String iban) {
+		this.iban = iban;
+		return this;
+	}
+
+
+	public String getBic() {
+		return bic;
+	}
+
+	public BankAccount setBic(String bic) {
+		this.bic = bic;
+		return this;
+	}
+
+	public String toString() {
+		return "BankAccount ["
+		+ " iban: " + iban
+		+ " bic: " + bic
+		+ " ]";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate schemas with nested arrays 6`] = `
+"
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Emails {
+
+	public Emails () {
+	}
+
+	public Emails (
+		String type, 
+		String email, 
+		Boolean preferred) {
+		this.type = type;
+		this.email = email;
+		this.preferred = preferred;
+	}
+
+	private String type;
+	private String email;
+	private Boolean preferred;
+	public String getType() {
+		return type;
+	}
+
+	public Emails setType(String type) {
+		this.type = type;
+		return this;
+	}
+
+
+	public String getEmail() {
+		return email;
+	}
+
+	public Emails setEmail(String email) {
+		this.email = email;
+		return this;
+	}
+
+
+	public Boolean getPreferred() {
+		return preferred;
+	}
+
+	public Emails setPreferred(Boolean preferred) {
+		this.preferred = preferred;
+		return this;
+	}
+
+	public String toString() {
+		return "Emails ["
+		+ " type: " + type
+		+ " email: " + email
+		+ " preferred: " + preferred
+		+ " ]";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate schemas with nested arrays 7`] = `
+"
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Options {
+
+	public Options () {
+	}
+
+	public Options (
+		String name, 
+		String id) {
+		this.name = name;
+		this.id = id;
+	}
+
+	private String name;
+	private String id;
+	public String getName() {
+		return name;
+	}
+
+	public Options setName(String name) {
+		this.name = name;
+		return this;
+	}
+
+
+	public String getId() {
+		return id;
+	}
+
+	public Options setId(String id) {
+		this.id = id;
+		return this;
+	}
+
+	public String toString() {
+		return "Options ["
+		+ " name: " + name
+		+ " id: " + id
+		+ " ]";
+	}
+}
+"
+`;
+
+exports[`template integration tests using the generator should generate schemas with nested arrays 8`] = `
+"
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Phones {
+
+	public Phones () {
+	}
+
+	public Phones (
+		String phone, 
+		String type, 
+		Boolean preferred) {
+		this.phone = phone;
+		this.type = type;
+		this.preferred = preferred;
+	}
+
+	private String phone;
+	private String type;
+	private Boolean preferred;
+	public String getPhone() {
+		return phone;
+	}
+
+	public Phones setPhone(String phone) {
+		this.phone = phone;
+		return this;
+	}
+
+
+	public String getType() {
+		return type;
+	}
+
+	public Phones setType(String type) {
+		this.type = type;
+		return this;
+	}
+
+
+	public Boolean getPreferred() {
+		return preferred;
+	}
+
+	public Phones setPreferred(Boolean preferred) {
+		this.preferred = preferred;
+		return this;
+	}
+
+	public String toString() {
+		return "Phones ["
+		+ " phone: " + phone
+		+ " type: " + type
+		+ " preferred: " + preferred
+		+ " ]";
 	}
 }
 "
@@ -2908,15 +2589,15 @@ public class JobOrder {
 	}
 
 	public String toString() {
-		return \\"JobOrder [\\"
-		+ \\" jobOrderId: \\" + jobOrderId
-		+ \\" jobOrderDescription: \\" + jobOrderDescription
-		+ \\" jobOrderLongDescription: \\" + jobOrderLongDescription
-		+ \\" jobOrderNumber: \\" + jobOrderNumber
-		+ \\" isActive: \\" + isActive
-		+ \\" status: \\" + status
-		+ \\" statuscode: \\" + statuscode
-		+ \\" ]\\";
+		return "JobOrder ["
+		+ " jobOrderId: " + jobOrderId
+		+ " jobOrderDescription: " + jobOrderDescription
+		+ " jobOrderLongDescription: " + jobOrderLongDescription
+		+ " jobOrderNumber: " + jobOrderNumber
+		+ " isActive: " + isActive
+		+ " status: " + status
+		+ " statuscode: " + statuscode
+		+ " ]";
 	}
 }
 "
@@ -2952,9 +2633,9 @@ public class JobAcknowledge {
 	}
 
 	public String toString() {
-		return \\"JobAcknowledge [\\"
-		+ \\" jobAckId: \\" + jobAckId
-		+ \\" ]\\";
+		return "JobAcknowledge ["
+		+ " jobAckId: " + jobAckId
+		+ " ]";
 	}
 }
 "
@@ -2989,7 +2670,7 @@ public class Application {
 	public void sendAcmeBillingReceiptsReceiptIdCreatedVersionRegionsRegionChargifyRideId(
 		RideReceipt payload, String receiptId, String version, String region, String rideId
 		) {
-		String topic = String.format(\\"acme/billing/receipts/%s/created/%s/regions/%s/chargify/%s\\",
+		String topic = String.format("acme/billing/receipts/%s/created/%s/regions/%s/chargify/%s",
 			receiptId, version, region, rideId);
 		streamBridge.send(topic, payload);
 	}
@@ -3053,11 +2734,11 @@ public class JobOrder {
 	}
 
 	public String toString() {
-		return \\"JobOrder [\\"
-		+ \\" jobOrderId: \\" + jobOrderId
-		+ \\" jobOrderDescription: \\" + jobOrderDescription.toString()
-		+ \\" jobOrderLongDescription: \\" + jobOrderLongDescription.toString()
-		+ \\" ]\\";
+		return "JobOrder ["
+		+ " jobOrderId: " + jobOrderId
+		+ " jobOrderDescription: " + jobOrderDescription.toString()
+		+ " jobOrderLongDescription: " + jobOrderLongDescription.toString()
+		+ " ]";
 	}
 }
 "

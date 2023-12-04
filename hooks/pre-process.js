@@ -1,54 +1,66 @@
 const ApplicationModel = require('../lib/applicationModel.js');
-const _ = require('lodash');
+const _ = require('lodash'); 
 
-function setSchemaIdsForFileName(asyncapi) {
-  asyncapi.allSchemas().forEach((schema, schemaName) => {
-    // If we leave the $id the way it is, the generator will name the schema files what their $id is, which is always a bad idea.
-    // So we leave it in, but $id is going to be changed to be the class name we want.
-    // If we remove the $id and there's no x-parser-schema-id, then it wont be returned by allSchemas().
-    if (schema.$id()) {
-      // Assuming one of x-parser-schema-id and $id must be present.
-      let classNameForGenerator;
-      const parserSchemaId = schema.ext('x-parser-schema-id');
-      classNameForGenerator = parserSchemaId ? parserSchemaId : _.camelCase(schema.$id().substring(schema.$id().lastIndexOf('/') + 1));
-      
-      if (classNameForGenerator === 'items') {
-        let parentSchema;
-        if (schema.options) {
-          parentSchema = schema.options.parent;
-        }
-        let parentSchemaItems;
-        if (parentSchema) {
-          parentSchemaItems = parentSchema.items();
-        }
-        let parentSchemaItemsId;
-        if (parentSchemaItems && parentSchemaItems._json) {
-          parentSchemaItemsId = parentSchemaItems._json.$id;
-        }
-        if (parentSchemaItemsId === schema.$id()) {
-          const parentParserSchemaId = parentSchema.ext('x-parser-schema-id');
-          classNameForGenerator = parentParserSchemaId ? parentParserSchemaId : _.camelCase(parentSchema.$id().substring(parentSchema.$id().lastIndexOf('/') + 1));
-          // If we come across this schema later in the code generator, we'll know to rename it to its parent because the proper settings will be set in the model class.
-          schema._json['x-model-class-name'] = classNameForGenerator;
-          classNameForGenerator += 'Items';
-        }
+const uniqueids = new Set();
+
+/**
+ * Change the $ids of schemas that are objects to be made into classes.
+ * Changing the $id means any duplicate $ids are no longer ignored by .allSchemas().
+ * @param {JSONSchema} schema 
+ * @param {String} name 
+ */
+function fixIds(schema, name) {
+  const props = schema.properties;
+  if (props) {
+    if (schema.$id && schema.type === "object") {
+      let newName = name;
+      if (uniqueids.has(schema.$id)) {
+        newName = _.uniqueId(name);
       }
-      schema._json.$id = classNameForGenerator;
+      schema.$id = newName;
+      schema["x-parser-schema-id"] = newName;
+      uniqueids.add(schema.$id);
     }
-  });
+
+    const propNames = Object.keys(props);
+    propNames.forEach(propName => {
+      const schemaObject = props[propName];
+      if (schemaObject.type === "object" || schemaObject.type === "array") {
+        fixIds(schemaObject, propName);
+      }
+    });
+  }
+  const items = schema.items;
+  if (items) {
+    if (items.type === "object" || items.type === "array") {
+      fixIds(items, name);
+    }
+  }
 }
 
 function setSchemaIdsForFileNameIncludingDuplicates(asyncapi) {
-  // We do this multiple times because allSchemas() returns a list of deduplicated schemas, so if we change the $id of a schema,
-  //  we wont change any of the duplicates. We continue until there are no more duplicates to change.
-  let numSchemas;
-  let newNumSchemas;
-  do {
-    numSchemas = asyncapi.allSchemas().size;
-    setSchemaIdsForFileName(asyncapi);
-    newNumSchemas = asyncapi.allSchemas().size;
-  } while (numSchemas !== newNumSchemas);
+  const components = asyncapi._json.components;
+  const topLevelSchemaNames = Object.keys(components?.schemas || {});
+  const topLevelSchemas = topLevelSchemaNames.map(schemaName => {
+    components.schemas[schemaName].x_template_schema_name = schemaName;
+    return components.schemas[schemaName];
+  }) || [];
+  topLevelSchemas.forEach(topLevelSchema => {
+    fixIds(topLevelSchema, topLevelSchema.x_template_schema_name);
+  });
+
+  const all11 = asyncapi.allSchemas();
 }
+
+/**
+ * allSchemas() doesnt have enough information to properly name all schemas including the top level schemas, but it does have all schemas with a unique $id. 
+ * We recurse over the schemas used in components & rename all $ids. These are the only schemas we care about.
+ * If it doesn't have an $id, there's no problems.
+ * The goal of this was to change the $id to reveal the duplicates not returned by allSchemas, but there shouldnt be a need to do so if we recurse over the component.schemas.
+ * We dont go over components.schemas in the rest of the code, so the duplicate schemas are still going to be hidden.
+ * So, since all '$id's that we care about are changed, all are 'revealed'. The $id is going to affect x-parser-schema-id. 
+ * We have a set of '$id's and set the schema's $id to the schema name with optional UUID if there's a duplicate.
+ */
 
 module.exports = {
   'generate:before': generator => {

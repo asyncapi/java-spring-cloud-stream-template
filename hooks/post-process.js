@@ -75,8 +75,8 @@ function processSchema(generator, schemaName, schema, sourcePath, defaultJavaPac
   debugPostProcess(schema);
   const modelClass = applicationModel.getModelClass({schema, schemaName});
   const javaName = modelClass.getClassName();
-  // Might be easier to delete based on the file name determined by the file name hook. We should have enough info to make the name DELETEME to mark them.
-  if ((schema.type() && schema.type() !== 'object') || _.startsWith(javaName, 'Anonymous')) {
+
+  if ((schema.type() && (schema.type() !== 'object' && schema.type() !== 'array')) || _.startsWith(javaName, 'Anonymous')) {
     debugPostProcess(`deleting ${filePath}`);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
@@ -90,33 +90,12 @@ function processSchema(generator, schemaName, schema, sourcePath, defaultJavaPac
     }
 
     debugPostProcess(`javaName: ${javaName} schemaName: ${schemaName}`);
-	// Should be no need to do this now that we use the hook for it
-    // if (javaName !== schemaName) {
-    //   const currentPath = packageDir || sourcePath;
-    //   const newPath = path.resolve(currentPath, `${javaName}.java`);
-    //   const oldPath = path.resolve(currentPath, fileName);
-    //   fs.renameSync(oldPath, newPath);
-    //   debugPostProcess(`Renamed class file ${schemaName} to ${javaName}`);
-    // }
   }
 }
 
 function getFileName(schemaName) {
-	const fileName = applicationModel.getModelClass({ schemaName }).getClassName();
-//   const trimmedSchemaName = trimSchemaName(schemaName);
-  // The generator will remove all characters from the file name that would make it invalid like colons and forward slash.
-  // We do the same, otherwise we would have to edit the asycnapi document during preprocessing.
-//   const fileName = trimmedSchemaName.replaceAll("/", "-").replaceAll(":", "");
+  const fileName = applicationModel.getModelClass({ schemaName }).getClassName();
   return `${fileName}.java`;
-}
-
-function trimSchemaName(schemaName) {
-  let trimmedSchemaName = schemaName;
-  if (schemaName.startsWith('<')) {
-    trimmedSchemaName = schemaName.replace('<', '');
-    trimmedSchemaName = trimmedSchemaName.replace(/>$/, '');
-  }
-  return trimmedSchemaName;
 }
 
 function getPackageDir(generator, defaultJavaPackageDir, modelClass) {

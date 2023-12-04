@@ -6,7 +6,7 @@ components:
       title: This schema is irrelevant
       $id: 'http://example.com/root.json'
   messages:
-    Billing Receipt Created:
+    BillingReceiptCreated:
       payload:
         $ref: '#/components/schemas/RideReceipt'
       schemaFormat: application/vnd.aai.asyncapi+json;version=2.0.0
@@ -20,7 +20,7 @@ channels:
           destinations:
             - destinationType: topic
       message:
-        $ref: '#/components/messages/Billing Receipt Created'
+        $ref: '#/components/messages/BillingReceiptCreated'
     parameters:
       version:
         schema:

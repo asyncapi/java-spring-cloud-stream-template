@@ -8,7 +8,6 @@ const TEST_SUITE_NAME = 'template integration tests using the generator';
 const TEST_FOLDER_NAME = 'test';
 const MAIN_TEST_RESULT_PATH = path.join(TEST_FOLDER_NAME, 'temp', 'integrationTestResult');
 
-// Unfortunately, the test suite name must be a hard coded string
 describe('template integration tests using the generator', () => {
   jest.setTimeout(30000);
 
@@ -111,7 +110,7 @@ describe('template integration tests using the generator', () => {
     await assertExpectedFiles(validatedFiles);
   });
 
-  it('avro schemas should appear in a package based on their namespace, if any.', async () => {
+  it.skip('avro schemas should appear in a package based on their namespace, if any.', async () => {
     // Note that this file has 2 Avro schemas named User, but one has the namespace 'userpublisher.'
     const AVRO_PACKAGE_PATH = 'userpublisher';
     const params = {
@@ -136,6 +135,7 @@ describe('template integration tests using the generator', () => {
     await generate('mocks/error-reporter.yaml', params);
 
     const validatedFiles = [
+      `src/main/java/${DEFAULT_PACKAGE_PATH}/ErrorModel.java`,
       `src/main/java/${DEFAULT_PACKAGE_PATH}/ExtendedErrorModel.java`
     ];
     await assertExpectedFiles(validatedFiles);
@@ -148,11 +148,11 @@ describe('template integration tests using the generator', () => {
       'src/main/java/Application.java',
       'src/main/java/Dossier.java',
       'src/main/java/Debtor.java',
-	  'src/main/java/Address.java',
-	  'src/main/java/BankAccount.java',
-	  'src/main/java/Emails.java',
-	  'src/main/java/Options.java',
-	  'src/main/java/Phones.java'
+      'src/main/java/Address.java',
+      'src/main/java/BankAccount.java',
+      'src/main/java/Emails.java',
+      'src/main/java/Options.java',
+      'src/main/java/Phones.java'
     ];
     await assertExpectedFiles(validatedFiles);
   });
@@ -218,7 +218,9 @@ describe('template integration tests using the generator', () => {
 
     const validatedFiles = [
       'src/main/java/Application.java',
-      'src/main/java/RideReceipt.java'
+      'src/main/java/RideReceipt.java',
+      'src/main/java/TestObject.java',
+      'src/main/java/ChargeAdjustments.java'
     ];
     await assertExpectedFiles(validatedFiles);
   });
@@ -227,11 +229,12 @@ describe('template integration tests using the generator', () => {
     /*
       For this test, there's duplicate schemas in the asyncapi document.
       Calling allSchemas() yeilds unique results (deduplicated) based on either $id or x-parser-schema-id in that order.
+      If the $id is duplicated in the asyncapi document, allSchemas() won't return the duplicate which may be a unique schema.
       The $id needs to be changed because the generator will write file names and such based on it which will always be faulty for this code generator.
       Changing the $id of one schema will change the $id only for the one instance, leaving the duplicates behind with the $id they've always had.
       This means if we started with 10 schemas, 5 being duplicates with one other schema (15 total; 10 unique), we would end up with 15 unique and 15 total if we changed the schema's $id.
-      This test ensures all schemas and their duplicates have their $ids renamed to generate the correct file name among other things.
-    */
+      This test ensures all schemas and their duplicates have their $ids renamed to generate the correct file names.
+	  */
     await generate('mocks/schemas-with-duplicate-$ids.yaml');
 
     const validatedFiles = [

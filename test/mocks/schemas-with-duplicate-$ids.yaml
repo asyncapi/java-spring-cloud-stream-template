@@ -1,7 +1,6 @@
 components:
   schemas:
     PaymentCharged:
-      default: {}
       $schema: 'http://json-schema.org/draft-07/schema'
       examples:
         - ride_id: 2345234
@@ -215,32 +214,7 @@ components:
           $id: '#/properties/timestamp'
       $id: 'http://example.com/example.json'
     RideUpdated-1:
-      default: {}
       $schema: 'http://json-schema.org/draft-07/schema'
-      examples:
-        - ride_id: 545496c5-a334-4344-9662-efde68c0b98a
-          heading: 111
-          latitude: 40.75473
-          passenger_count: 1
-          point_idx: 107
-          information_source: RideDispatcher
-          speed: 8
-          driver:
-            driver_id: 1234132
-            rating: 4.75
-            last_name: Smith
-            car_class: SUV
-            first_name: Frank
-          passenger:
-            passenger_id: 2345243
-            rating: 2.23
-            last_name: Menning
-            first_name: Tamimi
-          meter_increment: 0.02278058
-          longitude: -73.98385
-          timestamp: '2020-06-03T16:51:47.292-04:00'
-          meter_reading: 2.4375222
-          ride_status: enroute
       description: The root schema comprises the entire JSON document.
       additionalProperties: true
       type: object
