@@ -55,15 +55,6 @@
 {{ indent3 }}this.{{-variableName }} = {{ variableName }};
 {{ indent3 }}return this;
 {{ indent2 }}}
-{# Inner classes
-{%- set innerModelClass = {schema: prop, schemaName: variableName} | getModelClass %}
-{%- if prop.type() === 'object' and innerModelClass and innerModelClass.canBeInnerClass() %}
-{{ javaClass(variableName, prop, prop.properties(), indentLevel+1, true) }}
-{%- endif %}
-{%- if isArrayOfObjects and innerModelClass and innerModelClass.canBeInnerClass() %}
-{{ javaClass(variableName, prop, prop.items().properties(), indentLevel+1, true) }}
-{%- endif %}
-#}
 {# Enums #}
 {%- if prop.enum() %}
 {{ indent2 }}public static enum {{ type }} { {{ prop.enum() }} }
