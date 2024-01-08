@@ -39,6 +39,16 @@ describe('template integration tests using the generator', () => {
     outputDirectory = generateFolderName();
   });
 
+  it('should place the topic variables in the correct order', async () => {
+    // For a topic of test/{var1}/{var2}, the listed params in the asyncapi document can be in any order
+    await generate('mocks/multivariable-topic.yaml');
+
+    const validatedFiles = [
+      'src/main/java/Application.java'
+    ];
+    await assertExpectedFiles(validatedFiles);
+  });
+
   it('should generate application files using the solace binder', async () => {
     const params = {
       binder: 'solace',
@@ -110,6 +120,11 @@ describe('template integration tests using the generator', () => {
     await assertExpectedFiles(validatedFiles);
   });
 
+  /*
+    The generator only makes 1 User class which gets moved to the avro package path and we'll get a FileNotFound exception
+    when trying to move the other one from the same place to the correct directory.
+	Needed two User classes.
+  */
   it.skip('avro schemas should appear in a package based on their namespace, if any.', async () => {
     // Note that this file has 2 Avro schemas named User, but one has the namespace 'userpublisher.'
     const AVRO_PACKAGE_PATH = 'userpublisher';
@@ -137,22 +152,6 @@ describe('template integration tests using the generator', () => {
     const validatedFiles = [
       `src/main/java/${DEFAULT_PACKAGE_PATH}/ErrorModel.java`,
       `src/main/java/${DEFAULT_PACKAGE_PATH}/ExtendedErrorModel.java`
-    ];
-    await assertExpectedFiles(validatedFiles);
-  });
-
-  it('should generate schemas with nested arrays', async () => {
-    await generate('mocks/nested-arrays.yaml');
-
-    const validatedFiles = [
-      'src/main/java/Application.java',
-      'src/main/java/Dossier.java',
-      'src/main/java/Debtor.java',
-      'src/main/java/Address.java',
-      'src/main/java/BankAccount.java',
-      'src/main/java/Emails.java',
-      'src/main/java/Options.java',
-      'src/main/java/Phones.java'
     ];
     await assertExpectedFiles(validatedFiles);
   });
@@ -191,36 +190,12 @@ describe('template integration tests using the generator', () => {
     await assertExpectedFiles(validatedFiles);
   });
 
-  it('should place the topic variables in the correct order', async () => {
-    // For a topic of test/{var1}/{var2}, the listed params in the asyncapi document can be in any order
-    await generate('mocks/multivariable-topic.yaml');
-
-    const validatedFiles = [
-      'src/main/java/Application.java'
-    ];
-    await assertExpectedFiles(validatedFiles);
-  });
-
   it('should not populate application yml with functions that are not beans', async () => {
     // If the function is a supplier or using a stream bridge, the function isn't a bean and shouldnt be in application.yml
     await generate('mocks/multivariable-topic.yaml');
 
     const validatedFiles = [
       'src/main/resources/application.yml'
-    ];
-    await assertExpectedFiles(validatedFiles);
-  });
-
-  it('should generate a class for a schema property that is an array of objects', async () => {
-    // Tests that a schema with the items keyword correctly maps the name of the parent to the content within the items
-    //  and the anonymous schema within items doesnt have a class name derived from it.
-    await generate('mocks/schema-with-array-of-objects.yaml');
-
-    const validatedFiles = [
-      'src/main/java/Application.java',
-      'src/main/java/RideReceipt.java',
-      'src/main/java/TestObject.java',
-      'src/main/java/ChargeAdjustments.java'
     ];
     await assertExpectedFiles(validatedFiles);
   });
@@ -243,6 +218,36 @@ describe('template integration tests using the generator', () => {
       'src/main/java/Passenger.java',
       'src/main/java/PaymentCharged.java',
       'src/main/java/RideUpdated1.java'
+    ];
+    await assertExpectedFiles(validatedFiles);
+  });
+
+  it('should generate a class for a schema property that is an array of objects', async () => {
+    // Tests that a schema with the items keyword correctly maps the name of the parent to the content within the items
+    //  and the anonymous schema within items doesnt have a class name derived from it.
+    await generate('mocks/schema-with-array-of-objects.yaml');
+
+    const validatedFiles = [
+      'src/main/java/Application.java',
+      'src/main/java/RideReceipt.java',
+      'src/main/java/TestObject.java',
+      'src/main/java/ChargeAdjustments.java'
+    ];
+    await assertExpectedFiles(validatedFiles);
+  });
+
+  it('should generate schemas with nested arrays', async () => {
+    await generate('mocks/nested-arrays.yaml');
+
+    const validatedFiles = [
+      'src/main/java/Application.java',
+      'src/main/java/Dossier.java',
+      'src/main/java/Debtor.java',
+      'src/main/java/Address.java',
+      'src/main/java/BankAccount.java',
+      'src/main/java/Emails.java',
+      'src/main/java/Options.java',
+      'src/main/java/Phones.java'
     ];
     await assertExpectedFiles(validatedFiles);
   });

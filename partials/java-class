@@ -56,9 +56,9 @@
 {{ indent3 }}return this;
 {{ indent2 }}}
 {# Enums #}
-{%- if prop.enum() %}
+{% if prop.enum() %}
 {{ indent2 }}public static enum {{ type }} { {{ prop.enum() }} }
-{%- endif %}
+{%- endif -%}
 {%- endfor -%}
 
 {{ indent2 }}public String toString() {

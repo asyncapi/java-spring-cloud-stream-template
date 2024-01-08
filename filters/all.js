@@ -969,10 +969,6 @@ function getMessagePayloadType(message) {
 
     if (!type || type === 'object') {
 		ret = applicationModel.getModelClass({ schemaName: payload.ext('x-parser-schema-id') }).getClassName();
-    //   ret = payload.ext('x-parser-schema-id');
-    //   const { className } = scsLib.stripPackageName(ret);
-    //   ret = _.camelCase(className);
-    //   ret = _.upperFirst(ret);
     } else {
       ret = getType(type, payload.format()).javaType;
     }
