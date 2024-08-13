@@ -1,0 +1,10 @@
+title: Java Spring Cloud Stream Template
+filters:
+  language: 
+  - javascript
+  technology:
+  - Spring Cloud Streams
+  - Maven
+  categories:
+  - generator-template
+  hasCommercial: false
