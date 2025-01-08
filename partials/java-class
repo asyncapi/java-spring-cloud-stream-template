@@ -31,6 +31,9 @@
 {%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
 {%- set realClassName = propModelClass.getClassName() %}
 {%- set variableName = realClassName | identifierName -%}
+{%- if name != variableName -%}
+{%- set variableName = name | identifierName -%}
+{%- endif -%}
 {%- set typeInfo = [realClassName, realClassName, prop] | fixType -%}
 {%- set type = typeInfo[0] %}
 {% if variableName !== name -%}
@@ -43,15 +46,19 @@
 {%- for name, prop in properties %}
 {%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
 {%- set realClassName = propModelClass.getClassName() %}
+{%- set realMethodName = name | methodName -%}
 {%- set variableName = realClassName | identifierName -%}
+{%- if name != variableName -%}
+{%- set variableName = name | identifierName -%}
+{%- endif -%}
 {%- set typeInfo = [name, realClassName, prop] | fixType -%}
 {% set type = typeInfo[0] -%}
 {% set isArrayOfObjects = typeInfo[1] %}
-{{ indent2 }}public {{ type }} get{{- realClassName }}() {
+{{ indent2 }}public {{ type }} get{{- realMethodName }}() {
 {{ indent3 }}return {{ variableName }};
 {{ indent2 }}}
 
-{{ indent2 }}public {{ className }} set{{- realClassName }}({{ type }} {{ variableName }}) {
+{{ indent2 }}public {{ className }} set{{- realMethodName }}({{ type }} {{ variableName }}) {
 {{ indent3 }}this.{{-variableName }} = {{ variableName }};
 {{ indent3 }}return this;
 {{ indent2 }}}
@@ -75,6 +82,9 @@
 {%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
 {%- set realClassName = propModelClass.getClassName() %}
 {%- set variableName = realClassName | identifierName %}
+{%- if name != variableName -%}
+{%- set variableName = name | identifierName -%}
+{%- endif -%}
 {%- set typeInfo = [realClassName, realClassName, prop] | fixType -%}
 {%- set type = typeInfo[0] %}
 {{ indent3 }}+ " {{ variableName }}: " + {{ variableName }}

@@ -295,6 +295,11 @@ function identifierName(str) {
 }
 filter.identifierName = identifierName;
 
+function methodName(str) {
+  return scsLib.getMethodName(str);
+}
+filter.methodName = methodName;
+  
 function indent1(numTabs) {
   return indent(numTabs);
 }
