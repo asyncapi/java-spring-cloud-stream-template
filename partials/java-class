@@ -72,9 +72,12 @@
 {%- endif %}
 {# Enums #}
 {%- if prop.enum() %}
-{{ indent2 }}public static enum {{ type }} { {{ prop.enum() }} }
+{{ indent2 }}public static enum {{ type }} { 
+{{ indent3 }} {{ prop.enum() }}
+{{ indent2 }}};
 {%- endif %}
 {%- endfor -%}
+{{ indent2 }}
 
 {{ indent2 }}public String toString() {
 {{ indent3 }}return "{{ className }} ["
