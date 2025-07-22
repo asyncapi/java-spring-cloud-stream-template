@@ -39,7 +39,7 @@
     "jest": "^27.0.4"
   },
   "generator": {
-    "generator": ">=1.8.6 <=2.3.0",
+    "generator": ">=1.8.6 <=2.6.0",
     "parameters": {
       "actuator": {
         "description": "If present, it adds the dependencies for spring-boot-starter-web, spring-boot-starter-actuator and micrometer-registry-prometheus.",
