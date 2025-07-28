@@ -10,6 +10,9 @@
 {%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
 {%- set realClassName = propModelClass.getClassName() %}
 {%- set variableName = realClassName | identifierName %}
+{%- if name != variableName -%}
+{%- set variableName = name | identifierName -%}
+{%- endif -%}
 {%- set typeInfo = [name, realClassName, prop] | fixType %}
 {%- set type = typeInfo[0] -%}
 {%- if first -%}
@@ -23,6 +26,9 @@
 {%- set propModelClass = {schema: prop, schemaName: name} | getModelClass %}
 {%- set realClassName = propModelClass.getClassName() %}
 {%- set variableName = realClassName | identifierName -%}
+{%- if name != variableName -%}
+{%- set variableName = name | identifierName -%}
+{%- endif -%}
 {{ indent3 }}this.{{ variableName }} = {{ variableName }};
 {% endfor -%}
 {{ indent2 }}}
