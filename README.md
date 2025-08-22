@@ -211,6 +211,215 @@ This template is compatible with the following version range: >=2.0.0 <=3.3.0.
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind are welcome!
 
+### Prerequisites
+
+Before contributing, ensure you have the following installed:
+- **Node.js 18.18.2** (required for consistent development environment)
+- **Java 17+** (for testing generated Spring Boot applications)
+- **Maven 3.6+** (for building generated projects)
+
+### Development Scripts
+
+The project includes several development scripts to streamline the development and testing process:
+
+#### Code Generation Scripts
+
+**`test/generate_output.sh`** - Automated code generation script
+```bash
+# Generate code for all AsyncAPI files in mocks directory
+./test/generate_output.sh -default
+
+# Generate code for a specific AsyncAPI file (can include full path)
+./test/generate_output.sh -f <filename>
+
+# Generate code with custom output directory
+./test/generate_output.sh -default -o <output-dir>
+
+# Generate specific file to custom output directory
+./test/generate_output.sh -f <filename> -o <output-dir>
+
+# Show help
+./test/generate_output.sh --help
+
+# Examples:
+./test/generate_output.sh -default                    # Generate code for all files
+./test/generate_output.sh -f animals.yaml             # Generate code for animals.yaml only
+./test/generate_output.sh -f /path/to/file.yaml       # Generate code for file at specific path
+./test/generate_output.sh -default -o /custom/output  # Generate all files with custom output directory
+./test/generate_output.sh -f file.yaml -o /output     # Generate specific file to custom output
+./test/generate_output.sh --help                      # Show help
+```
+
+**Features:**
+- Automatically sets Node.js version to 18.18.2
+- Generates Spring Cloud Stream code with Solace binder configuration
+- Outputs generated code to `test/output/` directory (default) or custom directory
+- Supports both YAML and JSON AsyncAPI files
+- Uses consistent template parameters (binder: 'solace')
+- Requires explicit `-default` option for batch processing (shows help by default)
+- Supports individual file processing with `-f` option (accepts any file path)
+- Supports custom output directory with `-o` option
+- Comprehensive help system with `--help` option
+- Temporarily copies external files to mocks directory for processing
+- Automatically cleans up temporary files after processing
+- Shows default directory information in help output
+
+#### Compilation Scripts
+
+**`test/compile_output.sh`** - Automated compilation script
+```bash
+# Compile all Maven projects in output directory
+./test/compile_output.sh -default
+
+# Compile a specific Maven project
+./test/compile_output.sh -d <project-name>
+
+# Show help
+./test/compile_output.sh --help
+
+# Examples:
+./test/compile_output.sh -default      # Compile all projects
+./test/compile_output.sh -d animals    # Compile only the 'animals' project
+./test/compile_output.sh --help        # Show help and available projects
+```
+
+**Features:**
+- Compiles generated Maven projects
+- Validates that generated code compiles successfully
+- Uses `mvn compile` for consistent builds
+- Provides clear success/failure feedback
+- Requires explicit `-default` option for batch processing (shows help by default)
+- Supports individual project compilation with `-d` option
+- Comprehensive help system with `--help` option
+- Lists all available Maven projects when help is requested
+- Shows default directory information in help output
+
+#### Integration Testing
+
+**`test/integration.test.js`** - Comprehensive integration test suite
+
+This test suite validates the entire code generation pipeline and ensures all AsyncAPI files produce valid Spring Cloud Stream applications.
+
+**Running the Tests:**
+```bash
+# Run all integration tests
+npm test
+
+# Run only the comprehensive integration tests
+npm test -- --testPathPattern=integration.test.js
+
+# Run with verbose output
+npm test -- --testPathPattern=integration.test.js --verbose
+```
+
+**Recommended Workflow for Integration Testing:**
+```bash
+# 1. Generate code for all AsyncAPI files with default parameters
+./test/generate_output.sh -default
+
+# 2. Compile all generated projects with default parameters
+./test/compile_output.sh -default
+
+# 3. Run the integration tests
+npm test -- --testPathPattern=integration.test.js
+```
+
+This workflow ensures that:
+- All AsyncAPI files are processed with consistent parameters
+- Generated code is validated through compilation
+- Integration tests run against the latest generated output
+
+**Test Coverage:**
+
+The comprehensive integration test suite covers **ALL 37 AsyncAPI files** in the `test/mocks/` directory and validates:
+
+1. **File Structure Validation** - Essential Maven project structure for all files
+2. **POM.XML Validation** - Correct Spring Boot and Solace dependencies
+3. **Application.YML Validation** - Proper Solace binder configuration
+4. **Application.Java Validation** - Valid Spring Boot structure and syntax
+5. **Specific Pattern Validation** - Key patterns like Function types, StreamBridge, etc.
+6. **Model Class Validation** - Schema-to-class mapping for files with schemas
+7. **Empty Object Schema Validation** - Handling of empty object schemas
+8. **Avro Schema Validation** - All Avro schema patterns
+9. **Message Payload Type Validation** - Message payload types for different scenarios
+10. **Compilation Validation** - Java syntax and structure validation
+
+**Test Categories:**
+
+- **Basic Test Files** (8 files): `animals.yaml`, `simple-test.yaml`, `function-name-test.yaml`, etc.
+- **Complex Schema Files** (6 files): `nested-arrays.yaml`, `multivariable-topic.yaml`, etc.
+- **Avro Schema Files** (4 files): `avro-complex-test.yaml`, `kafka-avro.yaml`, etc.
+- **Solace Application Files** (3 files): `solace-test-app.yaml`, `smarty-lighting-streetlights.yaml`, etc.
+- **Large Solace JSON Files** (12 files): `solace-smart-shelf-inventory-control.json`, `solace-point-of-sale-system.json`, etc.
+
+**Test Output:**
+- Detailed progress logging for each file
+- Comprehensive error reporting
+- Validation of all essential components
+- ~3 minute execution time for full test suite
+
+#### Development Workflow
+
+1. **Before making changes:**
+   ```bash
+   npm run lint
+   npm test
+   ```
+
+2. **Testing code generation:**
+   ```bash
+   # Generate code for a specific file
+   ./test/generate_output.sh -f animals.yaml
+   
+   # Generate code with custom output directory
+   ./test/generate_output.sh -f animals.yaml -o /custom/output
+   
+   # Generate code for all files
+   ./test/generate_output.sh -default
+   
+   # Compile the generated code
+   ./test/compile_output.sh -d animals
+   
+   # Compile all generated projects
+   ./test/compile_output.sh -default
+   ```
+
+3. **Running integration tests:**
+   ```bash
+   # Run comprehensive tests
+   npm test -- --testPathPattern=integration.test.js
+   ```
+
+#### Test Directory Structure
+
+```
+test/
+├── mocks/                    # AsyncAPI definition files (YAML/JSON)
+├── output/                   # Pre-generated, validated output (reference)
+├── temp/                     # Temporary test directories
+├── generate_output.sh        # Code generation script (supports -f and -o options)
+├── compile_output.sh         # Maven compilation script (supports -d option)
+├── generate_code_for_mocks.js # Node.js script for AsyncAPI code generation
+└── integration.test.js       # Main integration test suite
+```
+
+#### Quality Assurance
+
+The integration tests ensure:
+- **Consistency**: All AsyncAPI files generate valid Spring Cloud Stream applications
+- **Completeness**: Essential files (pom.xml, Application.java, application.yml) are always generated
+- **Correctness**: Generated code follows Spring Boot and Spring Cloud Stream best practices
+- **Compatibility**: All supported binders (Solace, Kafka, RabbitMQ) work correctly
+- **Robustness**: Handles various AsyncAPI patterns (schemas, functions, dynamic topics, etc.)
+
+### Contributing Guidelines
+
+1. **Code Quality**: Run `npm run lint` before submitting changes
+2. **Testing**: Ensure all tests pass with `npm test`
+3. **Integration Testing**: Run comprehensive integration tests for any template changes
+4. **Documentation**: Update README.md for any new features or changes
+5. **Backward Compatibility**: Ensure changes don't break existing functionality
+
 If you do contribute, please run ```npm run lint``` and ```npm test``` before you submit your code.
 
 

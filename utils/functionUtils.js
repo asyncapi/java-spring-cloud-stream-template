@@ -1036,4 +1036,4 @@ module.exports = {
   getMultipleMessageComment,
   consolidateConsumerFunctions,
   getSampleArg
-}; 
+};
