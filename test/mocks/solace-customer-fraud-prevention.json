@@ -1,0 +1,123 @@
+{
+  "components": {
+    "schemas": {
+      "CustomerJson": {
+        "x-ep-schema-version": "0.1.1",
+        "x-ep-schema-version-id": "r3jiwn9nyya",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "x-ep-schema-state-name": "RELEASED",
+        "x-ep-schema-name": "CustomerJson",
+        "title": "Person",
+        "type": "object",
+        "x-ep-application-domain-id": "u2x73phaqbj",
+        "x-ep-schema-version-displayname": "",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "AcmeRetail - Human Relationships",
+        "x-ep-schema-state-id": "2",
+        "x-ep-schema-id": "ek90axpw2bq",
+        "properties": {
+          "firstName": {
+            "description": "The person's first name.",
+            "type": "string"
+          },
+          "lastName": {
+            "description": "The person's last name.",
+            "type": "string"
+          },
+          "zipCode": {
+            "description": "Person's zip code",
+            "type": "string"
+          },
+          "streetAddress": {
+            "description": "Person's street address",
+            "type": "string"
+          },
+          "birthdayDate": {
+            "description": "Birthday in CCYY-MM-DD format",
+            "type": "string",
+            "minimum": 0
+          },
+          "customerId": {
+            "description": "Persons's Id",
+            "type": "string"
+          }
+        },
+        "$id": "https://example.com/person.schema.json"
+      }
+    },
+    "messages": {
+      "Customer": {
+        "x-ep-event-id": "v0ys18dt3r7",
+        "x-ep-event-version-displayname": "",
+        "x-ep-custom-attr-sensitivity": "customerid",
+        "description": "",
+        "x-ep-application-domain-id": "u2x73phaqbj",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+        "x-ep-event-state-name": "RELEASED",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "AcmeRetail - Human Relationships",
+        "x-ep-event-version-id": "76vbk0mj80e",
+        "payload": {
+          "$ref": "#/components/schemas/CustomerJson"
+        },
+        "x-ep-event-version": "1.0.1",
+        "x-ep-event-name": "Customer",
+        "x-ep-custom-attr-confidentiality": "internal",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "2"
+      }
+    }
+  },
+  "channels": {
+    "acmeRetail/hr/customer/{customerVerb}/v1/{customerId}": {
+      "publish": {
+        "bindings": {
+          "solace": {
+            "destinations": [
+              {
+                "destinationType": "queue",
+                "queue": {
+                  "name": "Customer Unusual Behavior",
+                  "topicSubscriptions": [
+                    "acmeRetail/hr/customer/behavedUnusual/v1/*"
+                  ]
+                }
+              }
+            ],
+            "bindingVersion": "0.3.0"
+          }
+        },
+        "message": {
+          "$ref": "#/components/messages/Customer"
+        }
+      },
+      "parameters": {
+        "customerVerb": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "customerVerb"
+        },
+        "customerId": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "customerId"
+        }
+      }
+    }
+  },
+  "asyncapi": "2.5.0",
+  "info": {
+    "x-ep-application-version": "1.1.2",
+    "x-ep-application-version-id": "vc91cjeb86o",
+    "x-ep-application-id": "pd8wbk7fa4t",
+    "description": "This application analyzes unusual behavior from customers and uses machine learning to determine if there is a possibility of future fraud with that customer. The application publishes fraud events with a futurePossibility sub type.\n\nWe now support multiple Customer event versions in this application",
+    "x-ep-state-name": "RELEASED",
+    "title": "Customer Fraud Prevention",
+    "x-ep-application-domain-id": "u2x73phaqbj",
+    "version": "1.1.2",
+    "x-ep-state-id": "2",
+    "x-ep-application-domain-name": "AcmeRetail - Human Relationships"
+  }
+}

@@ -1,30 +1,44 @@
-asyncapi: 2.3.0
+asyncapi: 2.6.0
+id: 'urn:expense-reporting-integration'
 info:
   title: ExpenseReportingIntegrationApplication
   version: 0.0.1
-  description: Testing multivariable topics
+  description: >-
+    Application for handling expense reporting integration with multivariable
+    topics
   contact:
     name: API Support
+    url: 'https://example.com/support'
     email: support@example.com
   license:
-    name: Apache 2.0
-    url: https://www.apache.org/licenses/LICENSE-2.0.html
-defaultContentType: application/json
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
 servers:
-  production:
-    url: https://api.example.com
-    protocol: https
-    description: Production server
+  development:
+    url: 'localhost:8080'
+    protocol: http
+    description: Development server
+defaultContentType: application/json
 tags:
   - name: billing
     description: Billing related operations
+  - name: receipts
+    description: Receipt management operations
 components:
   schemas:
     RideReceipt:
-      $schema: 'http://json-schema.org/draft-07/schema#'
       type: object
       title: This schema is irrelevant
-      $id: 'http://example.com/root.json'
+      properties:
+        id:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+      required:
+        - id
+        - amount
   messages:
     BillingReceiptCreated:
       payload:

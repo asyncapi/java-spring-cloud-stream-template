@@ -1,0 +1,221 @@
+{
+    "components": {
+        "schemas": {},
+        "messages": {
+            "LoyaltyTierUpdated": {
+                "x-ep-event-id": "macf8z3kutj",
+                "x-ep-event-version-id": "5j8uvk5539d",
+                "x-ep-event-version": "0.0.1",
+                "x-ep-event-name": "LoyaltyTierUpdated",
+                "description": "An event that indicates a change in a customer's loyalty program tier based on accumulated points and engagement metrics.",
+                "x-ep-application-domain-id": "mwceysx5mzo",
+                "x-ep-event-state-id": "1",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "(AI-Designer - kfWQ3tkm) Transaction Payments"
+            },
+            "LoyaltyPointsAwarded": {
+                "x-ep-event-id": "l9dvepy8jf0",
+                "x-ep-event-version-id": "bhgdvrrh5d8",
+                "x-ep-event-version": "0.0.1",
+                "x-ep-event-name": "LoyaltyPointsAwarded",
+                "description": "An event fired when loyalty points are awarded to a customer based on their transaction history and engagement.",
+                "x-ep-application-domain-id": "mwceysx5mzo",
+                "x-ep-event-state-id": "1",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "(AI-Designer - kfWQ3tkm) Transaction Payments"
+            },
+            "PaymentInitiated": {
+                "x-ep-event-id": "wzm2iwdhrva",
+                "x-ep-event-version-id": "n4smo9o3ovf",
+                "x-ep-event-version": "0.0.1",
+                "x-ep-event-name": "PaymentInitiated",
+                "description": "An event that is fired when a payment transaction is initiated by a customer or the bank's system. This includes direct transfers, bill payments, and other monetary transactions.",
+                "x-ep-application-domain-id": "mwceysx5mzo",
+                "x-ep-event-state-id": "1",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "(AI-Designer - kfWQ3tkm) Transaction Payments"
+            },
+            "AuthenticationSucceeded": {
+                "x-ep-event-id": "3mq6kadn5cx",
+                "x-ep-event-version-id": "q71366z4vl8",
+                "x-ep-event-version": "0.0.1",
+                "x-ep-event-name": "AuthenticationSucceeded",
+                "description": "An event that confirms successful authentication of a transaction, allowing it to proceed for further processing.",
+                "x-ep-application-domain-id": "mwceysx5mzo",
+                "x-ep-event-state-id": "1",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "(AI-Designer - kfWQ3tkm) Transaction Payments"
+            },
+            "LoyaltyBenefitsRedeemed": {
+                "x-ep-event-id": "it1fnq7ve49",
+                "x-ep-event-version-id": "acyeydgs7xk",
+                "x-ep-event-version": "0.0.1",
+                "x-ep-event-name": "LoyaltyBenefitsRedeemed",
+                "description": "An event generated when a customer redeems benefits from their loyalty program, such as discounts or exclusive offers.",
+                "x-ep-application-domain-id": "mwceysx5mzo",
+                "x-ep-event-state-id": "1",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "(AI-Designer - kfWQ3tkm) Transaction Payments"
+            }
+        }
+    },
+    "channels": {
+        "evertrustBank/operations/loyalty/tierUpdated/v1/{customerID}": {
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/LoyaltyTierUpdated"
+                }
+            },
+            "parameters": {
+                "customerID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerID"
+                }
+            }
+        },
+        "evertrustBank/operations/loyalty/benefitsRedeemed/v1/{customerID}/{benefitID}": {
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/LoyaltyBenefitsRedeemed"
+                }
+            },
+            "parameters": {
+                "customerID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerID"
+                },
+                "benefitID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "benefitID"
+                }
+            }
+        },
+        "evertrustBank/operations/loyalty/pointsAwarded/v1/{customerID}/{transactionID}": {
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/LoyaltyPointsAwarded"
+                }
+            },
+            "parameters": {
+                "customerID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerID"
+                },
+                "transactionID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "transactionID"
+                }
+            }
+        },
+        "evertrustBank/operations/payment/initiated/v1/{transactionID}/{customerID}": {
+            "publish": {
+                "bindings": {
+                    "solace": {
+                        "destinations": [
+                            {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "LoyaltyProgramManager_PaymentInitiated",
+                                    "topicSubscriptions": ["evertrustBank/operations/payment/initiated/v1/*/*"]
+                                }
+                            }, {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "LoyaltyProgramManager_AuthenticationSucceeded",
+                                    "topicSubscriptions": ["evertrustBank/operations/authentication/succeeded/v1/*/*"]
+                                }
+                            }
+                        ],
+                        "bindingVersion": "0.3.0"
+                    }
+                },
+                "message": {
+                    "$ref": "#/components/messages/PaymentInitiated"
+                }
+            },
+            "parameters": {
+                "customerID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerID"
+                },
+                "transactionID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "transactionID"
+                }
+            }
+        },
+        "evertrustBank/operations/authentication/succeeded/v1/{transactionID}/{customerID}": {
+            "publish": {
+                "bindings": {
+                    "solace": {
+                        "destinations": [
+                            {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "LoyaltyProgramManager_PaymentInitiated",
+                                    "topicSubscriptions": ["evertrustBank/operations/payment/initiated/v1/*/*"]
+                                }
+                            }, {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "LoyaltyProgramManager_AuthenticationSucceeded",
+                                    "topicSubscriptions": ["evertrustBank/operations/authentication/succeeded/v1/*/*"]
+                                }
+                            }
+                        ],
+                        "bindingVersion": "0.3.0"
+                    }
+                },
+                "message": {
+                    "$ref": "#/components/messages/AuthenticationSucceeded"
+                }
+            },
+            "parameters": {
+                "customerID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerID"
+                },
+                "transactionID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "transactionID"
+                }
+            }
+        }
+    },
+    "asyncapi": "2.5.0",
+    "info": {
+        "x-ep-application-version": "0.0.1",
+        "x-ep-application-version-id": "dg8bz3wotgi",
+        "x-ep-application-id": "1go2dmkz5kd",
+        "description": "This application manages the bank's customer loyalty programs. It tracks transaction histories and customer interactions to award loyalty points and benefits. By analyzing customer behavior and engagement, the application helps enhance customer satisfaction and retention, fostering long-term relationships with clients.",
+        "x-ep-state-name": "DRAFT",
+        "title": "LoyaltyProgramManager",
+        "x-ep-application-domain-id": "mwceysx5mzo",
+        "version": "0.0.1",
+        "x-ep-state-id": "1",
+        "x-ep-application-domain-name": "(AI-Designer - kfWQ3tkm) Transaction Payments"
+    }
+}

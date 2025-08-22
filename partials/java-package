@@ -1,8 +1,0 @@
-{%- set modelClass = {schema: schema, schemaName: schemaName} | getModelClass -%}
-{%- if params['javaPackage'] -%}
-package {{ params['javaPackage'] }};
-{%- elif asyncapi.info().extensions()['x-java-package'] -%}
-package {{ asyncapi.info().extensions()['x-java-package'] }};
-{%- elif modelClass and modelClass.getJavaPackage() -%}
-package {{ modelClass.getJavaPackage() }};
-{% endif %}

@@ -1,0 +1,63 @@
+---
+components:
+  schemas: {}
+  messages:
+    ComplexJobOrder:
+      payload:
+        name: "ComplexJobOrder"
+        namespace: "com.example.api.complex"
+        doc: "Complex Job Order with various Avro types"
+        type: "record"
+        fields:
+        - name: "jobId"
+          doc: "Job ID"
+          type: "string"
+        - name: "optionalDescription"
+          doc: "Optional description"
+          type: ["null", "string"]
+        - name: "tags"
+          doc: "Job tags"
+          type: 
+            type: "array"
+            items: "string"
+        - name: "metadata"
+          doc: "Job metadata"
+          type:
+            type: "map"
+            values: "string"
+        - name: "priority"
+          doc: "Job priority"
+          type:
+            type: "enum"
+            name: "Priority"
+            symbols: ["LOW", "MEDIUM", "HIGH"]
+        - name: "createdAt"
+          doc: "Creation timestamp"
+          type:
+            type: "long"
+            logicalType: "timestamp-millis"
+        - name: "amount"
+          doc: "Job amount"
+          type:
+            type: "bytes"
+            logicalType: "decimal"
+            precision: 10
+            scale: 2
+      schemaFormat: "application/vnd.apache.avro+json;version=1.9.0"
+      contentType: "application/vnd.apache.avro+json"
+servers:
+  production:
+    protocol: "kafka"
+    url: "pkc-ymrq7.us-east-2.aws.confluent.cloud:9092"
+channels:
+  test.complex.jobs:
+    subscribe:
+      message:
+        $ref: "#/components/messages/ComplexJobOrder"
+asyncapi: "2.0.0"
+info:
+  x-generated-time: "2022-02-24 01:18 UTC"
+  description: ""
+  title: "Complex Job Events"
+  x-view: "provider"
+  version: "1" 

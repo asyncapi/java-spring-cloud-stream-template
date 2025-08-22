@@ -1,0 +1,331 @@
+{
+    "components": {
+        "schemas": {
+            "CustomerJson": {
+                "x-ep-schema-version": "0.1.1",
+                "x-ep-schema-version-id": "r3jiwn9nyya",
+                "$schema": "https://json-schema.org/draft/2019-09/schema",
+                "x-ep-schema-state-name": "RELEASED",
+                "x-ep-schema-name": "CustomerJson",
+                "title": "Person",
+                "type": "object",
+                "x-ep-application-domain-id": "u2x73phaqbj",
+                "x-ep-schema-version-displayname": "",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "AcmeRetail - Human Relationships",
+                "x-ep-schema-state-id": "2",
+                "x-ep-schema-id": "ek90axpw2bq",
+                "properties": {
+                    "firstName": {
+                        "description": "The person's first name.",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "The person's last name.",
+                        "type": "string"
+                    },
+                    "zipCode": {
+                        "description": "Person's zip code",
+                        "type": "string"
+                    },
+                    "streetAddress": {
+                        "description": "Person's street address",
+                        "type": "string"
+                    },
+                    "birthdayDate": {
+                        "description": "Birthday in CCYY-MM-DD format",
+                        "type": "string",
+                        "minimum": 0
+                    },
+                    "customerId": {
+                        "description": "Persons's Id",
+                        "type": "string"
+                    }
+                },
+                "$id": "https://example.com/person.schema.json"
+            },
+            "Retail_Order": {
+                "x-ep-schema-version": "0.1.3",
+                "x-ep-schema-state-id": "2",
+                "x-ep-schema-version-id": "da6twwdzwyb",
+                "x-ep-schema-id": "9xw7jd923hf",
+                "x-ep-schema-state-name": "RELEASED",
+                "x-ep-schema-name": "Retail Order",
+                "type": "object",
+                "x-ep-application-domain-id": "9n3oj6yfxm3",
+                "properties": {
+                    "price": {
+                        "type": "number",
+                        "minimum": 0
+                    },
+                    "billTo": {
+                        "type": "object",
+                        "properties": {
+                            "zip": {
+                                "type": "string"
+                            },
+                            "address": {
+                                "type": "string"
+                            },
+                            "city": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "sku": {
+                        "type": "string"
+                    },
+                    "shipTo": {
+                        "type": "object",
+                        "properties": {
+                            "zip": {
+                                "type": "string"
+                            },
+                            "address": {
+                                "type": "string"
+                            },
+                            "city": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "state": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "x-ep-schema-version-displayname": "",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "AcmeRetail - Store Operations"
+            }
+        },
+        "messages": {
+            "Customer": {
+                "x-ep-event-id": "v0ys18dt3r7",
+                "x-ep-event-version-displayname": "",
+                "x-ep-custom-attr-sensitivity": "customerid",
+                "description": "",
+                "x-ep-application-domain-id": "u2x73phaqbj",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "RELEASED",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "AcmeRetail - Human Relationships",
+                "x-ep-event-version-id": "76vbk0mj80e",
+                "payload": {
+                    "$ref": "#/components/schemas/CustomerJson"
+                },
+                "x-ep-event-version": "1.0.1",
+                "x-ep-event-name": "Customer",
+                "x-ep-custom-attr-confidentiality": "internal",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "2"
+            },
+            "Retail_Order": {
+                "x-ep-event-id": "jcbnyrt7dtx",
+                "x-ep-event-version-displayname": "",
+                "x-ep-custom-attr-sensitivity": "pci",
+                "description": "State change information about a single product order, from birth (regardless if from a store, mobile application or 3rd party) until fulfillment.\n\nA single product order typically  contain multiple products.",
+                "x-ep-application-domain-id": "9n3oj6yfxm3",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "RELEASED",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "AcmeRetail - Store Operations",
+                "x-ep-event-version-id": "f5wignab3df",
+                "payload": {
+                    "$ref": "#/components/schemas/Retail_Order"
+                },
+                "x-ep-event-version": "0.1.2",
+                "x-ep-event-name": "Retail Order",
+                "x-ep-custom-attr-confidentiality": "internal",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "2"
+            }
+        }
+    },
+    "channels": {
+        "acmeRetail/hr/customer/{customerVerb}/v1/{customerId}": {
+            "publish": {
+                "bindings": {
+                    "solace": {
+                        "destinations": [
+                            {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "customerMobileApp.retailOrder.all",
+                                    "topicSubscriptions": ["acmeRetail/storeOps/retailOrder/*/v1/*/*/*"]
+                                }
+                            }, {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "customerMobileApp.customer.updatePw",
+                                    "topicSubscriptions": ["acmeRetail/hr/customer/*/v1/*"]
+                                }
+                            }
+                        ],
+                        "bindingVersion": "0.3.0"
+                    }
+                },
+                "message": {
+                    "$ref": "#/components/messages/Customer"
+                }
+            },
+            "parameters": {
+                "customerVerb": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerVerb"
+                },
+                "customerId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerId"
+                }
+            }
+        },
+        "acmeRetail/storeOps/retailOrder/{retailOrderVerb}/v1/{storeLocation}/{customerId}/{orderId}": {
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/Retail_Order"
+                }
+            },
+            "publish": {
+                "bindings": {
+                    "solace": {
+                        "destinations": [
+                            {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "customerMobileApp.retailOrder.all",
+                                    "topicSubscriptions": ["acmeRetail/storeOps/retailOrder/*/v1/*/*/*"]
+                                }
+                            }, {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "customerMobileApp.customer.updatePw",
+                                    "topicSubscriptions": ["acmeRetail/hr/customer/*/v1/*"]
+                                }
+                            }
+                        ],
+                        "bindingVersion": "0.3.0"
+                    }
+                },
+                "message": {
+                    "$ref": "#/components/messages/Retail_Order"
+                }
+            },
+            "parameters": {
+                "retailOrderVerb": {
+                    "schema": {
+                        "type": "string",
+                        "enum": [
+                            "customerInitiated",
+                            "customerCancelled",
+                            "customerCompleted",
+                            "customerPaid",
+                            "onlineInitiated",
+                            "onlineCancelled",
+                            "onlineCompleted",
+                            "onlinePaid",
+                            "onlineFulfilled"
+                        ]
+                    },
+                    "x-ep-enum-state-name": "RELEASED",
+                    "x-ep-enum-version-displayname": "",
+                    "x-ep-enum-version": "0.1.1",
+                    "x-ep-enum-name": "Retail Order Verbs",
+                    "x-ep-enum-state-id": "2",
+                    "x-ep-application-domain-id": "9n3oj6yfxm3",
+                    "x-ep-enum-version-id": "uyef7go9jg1",
+                    "x-ep-enum-id": "kj01k3vfspr",
+                    "x-ep-shared": "true",
+                    "x-ep-parameter-name": "retailOrderVerb",
+                    "x-ep-application-domain-name": "AcmeRetail - Store Operations"
+                },
+                "storeLocation": {
+                    "schema": {
+                        "type": "string",
+                        "enum": [
+                            "3487",
+                            "3488",
+                            "3489",
+                            "3490",
+                            "3491",
+                            "3492",
+                            "3493",
+                            "3494",
+                            "3495",
+                            "3496",
+                            "3497",
+                            "3498",
+                            "3499",
+                            "3500",
+                            "3501",
+                            "3502",
+                            "3503",
+                            "3504",
+                            "3505",
+                            "3506",
+                            "3507",
+                            "3508",
+                            "3509",
+                            "3555",
+                            "Mobile Application",
+                            "Test Data Generation",
+                            "Inhouse Traffic",
+                            "Partner"
+                        ]
+                    },
+                    "x-ep-enum-state-name": "RELEASED",
+                    "x-ep-enum-version-displayname": "",
+                    "x-ep-enum-version": "0.1.1",
+                    "x-ep-enum-name": "Store Locations",
+                    "x-ep-enum-state-id": "2",
+                    "x-ep-application-domain-id": "9n3oj6yfxm3",
+                    "x-ep-enum-version-id": "fdolp49969n",
+                    "x-ep-enum-id": "4xdj8kaz1le",
+                    "x-ep-shared": "true",
+                    "x-ep-parameter-name": "storeLocation",
+                    "x-ep-application-domain-name": "AcmeRetail - Store Operations"
+                },
+                "orderId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderId"
+                },
+                "customerId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerId"
+                }
+            }
+        }
+    },
+    "asyncapi": "2.5.0",
+    "info": {
+        "x-ep-application-version": "0.1.6",
+        "x-ep-application-version-id": "zanth3t0zs5",
+        "x-ep-application-id": "28a372rrk0s",
+        "description": "acme-retail's innovative mobile application lets customers purchase any product available in our stores online, and have it either shipped, delivered via service like Shipt, or have it ready for pickup at any of our brick and mortar stores.  Customers get real-time updates on their orders via the app as wel. ",
+        "x-ep-state-name": "DRAFT",
+        "title": "Customer Facing Mobile Application",
+        "x-ep-application-domain-id": "9n3oj6yfxm3",
+        "version": "0.1.6",
+        "x-ep-state-id": "1",
+        "x-ep-application-domain-name": "AcmeRetail - Store Operations"
+    }
+}

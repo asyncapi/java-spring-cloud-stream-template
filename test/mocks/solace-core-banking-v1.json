@@ -1,0 +1,483 @@
+{
+  "components": {
+    "schemas": {
+      "Transaction": {
+        "x-ep-schema-version": "0.1.0",
+        "x-ep-schema-version-id": "3c6nmm3zzxj",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "description": "A transaction conducted by an account.",
+        "x-ep-schema-state-name": "RELEASED",
+        "x-ep-schema-name": "Transaction",
+        "title": "Transaction",
+        "type": "object",
+        "x-ep-application-domain-id": "5vcmgn3847n",
+        "required": [
+          "transactionNum",
+          "accountNum",
+          "transactionType",
+          "amount",
+          "currency",
+          "timestamp"
+        ],
+        "x-ep-schema-version-displayname": "0.1.0",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "ACME Bank",
+        "x-ep-schema-state-id": "2",
+        "x-ep-schema-id": "1rz7z6ebfh7",
+        "properties": {
+          "transactionType": {
+            "description": "The transaction type.",
+            "type": "string"
+          },
+          "amount": {
+            "description": "The transaction amount.",
+            "type": "number"
+          },
+          "transactionNum": {
+            "description": "The unique identifier of the transaction.",
+            "type": "integer"
+          },
+          "accountNum": {
+            "description": "The unique identifer of an account.",
+            "type": "integer"
+          },
+          "currency": {
+            "description": "The currency of the transaction.",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "The time stamp of the event.",
+            "type": "string"
+          }
+        },
+        "$id": "https://example.com/transaction.schema.json"
+      },
+      "Account_Action": {
+        "x-ep-schema-version": "0.1.0",
+        "x-ep-schema-version-id": "67ihs752wcx",
+        "$schema": "https://json-schema.org/draft/2019-09/schema",
+        "description": "An action to be taken on a customer account",
+        "x-ep-schema-state-name": "RELEASED",
+        "x-ep-schema-name": "Account Action",
+        "title": "Account Action",
+        "type": "object",
+        "x-ep-application-domain-id": "5vcmgn3847n",
+        "required": [
+          "accountNum",
+          "accountAction",
+          "timestamp"
+        ],
+        "x-ep-schema-version-displayname": "0.1.0",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "ACME Bank",
+        "x-ep-schema-state-id": "2",
+        "x-ep-schema-id": "pp3fbnec1w1",
+        "properties": {
+          "accountAction": {
+            "description": "An action to be taken on an account.",
+            "type": "string"
+          },
+          "accountNum": {
+            "description": "The unique identifer of an account.",
+            "type": "integer"
+          },
+          "timestamp": {
+            "description": "The time stamp of the event.",
+            "type": "string"
+          }
+        },
+        "$id": "https://example.com/account-action.schema.json"
+      }
+    },
+    "messages": {
+      "Deposit": {
+        "x-ep-event-id": "nwf0ka5u0y3",
+        "x-ep-event-version-displayname": "0.1.1",
+        "description": "Deposit made either via ATM, teller, mobile, or electronic transfer.\nv0.1.2 - Using local schema",
+        "x-ep-application-domain-id": "5vcmgn3847n",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.0.0",
+        "x-ep-event-state-name": "DRAFT",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "ACME Bank",
+        "x-ep-event-version-id": "iufcxfxnvst",
+        "payload": {
+          "$ref": "#/components/schemas/Transaction"
+        },
+        "x-ep-event-version": "0.1.2",
+        "x-ep-event-name": "Deposit",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "1"
+      },
+      "Account_Resumed": {
+        "x-ep-event-id": "g9zuefi7tac",
+        "x-ep-event-version-displayname": "0.1.1",
+        "description": "An account is no longer suspended and may resume its use.\nv0.1.1 - Using local schema",
+        "x-ep-application-domain-id": "5vcmgn3847n",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.0.0",
+        "x-ep-event-state-name": "DRAFT",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "ACME Bank",
+        "x-ep-event-version-id": "5fn8p3f7soc",
+        "payload": {
+          "$ref": "#/components/schemas/Account_Action"
+        },
+        "x-ep-event-version": "0.1.1",
+        "x-ep-event-name": "Account Resumed",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "1"
+      },
+      "Credit_Card_Paid": {
+        "x-ep-event-id": "7f2y84edkbc",
+        "x-ep-event-version-displayname": "0.1.1",
+        "description": "Payment issued by an account holder.\nv0.1.1 - Using local schema",
+        "x-ep-application-domain-id": "5vcmgn3847n",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.0.0",
+        "x-ep-event-state-name": "DRAFT",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "ACME Bank",
+        "x-ep-event-version-id": "tosig0f13p3",
+        "payload": {
+          "$ref": "#/components/schemas/Transaction"
+        },
+        "x-ep-event-version": "0.1.1",
+        "x-ep-event-name": "Credit Card Paid",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "1"
+      },
+      "Withdrawal": {
+        "x-ep-event-id": "n7giqzbrcsh",
+        "x-ep-event-version-displayname": "0.1.1",
+        "description": "Account holder withdraws from an account.\nv0.1.1 - Using local schema",
+        "x-ep-application-domain-id": "5vcmgn3847n",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.0.0",
+        "x-ep-event-state-name": "DRAFT",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "ACME Bank",
+        "x-ep-event-version-id": "5hk0vw7ndvz",
+        "payload": {
+          "$ref": "#/components/schemas/Transaction"
+        },
+        "x-ep-event-version": "0.1.1",
+        "x-ep-event-name": "Withdrawal",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "1"
+      },
+      "Account_Suspended": {
+        "x-ep-event-id": "36cg1j6g0tp",
+        "x-ep-event-version-displayname": "0.1.1",
+        "description": "An account has been suspended due to fraud, limit, or by customer request.\nv0.1.1 - Using local schema",
+        "x-ep-application-domain-id": "5vcmgn3847n",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.0.0",
+        "x-ep-event-state-name": "DRAFT",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "ACME Bank",
+        "x-ep-event-version-id": "u7bmfe4z4fe",
+        "payload": {
+          "$ref": "#/components/schemas/Account_Action"
+        },
+        "x-ep-event-version": "0.1.1",
+        "x-ep-event-name": "Account Suspended",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "1"
+      },
+      "Transfer": {
+        "x-ep-event-id": "xk0b6s1ba7y",
+        "x-ep-event-version-displayname": "0.1.1",
+        "description": "Transfering money between two accounts of the same holder.\nv0.1.1 - Using local schema",
+        "x-ep-application-domain-id": "5vcmgn3847n",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.0.0",
+        "x-ep-event-state-name": "DRAFT",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "ACME Bank",
+        "x-ep-event-version-id": "yflfrv5u9fu",
+        "payload": {
+          "$ref": "#/components/schemas/Transaction"
+        },
+        "x-ep-event-version": "0.1.1",
+        "x-ep-event-name": "Transfer",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "1"
+      },
+      "Account_Opened": {
+        "x-ep-event-id": "3ok12h6e2av",
+        "x-ep-event-version-displayname": "0.1.1",
+        "description": "An account has been opened for a customer.\nv0.1.1 - Using local schema",
+        "x-ep-application-domain-id": "5vcmgn3847n",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.0.0",
+        "x-ep-event-state-name": "DRAFT",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "ACME Bank",
+        "x-ep-event-version-id": "tdhodbtmhtb",
+        "payload": {
+          "$ref": "#/components/schemas/Account_Action"
+        },
+        "x-ep-event-version": "0.1.1",
+        "x-ep-event-name": "Account Opened",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "1"
+      },
+      "Loan_Paid": {
+        "x-ep-event-id": "jtwzw8aw7p2",
+        "x-ep-event-version-displayname": "0.1.1",
+        "description": "Payment to loan by an account holder.\nv0.1.1 - Using local schema",
+        "x-ep-application-domain-id": "5vcmgn3847n",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.0.0",
+        "x-ep-event-state-name": "DRAFT",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "ACME Bank",
+        "x-ep-event-version-id": "b6k6ld0k4ih",
+        "payload": {
+          "$ref": "#/components/schemas/Transaction"
+        },
+        "x-ep-event-version": "0.1.1",
+        "x-ep-event-name": "Loan Paid",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "1"
+      }
+    }
+  },
+  "channels": {
+    "acmebank/solace/core/deposit/v1/{currency}/{amount}/{transactionID}": {
+      "subscribe": {
+        "message": {
+          "$ref": "#/components/messages/Deposit"
+        }
+      },
+      "parameters": {
+        "amount": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "amount"
+        },
+        "currency": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "currency"
+        },
+        "transactionID": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "transactionID"
+        }
+      }
+    },
+    "acmebank/solace/account/suspended/v1/{accountID}": {
+      "publish": {
+        "bindings": {
+          "solace": {
+            "destinations": [
+              {
+                "destinationType": "queue",
+                "queue": {
+                  "name": "coreBanking.accounts",
+                  "topicSubscriptions": [
+                    "acmebank/solace/account/*/v1/*"
+                  ]
+                }
+              }
+            ],
+            "bindingVersion": "0.3.0"
+          }
+        },
+        "message": {
+          "$ref": "#/components/messages/Account_Suspended"
+        }
+      },
+      "parameters": {
+        "accountID": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "accountID"
+        }
+      }
+    },
+    "acmebank/solace/core/payment/creditCard/paid/v1/{currency}/{amount}/{transactionID}": {
+      "subscribe": {
+        "message": {
+          "$ref": "#/components/messages/Credit_Card_Paid"
+        }
+      },
+      "parameters": {
+        "amount": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "amount"
+        },
+        "currency": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "currency"
+        },
+        "transactionID": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "transactionID"
+        }
+      }
+    },
+    "acmebank/solace/account/opened/v1/{accountID}": {
+      "publish": {
+        "bindings": {
+          "solace": {
+            "destinations": [
+              {
+                "destinationType": "queue",
+                "queue": {
+                  "name": "coreBanking.accounts",
+                  "topicSubscriptions": [
+                    "acmebank/solace/account/*/v1/*"
+                  ]
+                }
+              }
+            ],
+            "bindingVersion": "0.3.0"
+          }
+        },
+        "message": {
+          "$ref": "#/components/messages/Account_Opened"
+        }
+      },
+      "parameters": {
+        "accountID": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "accountID"
+        }
+      }
+    },
+    "acmebank/solace/core/withdrawal/v1/{currency}/{amount}/{transactionID}": {
+      "subscribe": {
+        "message": {
+          "$ref": "#/components/messages/Withdrawal"
+        }
+      },
+      "parameters": {
+        "amount": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "amount"
+        },
+        "currency": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "currency"
+        },
+        "transactionID": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "transactionID"
+        }
+      }
+    },
+    "acmebank/solace/core/payment/loan/paid/v1/{currency}/{amount}/{transactionID}": {
+      "subscribe": {
+        "message": {
+          "$ref": "#/components/messages/Loan_Paid"
+        }
+      },
+      "parameters": {
+        "amount": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "amount"
+        },
+        "currency": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "currency"
+        },
+        "transactionID": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "transactionID"
+        }
+      }
+    },
+    "acmebank/solace/core/transfer/v1/{currency}/{amount}/{transactionID}": {
+      "subscribe": {
+        "message": {
+          "$ref": "#/components/messages/Transfer"
+        }
+      },
+      "parameters": {
+        "amount": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "amount"
+        },
+        "currency": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "currency"
+        },
+        "transactionID": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "transactionID"
+        }
+      }
+    },
+    "acmebank/solace/account/resumed/v1/{accountID}": {
+      "publish": {
+        "bindings": {
+          "solace": {
+            "destinations": [
+              {
+                "destinationType": "queue",
+                "queue": {
+                  "name": "coreBanking.accounts",
+                  "topicSubscriptions": [
+                    "acmebank/solace/account/*/v1/*"
+                  ]
+                }
+              }
+            ],
+            "bindingVersion": "0.3.0"
+          }
+        },
+        "message": {
+          "$ref": "#/components/messages/Account_Resumed"
+        }
+      },
+      "parameters": {
+        "accountID": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "accountID"
+        }
+      }
+    }
+  },
+  "asyncapi": "2.5.0",
+  "info": {
+    "x-ep-application-version": "0.1.2",
+    "x-ep-application-version-id": "boql6p6bhi0",
+    "x-ep-application-id": "51l0dh6m71k",
+    "description": "Application for supporting core banking activities. Added support for paying loans. \nv0.1.1 - Added Pubs\nv0.1.2 - Added Consumers",
+    "x-ep-displayname": "0.1.2",
+    "x-ep-state-name": "DRAFT",
+    "title": "Core Banking",
+    "x-ep-application-domain-id": "5vcmgn3847n",
+    "version": "0.1.2",
+    "x-ep-state-id": "1",
+    "x-ep-application-domain-name": "ACME Bank"
+  }
+}

@@ -1,0 +1,39 @@
+asyncapi: 2.6.0
+info:
+  title: Primitive Types Test
+  version: 1.0.0
+  description: Test all primitive types
+
+channels:
+  string-topic:
+    publish:
+      message:
+        payload:
+          type: string
+          
+  integer-topic:
+    publish:
+      message:
+        payload:
+          type: integer
+          
+  number-topic:
+    publish:
+      message:
+        payload:
+          type: number
+          
+  boolean-topic:
+    publish:
+      message:
+        payload:
+          type: boolean
+          
+  date-topic:
+    publish:
+      message:
+        payload:
+          type: string
+          format: date-time
+
+components: {}

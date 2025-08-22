@@ -1,0 +1,100 @@
+asyncapi: '2.0.0'
+info:
+  title: Parameters To Headers Test API
+  version: '1.0.0'
+  description: Test API for parametersToHeaders functionality
+  x-view: provider
+
+servers:
+  production:
+    url: tcp://localhost:55554
+    protocol: solace
+
+channels:
+  'orders/{orderId}/status/{status}/region/{region}':
+    parameters:
+      orderId:
+        description: The order ID
+        schema:
+          type: string
+      status:
+        description: The order status
+        schema:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - shipped
+            - delivered
+      region:
+        description: The region code
+        schema:
+          type: string
+    subscribe:
+      operationId: processOrderUpdate
+      message:
+        $ref: '#/components/messages/OrderUpdate'
+  
+  'notifications/{userId}/type/{notificationType}':
+    parameters:
+      userId:
+        description: The user ID
+        schema:
+          type: string
+      notificationType:
+        description: Type of notification
+        schema:
+          type: string
+          enum:
+            - email
+            - sms
+            - push
+    subscribe:
+      operationId: handleNotification
+      message:
+        $ref: '#/components/messages/Notification'
+
+components:
+  messages:
+    OrderUpdate:
+      name: OrderUpdate
+      title: Order Update
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/OrderUpdatePayload'
+    
+    Notification:
+      name: Notification
+      title: Notification
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/NotificationPayload'
+
+  schemas:
+    OrderUpdatePayload:
+      type: object
+      properties:
+        orderId:
+          type: string
+        status:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        details:
+          type: string
+    
+    NotificationPayload:
+      type: object
+      properties:
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        priority:
+          type: string
+          enum:
+            - low
+            - medium
+            - high

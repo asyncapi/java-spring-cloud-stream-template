@@ -10,8 +10,30 @@ Note that this template ignores the 'Servers' section of AsyncAPI documents. The
 
 ## Technical requirements
 
-- 1.9.4 =< [Generator](https://github.com/asyncapi/generator/)
+- >=2.0.0 <=3.3.0 [Generator](https://github.com/asyncapi/generator/)
 - Generator specific [requirements](https://github.com/asyncapi/generator/#requirements)
+- Java 17 or higher (required for Spring Boot 3.4.4+)
+- Maven 3.6+ (for building generated projects)
+
+## Version Compatibility
+
+This template has been tested and verified with the following version combinations:
+
+### Recommended Version Matrix
+| Component | Version | Notes |
+|-----------|---------|-------|
+| Spring Boot | 3.4.4+ | Required for Spring Cloud 2024.0.0 compatibility |
+| Spring Cloud | 2024.0.0 | Latest stable release |
+| Spring Cloud Stream | 3.1.3 | Compatible with Spring Cloud 2024.0.0 |
+| Kafka Binder | 4.2.0 | Must match Spring Cloud Stream version |
+| RabbitMQ Binder | 4.2.0 | Must match Spring Cloud Stream version |
+| Solace Binder | 4.8.0 | Compatible with Spring Cloud 2024.0.0 |
+
+### Important Compatibility Notes
+- **Spring Boot 2.x is not supported** with Spring Cloud 2024.0.0
+- **Spring Boot 3.1.0** may cause compatibility issues with Spring Cloud Stream 4.2.0
+- All binder versions should match the Spring Cloud Stream version for optimal compatibility
+- Use Spring Boot 3.4.4 or later to avoid `NoSuchMethodError` issues
 
 ## Specification Conformance
 Note that this template interprets the AsyncAPI document in conformance with the [AsyncAPI Specification](https://www.asyncapi.com/docs/specifications/2.0.0/).
@@ -60,13 +82,27 @@ Doing that allows you to have a clean separation between the generated code and 
 
 2. Run the Generator using the Java Spring Cloud Stream Template
   ```
-  ag ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
+  npx @asyncapi/generator ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
   ```
 
 3. Run the Generator using the Java Spring Cloud Stream Template with Parameters
   ```
-  ag -p binder=solace -p artifactId=ExampleArtifactId -p groupId=com.example -p javaPackage=com.example.foo -p solaceSpringCloudVersion=1.0.0 -p springCloudStreamVersion=Horsham.SR3 -p springCloudVersion=Hoxton.SR3 ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
+  npx @asyncapi/generator -p binder=solace -p artifactId=ExampleArtifactId -p groupId=com.example -p javaPackage=com.example.foo -p springBootVersion=3.4.4 -p springCloudVersion=2024.0.0 -p solaceSpringCloudVersion=4.8.0 ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
   ```
+
+**Note:** The `ag` command is deprecated. Use `npx @asyncapi/generator` instead for better compatibility with current generator versions.
+
+### CLI Compatibility Note
+
+The AsyncAPI CLI (`asyncapi` command) may use an older bundled generator version that's incompatible with this template. If you encounter version compatibility errors, use `npx @asyncapi/generator` instead:
+
+```bash
+# ❌ May fail due to version incompatibility
+asyncapi generate fromTemplate document.yaml @asyncapi/java-spring-cloud-stream-template
+
+# ✅ Recommended approach
+npx @asyncapi/generator document.yaml @asyncapi/java-spring-cloud-stream-template
+```
 
 ## Configuration Options
 
@@ -92,24 +128,31 @@ Parameters can be passed to the generator using command line arguments in the fo
 Parameter | Extension | Default | Description
 ----------|-----------|---------|---
 actuator    |              | false | If true, it adds the dependencies for spring-boot-starter-web, spring-boot-starter-actuator and micrometer-registry-prometheus.
-artifactId  |  info.x-artifact-id | project-name | The Maven artifact id.
+artifactId  |  info.x-artifact-id | project-name | The Maven artifact id. Alternatively you can set the specification extension info.x-artifact-id.
 artifactType | | application | The type of project to generate, application or library. When generating an application, the pom.xml file will contain the complete set of dependencies required to run an app, and it will contain an Application class with a main function. Otherwise the pom file will include only the dependencies required to compile a library.
 binder | | kafka | The name of the binder implementation, one of kafka, rabbit or solace. Default: kafka. If you need other binders to be supported, please let us know!
 dynamicType | | streamBridge | If you publish to a channel with parameters, i.e. a topic that can change with every message, the standard way to do this is to use StreamBridge. But some binders such as Solace can do the dynamic routing using just a message header. If you use such a binder, then you can set this value to 'header' and the generated code will set the topic on the header rather than use StreamBridge.
-groupId | info.x-group-id | com.company | The Maven group id.
-host | | tcp://localhost:55555 | The host connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
-javaPackage | info.x-java-package | | The Java package of the generated classes. If not set then the classes will be in the default package.
+groupId | info.x-group-id | com.company | The Maven group id. Alternatively you can set the specification extension info.x-group-id.
+host | | tcp://localhost:55554 | The host connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
+javaPackage | info.x-java-package | | The Java package of the generated classes. If not set then the classes will be in the default package. Alternatively you can set the specification extension info.x-java-package.
 msgVpn | | default | The message vpn connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
 password | | default | The client password connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
 parametersToHeaders | | false | If true, this will create headers on the incoming messages for each channel parameter. Currently this only works with messages originating from Solace (using the solace_destination header) and RabbitMQ (using the amqp_receivedRoutingKey header.)
 reactive | | false | If true, the generated functions will use the Reactive style and use the Flux class.
-solaceSpringCloudVersion | info.x-solace-spring-cloud-version | 2.1.0 | The version of the solace-spring-cloud-bom dependency used when generating an application.
-springBootVersion | info.x-spring-boot-version | 2.4.7 | The version of Spring Boot used when generating an application. 
-springCloudVersion | info.x-spring-cloud-version | 2020.0.3 | The version of the spring-cloud-dependencies BOM dependency used when generating an application.
-springCloudStreamVersion | info.x-spring-cloud-stream-version | 3.1.3 | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead
+kafkaSpringCloudVersion | info.x-kafka-spring-cloud-version | 4.2.0 | The version of the spring-cloud-stream-binder-kafka dependency used when generating an application with Kafka binder. Alternatively you can set the specification extension info.x-kafka-spring-cloud-version.
+rabbitSpringCloudVersion | info.x-rabbit-spring-cloud-version | 4.2.0 | The version of the spring-cloud-stream-binder-rabbit dependency used when generating an application with RabbitMQ binder. Alternatively you can set the specification extension info.x-rabbit-spring-cloud-version.
+solaceSpringCloudVersion | info.x-solace-spring-cloud-version | 4.8.0 | The version of the solace-spring-cloud-bom dependency used when generating an application. Alternatively you can set the specification extension info.x-solace-spring-cloud-version.
+springBootVersion | info.x-spring-boot-version | 3.4.4 | The version of Spring Boot used when generating an application. Alternatively you can set the specification extension info.x-spring-boot-version. 
+springCloudVersion | info.x-spring-cloud-version | 2024.0.0 | The version of the spring-cloud-dependencies BOM dependency used when generating an application. Alternatively you can set the specification extension info.x-spring-cloud-version.
+springCloudStreamVersion | info.x-spring-cloud-stream-version | 3.1.3 | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead. Alternatively you can set the specification extension info.x-spring-cloud-stream-version.
 username | | default | The client username connection property. Currently this only works with the Solace binder. When other binders are used this parameter is ignored.
-view | info.x-view | client | By default, this template generates publisher code for subscribe operations and vice versa. You can switch this by setting this parameter to 'provider'.
-useServers | | false | This parameter only works when the binder parameter is kafka. It takes all the urls under the server section and concatenates them to a set of brokers.
+view | info.x-view | client | By default, this template generates publisher code for subscribe operations and vice versa. You can switch this by setting this parameter to 'provider'. Alternatively you can set the specification extension info.x-view.
+useServers | | false | This parameter only works when the binder parameter is kafka. It takes all the urls under the server section and concatenates them to a set of brokers. Default: false.
+kafkaBrokers | | localhost:9092 | Comma-separated list of Kafka broker addresses. Example: localhost:9092,localhost:9093.
+rabbitHost | | localhost | RabbitMQ host address.
+rabbitPort | | 5672 | RabbitMQ port number.
+rabbitUsername | | guest | RabbitMQ username.
+rabbitPassword | | guest | RabbitMQ password.
 
 ## Specification Extensions
 
@@ -120,14 +163,49 @@ Extension | Parameter | Default | Description
 info.x-artifact-id | artifactId | project-name | The Maven artifact id.
 info.x-group-id | groupId | com.company | The Maven group id.
 info.x-java-package | javaPackage | | The Java package of the generated classes. If not set then the classes will be in the default package.
-info.x-solace-spring-cloud-version | solaceSpringCloudVersion | 1.0.0 | The version of the solace-spring-cloud BOM dependency used when generating an application.
-info.x-spring-boot-version | info.x-spring-boot-version | 2.2.6.RELEASE | The version of the Spring Boot used when generating an application.
-info.x-spring-cloud-version | info.x-spring-cloud-version | Hoxton.SR3 | The version of the spring-cloud-dependencies BOM dependency used when generating an application.
-info.x-spring-cloud-stream-version | springCloudStreamVersion | 3.0.3.RELEASE | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead.
+info.x-kafka-spring-cloud-version | kafkaSpringCloudVersion | 4.2.0 | The version of the spring-cloud-stream-binder-kafka dependency used when generating an application with Kafka binder.
+info.x-rabbit-spring-cloud-version | rabbitSpringCloudVersion | 4.2.0 | The version of the spring-cloud-stream-binder-rabbit dependency used when generating an application with RabbitMQ binder.
+info.x-solace-spring-cloud-version | solaceSpringCloudVersion | 4.8.0 | The version of the solace-spring-cloud BOM dependency used when generating an application.
+info.x-spring-boot-version | info.x-spring-boot-version | 3.4.4 | The version of the Spring Boot used when generating an application.
+info.x-spring-cloud-version | springCloudVersion | 2024.0.0 | The version of the spring-cloud-dependencies BOM dependency used when generating an application.
+info.x-spring-cloud-stream-version | springCloudStreamVersion | 3.1.3 | The version of the spring-cloud-stream dependency specified in the Maven file, when generating a library. When generating an application, the spring-cloud-dependencies BOM is used instead.
 info.x-view | view | client | By default, this template generates publisher code for subscribe operations and vice versa. You can switch this by setting this parameter to 'provider'.
 operation.x-scs-function-name | | | This specifies the base function name to use on a publish or subscribe operation. If the same name is used on one subscribe operation and one publish operation, a processor function will be generated.
 channel.subscription.x-scs-destination | | | This overrides the destination on an incoming binding. It can be used to specify, for example, the name of a queue to subscribe to instead of a topic.
 channel.subscription.x-scs-group | | | This is used to specify the group property of an incoming binding.
+
+## Troubleshooting
+
+### Common Issues
+
+#### NoSuchMethodError with Spring Integration
+If you encounter errors like:
+```
+java.lang.NoSuchMethodError: org/springframework/integration/support/MessageBuilder.removeHeader
+```
+
+**Solution:** Ensure you're using Spring Boot 3.4.4 or later. This error occurs when using older Spring Boot versions (like 3.1.0) with Spring Cloud 2024.0.0.
+
+#### Version Compatibility Issues
+If you experience dependency conflicts or runtime errors:
+
+1. **Check Spring Boot Version:** Ensure you're using Spring Boot 3.4.4+
+2. **Verify Binder Versions:** Kafka and RabbitMQ binders should use version 4.2.0
+3. **Update AsyncAPI Extensions:** Remove any `x-spring-boot-version` extensions that specify versions below 3.4.4
+
+#### Generator Version Compatibility Issues
+If you encounter errors like:
+```
+Error: This template is not compatible with the current version of the generator (1.17.25). 
+This template is compatible with the following version range: >=2.0.0 <=3.3.0.
+```
+
+**Solution:** Use `npx @asyncapi/generator` instead of `asyncapi generate` or `ag` commands. The CLI may use an older bundled generator version that's incompatible with this template.
+
+#### Binder-Specific Issues
+- **Kafka:** Ensure `kafkaSpringCloudVersion` is set to 4.2.0
+- **RabbitMQ:** Ensure `rabbitSpringCloudVersion` is set to 4.2.0
+- **Solace:** Ensure `solaceSpringCloudVersion` is set to 4.8.0
 
 ## Development
 
@@ -144,12 +222,11 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="http://www.damaru.com"><img src="https://avatars1.githubusercontent.com/u/3926925?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Michael Davis</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=damaru-inc" title="Code">💻</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=damaru-inc" title="Documentation">📖</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/pulls?q=is%3Apr+reviewed-by%3Adamaru-inc" title="Reviewed Pull Requests">👀</a> <a href="#question-damaru-inc" title="Answering Questions">💬</a></td>
+    <td align="center"><a href="https://github.com/gvensan"><img src="https://avatars.githubusercontent.com/u/4477169?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Giri Venkatesan</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=gvensan" title="Code">💻</a></td> 
+    <td align="center"><a href="http://www.damaru.com"><img src="https://avatars1.githubusercontent.com/u/3926925?v=4?s=100" width="105px;" alt=""/><br /><sub><b>Michael Davis</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=damaru-inc" title="Code">💻</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=damaru-inc" title="Documentation">📖</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/pulls?q=is%3Apr+reviewed-by%3Adamaru-inc" title="Reviewed Pull Requests">👀</a> <a href="#question-damaru-inc" title="Answering Questions">💬</a></td>
     <td align="center"><a href="https://marcd.dev"><img src="https://avatars0.githubusercontent.com/u/1815312?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Marc DiPasquale</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=Mrc0113" title="Documentation">📖</a></td>
     <td align="center"><a href="http://www.fmvilas.com"><img src="https://avatars3.githubusercontent.com/u/242119?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Fran Méndez</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=fmvilas" title="Code">💻</a> <a href="#infra-fmvilas" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
     <td align="center"><a href="https://resume.github.io/?derberg"><img src="https://avatars1.githubusercontent.com/u/6995927?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lukasz Gornicki</b></sub></a><br /><a href="#infra-derberg" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=derberg" title="Code">💻</a></td>
-  </tr>
-  <tr>
     <td align="center"><a href="https://github.com/blzsaa"><img src="https://avatars.githubusercontent.com/u/17824588?v=4?s=100" width="100px;" alt=""/><br /><sub><b>blzsaa</b></sub></a><br /><a href="https://github.com/asyncapi/java-spring-cloud-stream-template/commits?author=blzsaa" title="Code">💻</a></td>
   </tr>
 </table>

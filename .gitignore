@@ -1,5 +1,8 @@
 node_modules
 test/temp
+test/output
 coverage
 **/.DS_Store
 **/.vscode
+__transpiled
+**/__transpiled

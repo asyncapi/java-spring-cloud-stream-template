@@ -1,0 +1,72 @@
+asyncapi: 2.6.0
+info:
+  title: Function Name Test
+  version: 1.0.0
+  description: Testing x-scs-function-name extension
+  x-view: "provider"
+
+channels:
+  input-topic:
+    subscribe:
+      operationId: receiveOrder
+      x-scs-function-name: processOrder
+      message:
+        $ref: '#/components/messages/OrderMessage'
+  
+  output-topic:
+    publish:
+      operationId: sendResult
+      x-scs-function-name: processOrder
+      message:
+        $ref: '#/components/messages/ResultMessage'
+        
+  simple-supplier:
+    subscribe:
+      operationId: generateData
+      x-scs-function-name: customSupplier
+      message:
+        $ref: '#/components/messages/DataMessage'
+        
+  simple-consumer:
+    publish:
+      operationId: consumeData
+      x-scs-function-name: customConsumer
+      message:
+        $ref: '#/components/messages/DataMessage'
+
+components:
+  messages:
+    OrderMessage:
+      payload:
+        $ref: '#/components/schemas/Order'
+    
+    ResultMessage:
+      payload:
+        $ref: '#/components/schemas/Result'
+        
+    DataMessage:
+      payload:
+        $ref: '#/components/schemas/Data'
+  
+  schemas:
+    Order:
+      type: object
+      properties:
+        orderId:
+          type: string
+        amount:
+          type: number
+    
+    Result:
+      type: object
+      properties:
+        orderId:
+          type: string
+        status:
+          type: string
+          
+    Data:
+      type: object
+      properties:
+        message:
+          type: string
