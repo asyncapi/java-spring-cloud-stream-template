@@ -104,6 +104,18 @@ asyncapi generate fromTemplate document.yaml @asyncapi/java-spring-cloud-stream-
 npx @asyncapi/generator document.yaml @asyncapi/java-spring-cloud-stream-template
 ```
 
+#### Debug Logging Examples
+
+**Enable Debug with -debug flag:**
+```bash
+npx @asyncapi/generator -debug ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
+```
+
+**Enable Debug with Environment Variable:**
+```bash
+DEBUG=true npx @asyncapi/generator ~/AsyncApiDocument.yaml @asyncapi/java-spring-cloud-stream-template
+```
+
 ## Configuration Options
 
 Please note that none of the parameters or specification extensions is required. All parameters have defaults as documented below.
