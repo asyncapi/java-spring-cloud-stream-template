@@ -1007,24 +1007,23 @@ public class SentAt {
 	}
 
 	public SentAt (
-		SubObject subObject) {
-		this.subObject = subObject;
+		SubObject propertySubobject) {
+		this.propertySubobject = propertySubobject;
 	}
 
-	@JsonProperty(\\"propertySubobject\\")
-	private SubObject subObject;
-	public SubObject getSubObject() {
-		return subObject;
+	private SubObject propertySubobject;
+	public SubObject getPropertySubobject() {
+		return propertySubobject;
 	}
 
-	public SentAt setSubObject(SubObject subObject) {
-		this.subObject = subObject;
+	public SentAt setPropertySubobject(SubObject propertySubobject) {
+		this.propertySubobject = propertySubobject;
 		return this;
 	}
 
 	public String toString() {
 		return \\"SentAt [\\"
-		+ \\" subObject: \\" + subObject
+		+ \\" propertySubobject: \\" + propertySubobject
 		+ \\" ]\\";
 	}
 }
