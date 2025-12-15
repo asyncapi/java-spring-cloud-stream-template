@@ -110,14 +110,22 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-cd "$SCRIPT_DIR"
-
+# Resolve SPECIFIED_FILE to absolute path BEFORE changing directory
 if [ -n "$SPECIFIED_FILE" ]; then
-    # Check if the specified file exists (can be any path)
+    # Check if the specified file exists (relative to current working directory)
     if [ ! -f "$SPECIFIED_FILE" ]; then
         echo -e "${RED}Error: File '$SPECIFIED_FILE' not found!${NC}"
         exit 1
     fi
+    # Convert to absolute path if it's a relative path
+    if [[ "$SPECIFIED_FILE" != /* ]]; then
+        SPECIFIED_FILE="$(cd "$(dirname "$SPECIFIED_FILE")" && pwd)/$(basename "$SPECIFIED_FILE")"
+    fi
+fi
+
+cd "$SCRIPT_DIR"
+
+if [ -n "$SPECIFIED_FILE" ]; then
     
     # Get just the filename for processing (without path)
     FILENAME=$(basename "$SPECIFIED_FILE")

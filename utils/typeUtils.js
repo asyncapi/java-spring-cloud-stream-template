@@ -233,26 +233,49 @@ function getSchemaType(schema) {
 
 /**
  * Convert string to PascalCase for class names
+ * Handles various separators including slashes, dots, braces, underscores, hyphens, and whitespace
  */
 function toPascalCase(str) {
-  logger.debug('ModelClass.js: toPascalCase() - Converting string to PascalCase');
+  logger.debug('typeUtils.js: toPascalCase() - Converting string to PascalCase');
   if (!str) return '';
   
-  // Remove special characters and convert to PascalCase
-  return str.replace(/(^|_|\-|\s)(\w)/g, (_, __, c) => c ? c.toUpperCase() : '')
-            .replace(/^[a-z]/, c => c.toUpperCase());
+  // First, remove curly braces (used in path parameters like {userId})
+  let cleaned = str.replace(/[{}]/g, '');
+  
+  // Split by any non-alphanumeric character (slashes, dots, underscores, hyphens, whitespace, etc.)
+  const segments = cleaned.split(/[^a-zA-Z0-9]+/);
+  
+  // Convert each segment to PascalCase and join
+  return segments
+    .filter(segment => segment.length > 0)
+    .map(segment => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join('');
 }
 
 /**
  * Convert string to camelCase for field names
+ * Handles various separators including slashes, dots, braces, underscores, hyphens, and whitespace
  */
 function toCamelCase(str) {
-  logger.debug('ModelClass.js: toCamelCase() - Converting string to camelCase');
+  logger.debug('typeUtils.js: toCamelCase() - Converting string to camelCase');
   if (!str) return '';
   
-  // Remove special characters and convert to camelCase
-  return str.replace(/(^|_|\-|\s)(\w)/g, (_, __, c) => c ? c.toUpperCase() : '')
-            .replace(/^[A-Z]/, c => c.toLowerCase());
+  // First, remove curly braces (used in path parameters like {userId})
+  let cleaned = str.replace(/[{}]/g, '');
+  
+  // Split by any non-alphanumeric character (slashes, dots, underscores, hyphens, whitespace, etc.)
+  const segments = cleaned.split(/[^a-zA-Z0-9]+/);
+  
+  // Convert to camelCase: first segment lowercase, rest PascalCase
+  return segments
+    .filter(segment => segment.length > 0)
+    .map((segment, index) => {
+      if (index === 0) {
+        return segment.charAt(0).toLowerCase() + segment.slice(1);
+      }
+      return segment.charAt(0).toUpperCase() + segment.slice(1);
+    })
+    .join('');
 }
 
 /**

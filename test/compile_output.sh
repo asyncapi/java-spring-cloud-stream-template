@@ -75,8 +75,6 @@ if [ ! -d "$OUTPUT_DIR" ]; then
     exit 1
 fi
 
-cd "$OUTPUT_DIR"
-
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -84,26 +82,48 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Resolve SPECIFIED_PROJECT to absolute path BEFORE changing directory
 if [ -n "$SPECIFIED_PROJECT" ]; then
-    # Check if the specified project exists and has pom.xml
-    if [ ! -d "$SPECIFIED_PROJECT" ]; then
-        echo -e "${RED}Error: Project directory '$SPECIFIED_PROJECT' not found in output directory!${NC}"
-        echo -e "${YELLOW}Available projects in $OUTPUT_DIR:${NC}"
-        for folder in */; do
-            folder_name="${folder%/}"
-            if [ -f "$folder_name/pom.xml" ]; then
-                echo "  - $folder_name (Maven project)"
-            else
-                echo "  - $folder_name (non-Maven folder)"
-            fi
-        done
-        exit 1
+    # Check if it's a path (contains /) or just a project name
+    if [[ "$SPECIFIED_PROJECT" == */* ]]; then
+        # It's a path - check if it exists from current directory
+        if [ ! -d "$SPECIFIED_PROJECT" ]; then
+            echo -e "${RED}Error: Project directory '$SPECIFIED_PROJECT' not found!${NC}"
+            exit 1
+        fi
+        # Convert to absolute path if it's a relative path
+        if [[ "$SPECIFIED_PROJECT" != /* ]]; then
+            SPECIFIED_PROJECT="$(cd "$SPECIFIED_PROJECT" && pwd)"
+        fi
+    else
+        # It's just a project name - check in OUTPUT_DIR
+        if [ ! -d "$OUTPUT_DIR/$SPECIFIED_PROJECT" ]; then
+            echo -e "${RED}Error: Project directory '$SPECIFIED_PROJECT' not found in output directory!${NC}"
+            echo -e "${YELLOW}Available projects in $OUTPUT_DIR:${NC}"
+            cd "$OUTPUT_DIR"
+            for folder in */; do
+                folder_name="${folder%/}"
+                if [ -f "$folder_name/pom.xml" ]; then
+                    echo "  - $folder_name (Maven project)"
+                else
+                    echo "  - $folder_name (non-Maven folder)"
+                fi
+            done
+            exit 1
+        fi
+        # Convert to absolute path
+        SPECIFIED_PROJECT="$OUTPUT_DIR/$SPECIFIED_PROJECT"
     fi
     
     if [ ! -f "$SPECIFIED_PROJECT/pom.xml" ]; then
         echo -e "${RED}Error: Project '$SPECIFIED_PROJECT' does not contain a pom.xml file!${NC}"
         exit 1
     fi
+fi
+
+cd "$OUTPUT_DIR"
+
+if [ -n "$SPECIFIED_PROJECT" ]; then
     
     echo -e "${BLUE}=== Maven Compilation Script ===${NC}"
     echo -e "${BLUE}Compiling specific project: $SPECIFIED_PROJECT${NC}"
