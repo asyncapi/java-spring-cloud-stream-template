@@ -88,7 +88,7 @@ function checkPropertyNames(name, schema) {
   }
   
   // Check if any property name differs from its Java identifier name
-  for (const [propName, prop] of propertyEntries) {
+  for (const [propName, _prop] of propertyEntries) {
     const javaIdentifierName = getIdentifierName(propName);
     if (javaIdentifierName !== propName) {
       logger.debug(`typeUtils.js: checkPropertyNames() - Property ${propName} needs JsonProperty (Java: ${javaIdentifierName})`);
@@ -240,7 +240,7 @@ function toPascalCase(str) {
   if (!str) return '';
   
   // First, remove curly braces (used in path parameters like {userId})
-  let cleaned = str.replace(/[{}]/g, '');
+  const cleaned = str.replace(/[{}]/g, '');
   
   // Split by any non-alphanumeric character (slashes, dots, underscores, hyphens, whitespace, etc.)
   const segments = cleaned.split(/[^a-zA-Z0-9]+/);
@@ -261,7 +261,7 @@ function toCamelCase(str) {
   if (!str) return '';
   
   // First, remove curly braces (used in path parameters like {userId})
-  let cleaned = str.replace(/[{}]/g, '');
+  const cleaned = str.replace(/[{}]/g, '');
   
   // Split by any non-alphanumeric character (slashes, dots, underscores, hyphens, whitespace, etc.)
   const segments = cleaned.split(/[^a-zA-Z0-9]+/);
@@ -309,7 +309,6 @@ function stripPackageName(dotSeparatedName) {
   // For simple names, just return the name as the class name
   return { className: dotSeparatedName };
 }
-
 
 module.exports = {
   getEnhancedType,

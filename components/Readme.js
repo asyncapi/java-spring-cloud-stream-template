@@ -33,57 +33,57 @@ function Readme({ asyncapi, params, processedData }) {
   return React.createElement(React.Fragment, null,
     // Header
     React.createElement(Text, null, `# ${title}`),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, ''),
     React.createElement(Text, null, `## Version ${version}`),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, ''),
     
     // Description
     ...(description || '').split('\n').map((line, index) => 
       React.createElement(Text, { key: index }, line)
     ),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, ''),
     
     // Project Overview
-    React.createElement(Text, null, "## Project Overview"),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, '## Project Overview'),
+    React.createElement(Text, null, ''),
     React.createElement(Text, null, `This is a **Spring Cloud Stream** application generated from the **${applicationDomain}** AsyncAPI specification.`),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "### Technology Stack"),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '### Technology Stack'),
     ...techStack.map(tech => 
       React.createElement(Text, { key: tech.name }, `- **${tech.name}** ${tech.version}`)
     ),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, ''),
     
     // Generated Components
-    React.createElement(Text, null, "## Generated Components"),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, '## Generated Components'),
+    React.createElement(Text, null, ''),
     
     // Model Classes
-    React.createElement(Text, null, "### Model Classes"),
+    React.createElement(Text, null, '### Model Classes'),
     ...uniqueSchemas.map(schema => 
       React.createElement(Text, { key: schema.name }, `- **${schema.className || schema.name}**`)
     ),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, ''),
     
     // Functions
-    React.createElement(Text, null, "### Spring Cloud Stream Functions"),
+    React.createElement(Text, null, '### Spring Cloud Stream Functions'),
     ...uniqueFunctions.map(func => {
       // Use sendMethodName for send functions, otherwise use the function name
       const displayName = func.type === 'send' && func.sendMethodName ? func.sendMethodName : func.name;
       return React.createElement(Text, { key: func.name }, `- **${displayName}** - ${getFunctionDescription(func)}`);
     }),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, ''),
     
     // Message Channels
-    React.createElement(Text, null, "### Message Channels"),
+    React.createElement(Text, null, '### Message Channels'),
     ...uniqueChannels.map(channel => 
       React.createElement(Text, { key: channel.name }, `- **${channel.name}**`)
     ),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, ''),
     
     // Solace Queues
     ...(queues.length > 0 ? [
-      React.createElement(Text, null, "### Solace Queues"),
+      React.createElement(Text, null, '### Solace Queues'),
       ...queues.map(queue => [
         React.createElement(Text, { key: queue.name }, `- **${queue.name}** - ${queue.description}`),
         ...(queue.topicSubscriptions && queue.topicSubscriptions.length > 0 ? 
@@ -92,144 +92,144 @@ function Readme({ asyncapi, params, processedData }) {
           ) : []
         )
       ]).flat(),
-      React.createElement(Text, null, "")
+      React.createElement(Text, null, '')
     ] : []),
     
     // Getting Started
-    React.createElement(Text, null, "## Getting Started"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "### Prerequisites"),
+    React.createElement(Text, null, '## Getting Started'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '### Prerequisites'),
     React.createElement(Text, null, `- Java ${javaVersion} or higher`),
     React.createElement(Text, null, `- Maven ${mavenVersion}+`),
     React.createElement(Text, null, `- ${binderType} broker (local or cloud)`),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "### Configuration"),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '### Configuration'),
     React.createElement(Text, null, `Update the ${binderType} connection settings in \`src/main/resources/application.yml\`:`),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "```yaml"),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '```yaml'),
     ...connectionConfig.map(line => 
       React.createElement(Text, { key: line }, line)
     ),
-    React.createElement(Text, null, "```"),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, '```'),
+    React.createElement(Text, null, ''),
     
     // Running the Application
-    React.createElement(Text, null, "### Running the Application"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "1. **Build the application:**"),
-    React.createElement(Text, null, "   ```bash"),
-    React.createElement(Text, null, "   mvn clean compile"),
-    React.createElement(Text, null, "   ```"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "2. **Run the application:**"),
-    React.createElement(Text, null, "   ```bash"),
-    React.createElement(Text, null, "   mvn spring-boot:run"),
-    React.createElement(Text, null, "   ```"),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, '### Running the Application'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '1. **Build the application:**'),
+    React.createElement(Text, null, '   ```bash'),
+    React.createElement(Text, null, '   mvn clean compile'),
+    React.createElement(Text, null, '   ```'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '2. **Run the application:**'),
+    React.createElement(Text, null, '   ```bash'),
+    React.createElement(Text, null, '   mvn spring-boot:run'),
+    React.createElement(Text, null, '   ```'),
+    React.createElement(Text, null, ''),
     
     // Development Guide
-    React.createElement(Text, null, "## Development Guide"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "### Adding Business Logic"),
-    React.createElement(Text, null, "Each generated function in `Application.java` contains placeholder business logic:"),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, '## Development Guide'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '### Adding Business Logic'),
+    React.createElement(Text, null, 'Each generated function in `Application.java` contains placeholder business logic:'),
+    React.createElement(Text, null, ''),
     
     // Consumer Function Example
-    React.createElement(Text, null, "#### Consumer Functions"),
-    React.createElement(Text, null, "Process incoming messages:"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "```java"),
-    React.createElement(Text, null, "@Bean"),
-    React.createElement(Text, null, "public Consumer<Message<?>> yourConsumer() {"),
-    React.createElement(Text, null, "  return data -> {"),
-    React.createElement(Text, null, "    // Add your business logic here"),
-    React.createElement(Text, null, "    logger.info(\"Received: \" + data.toString());"),
-    React.createElement(Text, null, "  };"),
-    React.createElement(Text, null, "}"),
-    React.createElement(Text, null, "```"),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, '#### Consumer Functions'),
+    React.createElement(Text, null, 'Process incoming messages:'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '```java'),
+    React.createElement(Text, null, '@Bean'),
+    React.createElement(Text, null, 'public Consumer<Message<?>> yourConsumer() {'),
+    React.createElement(Text, null, '  return data -> {'),
+    React.createElement(Text, null, '    // Add your business logic here'),
+    React.createElement(Text, null, '    logger.info("Received: " + data.toString());'),
+    React.createElement(Text, null, '  };'),
+    React.createElement(Text, null, '}'),
+    React.createElement(Text, null, '```'),
+    React.createElement(Text, null, ''),
     
     // Supplier Function Example
-    React.createElement(Text, null, "#### Supplier Functions"),
-    React.createElement(Text, null, "Generate and publish messages:"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "```java"),
-    React.createElement(Text, null, "@Bean"),
-    React.createElement(Text, null, "public Supplier<YourMessageType> yourSupplier() {"),
-    React.createElement(Text, null, "  return () -> {"),
-    React.createElement(Text, null, "    // Create and populate your message"),
-    React.createElement(Text, null, "    YourMessageType message = new YourMessageType();"),
-    React.createElement(Text, null, "    // Add your business logic here"),
-    React.createElement(Text, null, "    return message;"),
-    React.createElement(Text, null, "  };"),
-    React.createElement(Text, null, "}"),
-    React.createElement(Text, null, "```"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "### Sending Messages"),
-    React.createElement(Text, null, "Use the generated `send` methods to publish messages:"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "```java"),
-    React.createElement(Text, null, "// Example: Send order completed message"),
-    React.createElement(Text, null, "sendOrderCompleted(orderStatus, source, country, storeId, orderId);"),
-    React.createElement(Text, null, "```"),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, '#### Supplier Functions'),
+    React.createElement(Text, null, 'Generate and publish messages:'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '```java'),
+    React.createElement(Text, null, '@Bean'),
+    React.createElement(Text, null, 'public Supplier<YourMessageType> yourSupplier() {'),
+    React.createElement(Text, null, '  return () -> {'),
+    React.createElement(Text, null, '    // Create and populate your message'),
+    React.createElement(Text, null, '    YourMessageType message = new YourMessageType();'),
+    React.createElement(Text, null, '    // Add your business logic here'),
+    React.createElement(Text, null, '    return message;'),
+    React.createElement(Text, null, '  };'),
+    React.createElement(Text, null, '}'),
+    React.createElement(Text, null, '```'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '### Sending Messages'),
+    React.createElement(Text, null, 'Use the generated `send` methods to publish messages:'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '```java'),
+    React.createElement(Text, null, '// Example: Send order completed message'),
+    React.createElement(Text, null, 'sendOrderCompleted(orderStatus, source, country, storeId, orderId);'),
+    React.createElement(Text, null, '```'),
+    React.createElement(Text, null, ''),
     
     // Testing
-    React.createElement(Text, null, "### Testing"),
-    React.createElement(Text, null, "1. **Unit Tests:** Create tests for your business logic"),
+    React.createElement(Text, null, '### Testing'),
+    React.createElement(Text, null, '1. **Unit Tests:** Create tests for your business logic'),
     React.createElement(Text, null, `2. **Integration Tests:** Test with a local ${binderType} broker`),
-    React.createElement(Text, null, "3. **End-to-End Tests:** Test complete message flows"),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, '3. **End-to-End Tests:** Test complete message flows'),
+    React.createElement(Text, null, ''),
     
     // Deployment
-    React.createElement(Text, null, "### Deployment"),
-    React.createElement(Text, null, "1. **Build JAR:** `mvn clean package`"),
-    React.createElement(Text, null, "2. **Run JAR:** `java -jar target/your-app.jar`"),
-    React.createElement(Text, null, "3. **Docker:** Use the generated Dockerfile (if available)"),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, '### Deployment'),
+    React.createElement(Text, null, '1. **Build JAR:** `mvn clean package`'),
+    React.createElement(Text, null, '2. **Run JAR:** `java -jar target/your-app.jar`'),
+    React.createElement(Text, null, '3. **Docker:** Use the generated Dockerfile (if available)'),
+    React.createElement(Text, null, ''),
     
     // Troubleshooting
-    React.createElement(Text, null, "## Troubleshooting"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "### Common Issues"),
+    React.createElement(Text, null, '## Troubleshooting'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '### Common Issues'),
     React.createElement(Text, null, `- **Connection Issues:** Verify ${binderType} broker connectivity`),
     React.createElement(Text, null, `- **Queue Not Found:** Ensure queues exist in ${binderType}`),
-    React.createElement(Text, null, "- **Message Format:** Verify message payload matches schema"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "### Logging"),
-    React.createElement(Text, null, "Adjust logging levels in `application.yml`:"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "```yaml"),
-    React.createElement(Text, null, "logging:"),
-    React.createElement(Text, null, "  level:"),
-    React.createElement(Text, null, "    com.company: DEBUG"),
-    React.createElement(Text, null, "    org.springframework.cloud.stream: DEBUG"),
-    React.createElement(Text, null, "```"),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, '- **Message Format:** Verify message payload matches schema'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '### Logging'),
+    React.createElement(Text, null, 'Adjust logging levels in `application.yml`:'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '```yaml'),
+    React.createElement(Text, null, 'logging:'),
+    React.createElement(Text, null, '  level:'),
+    React.createElement(Text, null, '    com.company: DEBUG'),
+    React.createElement(Text, null, '    org.springframework.cloud.stream: DEBUG'),
+    React.createElement(Text, null, '```'),
+    React.createElement(Text, null, ''),
     
     // API Reference
-    React.createElement(Text, null, "## API Reference"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "### Message Types"),
+    React.createElement(Text, null, '## API Reference'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '### Message Types'),
     ...getMessageTypes(functions).map(msgType => 
       React.createElement(Text, { key: msgType }, `- **${msgType}**`)
     ),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, ''),
     
     // Configuration Reference
-    React.createElement(Text, null, "## Configuration Reference"),
-    React.createElement(Text, null, ""),
-    React.createElement(Text, null, "### Key Properties"),
-    React.createElement(Text, null, "- `spring.cloud.function.definition` - Function definitions"),
-    React.createElement(Text, null, "- `spring.cloud.stream.bindings.*.destination` - Message destinations"),
-    React.createElement(Text, null, "- `spring.cloud.stream.bindings.*.group` - Consumer groups"),
+    React.createElement(Text, null, '## Configuration Reference'),
+    React.createElement(Text, null, ''),
+    React.createElement(Text, null, '### Key Properties'),
+    React.createElement(Text, null, '- `spring.cloud.function.definition` - Function definitions'),
+    React.createElement(Text, null, '- `spring.cloud.stream.bindings.*.destination` - Message destinations'),
+    React.createElement(Text, null, '- `spring.cloud.stream.bindings.*.group` - Consumer groups'),
     React.createElement(Text, null, `- \`spring.cloud.stream.${binderName}.bindings.*.consumer.queueNameExpression\` - Queue names`),
-    React.createElement(Text, null, ""),
+    React.createElement(Text, null, ''),
     
     // License
-    React.createElement(Text, null, "## License"),
-    React.createElement(Text, null, "This project is generated from AsyncAPI specification. Please refer to the original specification for licensing information."),
-    React.createElement(Text, null, "")
+    React.createElement(Text, null, '## License'),
+    React.createElement(Text, null, 'This project is generated from AsyncAPI specification. Please refer to the original specification for licensing information.'),
+    React.createElement(Text, null, '')
   );
 }
 
@@ -349,11 +349,11 @@ function getBinderType(params) {
   
   // Map binder to display name
   const binderMap = {
-    'solace': 'Solace PubSub+',
-    'kafka': 'Apache Kafka',
-    'rabbitmq': 'RabbitMQ',
-    'redis': 'Redis',
-    'pulsar': 'Apache Pulsar'
+    solace: 'Solace PubSub+',
+    kafka: 'Apache Kafka',
+    rabbitmq: 'RabbitMQ',
+    redis: 'Redis',
+    pulsar: 'Apache Pulsar'
   };
   
   return binderMap[binder.toLowerCase()] || 'Message Broker';
@@ -369,34 +369,34 @@ function getConnectionConfig(params, binderType) {
   logger.debug('Readme.js: getConnectionConfig() - Getting connection config from params');
   const config = [];
   
-  config.push("spring:");
-  config.push("  cloud:");
-  config.push("    stream:");
-  config.push("      binders:");
+  config.push('spring:');
+  config.push('  cloud:');
+  config.push('    stream:');
+  config.push('      binders:');
   
   const binderName = getBinderName(params);
   config.push(`        ${binderName}-binder:`);
-  config.push("          type: " + binderName);
+  config.push(`          type: ${  binderName}`);
   
   if (binderType === 'Solace PubSub+') {
-    config.push("          environment:");
-    config.push("            solace:");
-    config.push("              java:");
+    config.push('          environment:');
+    config.push('            solace:');
+    config.push('              java:');
     config.push(`                host: '${params.host || 'tcp://your-solace-host:55554'}'`);
     config.push(`                msgVpn: '${params.msgVpn || 'your-message-vpn'}'`);
     config.push(`                clientUsername: '${params.username || 'your-username'}'`);
     config.push(`                clientPassword: '${params.password || 'your-password'}'`);
   } else if (binderType === 'Apache Kafka') {
-    config.push("          environment:");
-    config.push("            spring:");
-    config.push("              kafka:");
-    config.push("                bootstrap-servers: '${params.bootstrapServers || 'localhost:9092'}'");
-    config.push("                security:");
-    config.push("                  protocol: '${params.securityProtocol || 'PLAINTEXT'}'");
+    config.push('          environment:');
+    config.push('            spring:');
+    config.push('              kafka:');
+    config.push('                bootstrap-servers: \'${params.bootstrapServers || \'localhost:9092\'}\'');
+    config.push('                security:');
+    config.push('                  protocol: \'${params.securityProtocol || \'PLAINTEXT\'}\'');
   } else if (binderType === 'RabbitMQ') {
-    config.push("          environment:");
-    config.push("            spring:");
-    config.push("              rabbitmq:");
+    config.push('          environment:');
+    config.push('            spring:');
+    config.push('              rabbitmq:');
     config.push(`                host: '${params.rabbitHost || 'localhost'}'`);
     config.push(`                port: ${params.rabbitPort || 5672}`);
     config.push(`                username: '${params.rabbitUsername || 'guest'}'`);
@@ -406,14 +406,13 @@ function getConnectionConfig(params, binderType) {
   return config;
 }
 
-
 function getFunctionDescription(func) {
   // Use the actual generated function information from processedData
   const functionType = func.type || 'unknown';
   const isDynamic = func.dynamic || false;
   const hasParams = func.hasParams || false;
   const messageName = func.messageName || '';
-  const sendMethodName = func.sendMethodName || '';
+  const _sendMethodName = func.sendMethodName || '';
   
   // Build a comprehensive description based on the actual function properties
   let description = '';
@@ -436,15 +435,13 @@ function getFunctionDescription(func) {
     if (hasParams) {
       description += ' with dynamic topic parameters';
     }
-  } else {
+  } else if (func.name && func.name.includes('Supplier')) {
     // Fallback for unknown types
-    if (func.name && func.name.includes('Supplier')) {
-      description = 'Message supplier function for publishing messages';
-    } else if (func.name && func.name.includes('Consumer')) {
-      description = 'Message consumer function for processing messages';
-    } else {
-      description = 'Spring Cloud Stream function';
-    }
+    description = 'Message supplier function for publishing messages';
+  } else if (func.name && func.name.includes('Consumer')) {
+    description = 'Message consumer function for processing messages';
+  } else {
+    description = 'Spring Cloud Stream function';
   }
   
   return description;
@@ -455,7 +452,7 @@ function getChannels(asyncapi) {
   const channels = [];
   try {
     if (asyncapi.channels && typeof asyncapi.channels === 'function') {
-      const channelMap = asyncapi.channels();
+      const _channelMap = asyncapi.channels();
       // Get the raw JSON to access channel names
       const rawChannels = asyncapi._json?.channels || {};
       for (const [name, channel] of Object.entries(rawChannels)) {
@@ -500,7 +497,7 @@ function getQueues(asyncapi) {
     if (asyncapi.channels && typeof asyncapi.channels === 'function') {
       // Get the raw JSON to access channel names
       const rawChannels = asyncapi._json?.channels || {};
-      for (const [name, channel] of Object.entries(rawChannels)) {
+      for (const [_name, channel] of Object.entries(rawChannels)) {
         const channelQueues = extractQueuesFromChannel(channel);
         for (const queue of channelQueues) {
           if (queueMap.has(queue.name)) {

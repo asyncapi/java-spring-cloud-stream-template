@@ -1,0 +1,4 @@
+__transpiled/
+node_modules/
+test/output/
+test/temp/

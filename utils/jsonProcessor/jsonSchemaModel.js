@@ -2,6 +2,67 @@ const _ = require('lodash');
 const { logger } = require('../logger');
 const { stripPackageName } = require('../typeUtils');
 
+/**
+ * ModelClass for representing Java class information
+ */
+class ModelClass {
+  constructor() {
+    this.innerClass = true;
+    this.className = null;
+    this.originalName = null; // NEW: store original schema name
+    this.superClassName = null;
+    this.javaPackage = null;
+  }
+
+  getClassName() {
+    return this.className;
+  }
+
+  setClassName(originalName) {
+    this.className = this.fixClassName(originalName);
+  }
+
+  getOriginalName() { // NEW: getter for original name
+    return this.originalName;
+  }
+
+  setOriginalName(originalName) { // NEW: setter for original name
+    this.originalName = originalName;
+  }
+
+  getSuperClassName() {
+    return this.superClassName;
+  }
+
+  setSuperClassName(originalName) {
+    this.superClassName = this.fixClassName(originalName);
+  }
+
+  getJavaPackage() {
+    return this.javaPackage;
+  }
+
+  setJavaPackage(javaPackage) {
+    this.javaPackage = javaPackage;
+  }
+
+  isSubClass() {
+    return this.superClassName !== undefined;
+  }
+
+  fixClassName(originalName) {
+    return _.upperFirst(_.camelCase(originalName));
+  }
+
+  setCanBeInnerClass(innerClass) {
+    this.innerClass = innerClass;
+  }
+
+  canBeInnerClass() {
+    return this.innerClass;
+  }
+}
+
 class SchemaModel {
   constructor() {
     this.superClassMap = new Map();
@@ -156,18 +217,16 @@ class SchemaModel {
           // If no x-parser-schema-id match found, fall back to position-based mapping for numeric keys
           if (!foundMatch && (typeof componentName === 'number' || (typeof componentName === 'string' && componentName.match(/^\d+$/)))) {
             const schemaKeys = Object.keys(asyncapi._json.components.schemas);
-            const index = parseInt(componentName);
+            const index = parseInt(componentName, 10);
             if (index < schemaKeys.length) {
               originalComponentName = schemaKeys[index];
               logger.debug(`schemaModel.js: setupModelClassMap() - Mapped numeric ${componentName} to ${originalComponentName} by position`);
             }
-          }
-          // If componentName is already a string name, use it as-is
-          else if (!foundMatch && typeof componentName === 'string' && componentName.length > 0 && !componentName.match(/^\d+$/)) {
+          } else if (!foundMatch && typeof componentName === 'string' && componentName.length > 0 && !componentName.match(/^\d+$/)) {
+            // If componentName is already a string name, use it as-is
             logger.debug(`schemaModel.js: setupModelClassMap() - Using componentName as-is: ${componentName} (no ID match found)`);
           }
         }
-        
 
         allSchemas.set(originalComponentName, schema);
       });
@@ -231,7 +290,7 @@ class SchemaModel {
     if (asyncapi.components && typeof asyncapi.components === 'function') {
       const schemasObj = asyncapi.components().schemas();
       if (schemasObj && typeof schemasObj === 'object') {
-        nonInnerClassSchemas = Array.from(schemasObj.values()).map(schema => schema._meta.id)
+        nonInnerClassSchemas = Array.from(schemasObj.values()).map(schema => schema._meta.id);
       }
     }
     if (nonInnerClassSchemas.includes(schemaName)) {
@@ -289,67 +348,6 @@ class SchemaModel {
     this.anonymousSchemaToSubClassMap.clear();
     this.modelClassMap.clear();
     this.nameToSchemaMap.clear();
-  }
-}
-
-/**
- * ModelClass for representing Java class information
- */
-class ModelClass {
-  constructor() {
-    this.innerClass = true;
-    this.className = null;
-    this.originalName = null; // NEW: store original schema name
-    this.superClassName = null;
-    this.javaPackage = null;
-  }
-
-  getClassName() {
-    return this.className;
-  }
-
-  setClassName(originalName) {
-    this.className = this.fixClassName(originalName);
-  }
-
-  getOriginalName() { // NEW: getter for original name
-    return this.originalName;
-  }
-
-  setOriginalName(originalName) { // NEW: setter for original name
-    this.originalName = originalName;
-  }
-
-  getSuperClassName() {
-    return this.superClassName;
-  }
-
-  setSuperClassName(originalName) {
-    this.superClassName = this.fixClassName(originalName);
-  }
-
-  getJavaPackage() {
-    return this.javaPackage;
-  }
-
-  setJavaPackage(javaPackage) {
-    this.javaPackage = javaPackage;
-  }
-
-  isSubClass() {
-    return this.superClassName !== undefined;
-  }
-
-  fixClassName(originalName) {
-    return _.upperFirst(_.camelCase(originalName));
-  }
-
-  setCanBeInnerClass(innerClass) {
-    this.innerClass = innerClass;
-  }
-
-  canBeInnerClass() {
-    return this.innerClass;
   }
 }
 

@@ -13,8 +13,8 @@ module.exports = {
     
     const targetDir = generator.targetDir;
     const javaPackage = generator.templateParams.javaPackage || 'com.company';
-    const packagePath = javaPackage.replace(/\./g, '/');
-    
+    const _packagePath = javaPackage.replace(/\./g, '/');
+
     // Create the main Java source directory structure
     const javaSourceDir = path.join(targetDir, 'src/main/java');
     ensureDirectoryExists(javaSourceDir);
@@ -78,17 +78,14 @@ function organizeGeneratedFiles(generator, targetDir, javaSourceDir, resourcesDi
           logger.debug(`Post-process: Removing unwanted Java file: ${file}`);
           fs.unlinkSync(filePath);
         }
-      }
-      // Handle YAML/Properties files
-      else if (file.endsWith('.yml') || file.endsWith('.yaml') || file.endsWith('.properties')) {
+      } else if (file.endsWith('.yml') || file.endsWith('.yaml') || file.endsWith('.properties')) {
+        // Handle YAML/Properties files
         moveResourceFile(filePath, resourcesDir, file);
-      }
-      // Keep pom.xml and README.md in root
-      else if (file === 'pom.xml' || file === 'README.md' || file === 'package.json' || file === 'package-lock.json') {
+      } else if (file === 'pom.xml' || file === 'README.md' || file === 'package.json' || file === 'package-lock.json') {
+        // Keep pom.xml and README.md in root
         logger.debug(`Post-process: Keeping ${file} in root directory`);
-      }
-      // Clean up any other files that shouldn't be in root
-      else {
+      } else {
+        // Clean up any other files that shouldn't be in root
         logger.debug(`Post-process: Removing unexpected file: ${file}`);
         fs.unlinkSync(filePath);
       }
@@ -124,7 +121,7 @@ function moveJavaFileWithPackage(sourcePath, targetDir, fileName, generator) {
   }
   
   // Check if this file is already in a namespace directory (Avro schema)
-  const sourceDir = path.dirname(sourcePath);
+  const _sourceDir = path.dirname(sourcePath);
   const relativePath = path.relative(generator.targetDir, sourcePath);
   
   // If the file is already in src/main/java/package/path/ structure, it's an Avro schema
@@ -243,7 +240,6 @@ function getPackageInfo(schemaName, generator) {
     // Default fallback
     logger.debug(`Post-process: No package info found for ${schemaName}, using default`);
     return { javaPackage: null, className: schemaName };
-    
   } catch (error) {
     logger.warn(`Post-process: Error getting package info for ${schemaName}:`, error.message);
     return { javaPackage: null, className: schemaName };
@@ -389,7 +385,6 @@ function getAvroPackageInfoFromMessages(schemaName, asyncapi) {
         }
       }
     }
-    
   } catch (error) {
     logger.warn('Post-process: Error extracting AVRO package info from messages:', error.message);
   }

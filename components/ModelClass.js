@@ -1,16 +1,22 @@
 const React = require('react');
 const { Text } = require('@asyncapi/generator-react-sdk');
 const { logger } = require('../utils/logger');
-const { 
-  getEnhancedType, 
-  checkPropertyNames, 
-  getIdentifierName, 
+const {
+  getEnhancedType,
+  getIdentifierName,
   getSchemaType,
-  toPascalCase,
-  toCamelCase,
-  isJavaReservedWord
+  toPascalCase
 } = require('../utils/typeUtils');
 const { stripPackageName } = require('../utils/typeUtils');
+
+/**
+ * Helper to get items schema, handling both function and direct value
+ */
+function getItemsSchema(schema) {
+  if (!schema || !schema.items) return undefined;
+  if (typeof schema.items === 'function') return schema.items();
+  return schema.items;
+}
 
 /**
  * Get Java type for property
@@ -23,16 +29,16 @@ function getJavaType(property) {
   // Handle case where type might be an enhanced type object instead of string
   let type = property.type;
   if (type && typeof type === 'object') {
-    logger.debug(`ModelClass.js: getJavaType() - Type is enhanced type object:`, JSON.stringify(type, null, 2));
+    logger.debug('ModelClass.js: getJavaType() - Type is enhanced type object:', JSON.stringify(type, null, 2));
     // Check if it's an enhanced type object with javaType property (from Avro processing)
     if (type.javaType) {
       logger.debug(`ModelClass.js: getJavaType() - Found enhanced type object, using javaType: ${type.javaType}`);
       return type.javaType; // Return directly, it's already the correct Java type
     } else if (typeof type.type === 'function') {
-      logger.debug(`ModelClass.js: getJavaType() - Found AsyncAPI type() method, calling it`);
+      logger.debug('ModelClass.js: getJavaType() - Found AsyncAPI type() method, calling it');
       type = type.type();
     } else {
-      logger.debug(`ModelClass.js: getJavaType() - Type object has no recognized format, defaulting to 'string'`);
+      logger.debug('ModelClass.js: getJavaType() - Type object has no recognized format, defaulting to \'string\'');
       type = 'string'; // Default assumption for simple properties
     }
   }
@@ -72,19 +78,17 @@ function getJavaType(property) {
           const javaType = `${toPascalCase(className)}[]`;
           logger.debug(`ModelClass.js: getJavaType() - Array of objects with schema: ${javaType}`);
           return javaType;
-        } else {
-          // Use property name for anonymous schemas
-          const javaType = `${toPascalCase(property.name)}[]`;
-          logger.debug(`ModelClass.js: getJavaType() - Array of anonymous objects using property name: ${javaType}`);
-          return javaType;
-        }
-      } else {
-        // Array of primitives
-        const typeInfo = getEnhancedType(itemType, itemFormat);
-        const javaType = `${typeInfo.javaType}[]`;
-        logger.debug(`ModelClass.js: getJavaType() - Array of primitives: ${javaType}`);
+        } 
+        // Use property name for anonymous schemas
+        const javaType = `${toPascalCase(property.name)}[]`;
+        logger.debug(`ModelClass.js: getJavaType() - Array of anonymous objects using property name: ${javaType}`);
         return javaType;
-      }
+      } 
+      // Array of primitives
+      const typeInfo = getEnhancedType(itemType, itemFormat);
+      const javaType = `${typeInfo.javaType}[]`;
+      logger.debug(`ModelClass.js: getJavaType() - Array of primitives: ${javaType}`);
+      return javaType;
     }
     return 'Object[]';
   }
@@ -105,22 +109,21 @@ function getJavaType(property) {
         const javaType = toPascalCase(className);
         logger.debug(`ModelClass.js: getJavaType() - Object type with schema: ${javaType}`);
         return javaType;
-      } else {
-        // Check if this is a nested object with properties that should generate a class
-        if (schema.properties && typeof schema.properties === 'function') {
-          const schemaProperties = schema.properties();
-          if (schemaProperties && (typeof schemaProperties.values === 'function' || typeof schemaProperties === 'object')) {
-            // This is a nested object with properties - generate a class using property name
-            const javaType = toPascalCase(property.name);
-            logger.debug(`ModelClass.js: getJavaType() - Nested object type with properties using property name: ${javaType}`);
-            return javaType;
-          }
+      } 
+      // Check if this is a nested object with properties that should generate a class
+      if (schema.properties && typeof schema.properties === 'function') {
+        const schemaProperties = schema.properties();
+        if (schemaProperties && (typeof schemaProperties.values === 'function' || typeof schemaProperties === 'object')) {
+          // This is a nested object with properties - generate a class using property name
+          const javaType = toPascalCase(property.name);
+          logger.debug(`ModelClass.js: getJavaType() - Nested object type with properties using property name: ${javaType}`);
+          return javaType;
         }
-        // Use property name for anonymous schemas
-        const javaType = toPascalCase(property.name);
-        logger.debug(`ModelClass.js: getJavaType() - Anonymous object type using property name: ${javaType}`);
-        return javaType;
       }
+      // Use property name for anonymous schemas
+      const javaType = toPascalCase(property.name);
+      logger.debug(`ModelClass.js: getJavaType() - Anonymous object type using property name: ${javaType}`);
+      return javaType;
     }
     return 'Object';
   }
@@ -134,7 +137,7 @@ function getJavaType(property) {
 /**
  * Get sample value for property
  */
-function getSampleValue(property) {
+function _getSampleValue(property) {
   logger.debug('ModelClass.js: getSampleValue() - Getting sample value for property');
   
   if (!property) return 'null';
@@ -151,23 +154,20 @@ function getSampleValue(property) {
       return 'U3dhZ2dlciByb2Nrcw==';
     } else if (format === 'binary') {
       return 'base64-encoded file contents';
-    } else {
-      return '"string"';
-    }
+    } 
+    return '"string"';
   } else if (type === 'integer') {
     if (format === 'int64') {
       return '1L';
-    } else {
-      return '1';
-    }
+    } 
+    return '1';
   } else if (type === 'number') {
     if (format === 'float') {
       return '1.1F';
     } else if (format === 'double') {
       return '1.1';
-    } else {
-      return '100.1';
-    }
+    } 
+    return '100.1';
   } else if (type === 'boolean') {
     return 'true';
   } else if (type === 'null') {
@@ -233,7 +233,7 @@ function generateAllArgsConstructor(className, properties, indentLevel = 0, exte
   });
 
   elements.push(React.createElement(Text, null, `${indent}}`));
-  elements.push(React.createElement(Text, null, ""));
+  elements.push(React.createElement(Text, null, ''));
 
   return elements;
 }
@@ -273,7 +273,7 @@ function generateFields(properties, indentLevel = 0) {
     }
     
     elements.push(React.createElement(Text, null, `${indent}private ${javaType} ${fieldName};`));
-    elements.push(React.createElement(Text, null, ""));
+    elements.push(React.createElement(Text, null, ''));
   });
   
   return elements;
@@ -301,7 +301,7 @@ function generateAccessors(className, properties, indentLevel = 0) {
     elements.push(React.createElement(Text, null, `${indent}public ${javaType} get${methodName}() {`));
     elements.push(React.createElement(Text, null, `${indent}  return ${fieldName};`));
     elements.push(React.createElement(Text, null, `${indent}}`));
-    elements.push(React.createElement(Text, null, ""));
+    elements.push(React.createElement(Text, null, ''));
     
     // Setter
     const paramName = getIdentifierName(prop.name); // Use safe identifier for parameter
@@ -309,7 +309,7 @@ function generateAccessors(className, properties, indentLevel = 0) {
     elements.push(React.createElement(Text, null, `${indent}  this.${fieldName} = ${paramName};`));
     elements.push(React.createElement(Text, null, `${indent}  return this;`));
     elements.push(React.createElement(Text, null, `${indent}}`));
-    elements.push(React.createElement(Text, null, ""));
+    elements.push(React.createElement(Text, null, ''));
   });
   
   return elements;
@@ -339,7 +339,7 @@ function generateToString(className, properties, indentLevel = 0, extendsClass =
       if (javaType === 'Object') {
         returnLine += '.toString()';
       } else if (javaType.endsWith('[]')) {
-        returnLine += ' != null ? java.util.Arrays.toString(' + fieldName + ') : "null"';
+        returnLine += ` != null ? java.util.Arrays.toString(${  fieldName  }) : "null"`;
       }
       if (isLast) {
         returnLine += ' + " ]"';
@@ -354,13 +354,13 @@ function generateToString(className, properties, indentLevel = 0, extendsClass =
       properties.forEach((prop, index) => {
         const fieldName = getIdentifierName(prop.name);
         const javaType = getJavaType(prop);
-        const isLast = index === properties.length - 1;
-        const separator = index === 0 ? " " : ", ";
+        const _isLast = index === properties.length - 1;
+        const separator = index === 0 ? ' ' : ', ';
         returnLine += `\n${indent}    + "${separator}${fieldName}: " + ${fieldName}`;
         if (javaType === 'Object') {
           returnLine += '.toString()';
         } else if (javaType.endsWith('[]')) {
-          returnLine += ' != null ? java.util.Arrays.toString(' + fieldName + ') : "null"';
+          returnLine += ` != null ? java.util.Arrays.toString(${  fieldName  }) : "null"`;
         }
       });
     }
@@ -430,7 +430,7 @@ function generateEnum(property, indentLevel = 0) {
         return value.replace(/\s+/g, '_').toUpperCase();
       }
       // Handle numeric values (e.g., "123" -> "V_123")
-      if (/^\d+$/.test(value)) {
+      if ((/^\d+$/).test(value)) {
         return `V_${value}`;
       }
       // Convert to uppercase for Java enum convention
@@ -444,7 +444,7 @@ function generateEnum(property, indentLevel = 0) {
   
   // Generate as a static enum inside the class (matching reference project behavior)
   elements.push(React.createElement(Text, null, `${indent}public static enum ${enumName} { ${enumValuesString} }`));
-  elements.push(React.createElement(Text, null, ""));
+  elements.push(React.createElement(Text, null, ''));
   
   return elements;
 }
@@ -563,7 +563,7 @@ function generateInnerClasses(properties, indentLevel = 0, processedData = null)
           const isRequired = schema.required && Array.isArray(schema.required()) && schema.required().includes(propertyName);
           
           // Create a property object that getJavaType can understand
-          const propertyObj = {
+          const _propertyObj = {
             name: propertyName,
             type: innerPropType, // Always schema type, not Java type
             format: innerPropFormat,
@@ -591,7 +591,7 @@ function generateInnerClasses(properties, indentLevel = 0, processedData = null)
     } else if (type === 'array' && itemsSchema && itemsSchema.properties && typeof itemsSchema.properties === 'function') {
       // Check if this is actually a primitive array before generating inner class
       const itemType = itemsSchema.type ? itemsSchema.type() : null;
-      const itemFormat = itemsSchema.format ? itemsSchema.format() : null;
+      const _itemFormat = itemsSchema.format ? itemsSchema.format() : null;
       
       // If it's a primitive type (not object), don't generate inner class
       if (itemType && itemType !== 'object' && !itemType.startsWith('object-')) {
@@ -627,7 +627,7 @@ function generateInnerClasses(properties, indentLevel = 0, processedData = null)
               formatType: typeof propSchema.format
             });
             
-            let ast = {
+            const ast = {
               id: propName,
               type: typeof propSchema.type === 'function' ? propSchema.type() : propSchema.type,
               format: typeof propSchema.format === 'function' ? propSchema.format() : propSchema.format,
@@ -660,7 +660,7 @@ function generateInnerClasses(properties, indentLevel = 0, processedData = null)
                       description: typeof nestedPropSchema.description === 'function' ? nestedPropSchema.description() : nestedPropSchema.description,
                       required: propSchema.required && Array.isArray(propSchema.required()) && propSchema.required().includes(nestedPropName),
                       schema: nestedPropSchema,
-                      itemsSchema: nestedPropSchema.items ? (typeof nestedPropSchema.items === 'function' ? nestedPropSchema.items() : nestedPropSchema.items) : undefined
+                      itemsSchema: getItemsSchema(nestedPropSchema)
                     });
                   });
                 }
@@ -672,7 +672,7 @@ function generateInnerClasses(properties, indentLevel = 0, processedData = null)
               });
             }
             if (propName === 'options') { 
-              logger.debug(`I am here`);
+              logger.debug('I am here');
             }
               
             return ast;
@@ -688,7 +688,7 @@ function generateInnerClasses(properties, indentLevel = 0, processedData = null)
           const isRequired = itemsSchema.required && Array.isArray(itemsSchema.required()) && itemsSchema.required().includes(propertyName);
           
           // Create a property object that getJavaType can understand
-          const propertyObj = {
+          const _propertyObj2 = {
             name: propertyName,
             type: innerPropType, // Always schema type, not Java type
             format: innerPropFormat,
@@ -753,20 +753,20 @@ function generateClass(className, properties, indentLevel = 0, isStatic = false,
   elements.push(React.createElement(Text, null, `${indent}public ${staticKeyword}class ${className}${extendsClause} {`));
   
   // Default constructor
-  const bodyIndent = indent + '    ';
+  const bodyIndent = `${indent  }    `;
   elements.push(React.createElement(Text, null, `${bodyIndent}public ${className}() {`));
   if (extendsClass) {
     elements.push(React.createElement(Text, null, `${bodyIndent}  super();`));
   }
   elements.push(React.createElement(Text, null, `${bodyIndent}}`));
-  elements.push(React.createElement(Text, null, ""));
+  elements.push(React.createElement(Text, null, ''));
   
   // All-args constructor
   elements.push(...generateAllArgsConstructor(className, properties, indentLevel + 1, extendsClass, parentProperties));
   
   // Fields with smart JsonProperty annotations
   elements.push(...generateFields(properties, indentLevel + 1));
-  elements.push(React.createElement(Text, null, ""));
+  elements.push(React.createElement(Text, null, ''));
   
   // Getters and setters
   elements.push(...generateAccessors(className, properties, indentLevel + 1));
@@ -834,18 +834,18 @@ function ModelClass({ schema, params, asyncapi, processedData, extendsClass, par
   const packageName = getSmartPackageName(params, asyncapi, schema);
   if (packageName) {
     elements.push(React.createElement(Text, null, `package ${packageName};`));
-    elements.push(React.createElement(Text, null, ""));
+    elements.push(React.createElement(Text, null, ''));
   }
   
   // 2. SMART IMPORT ANALYSIS (restored from backup + enhanced)
   const importAnalysis = analyzeRequiredImports(schema, processedData);
   
   // Add base imports
-  elements.push(React.createElement(Text, null, "import com.fasterxml.jackson.annotation.JsonInclude;"));
+  elements.push(React.createElement(Text, null, 'import com.fasterxml.jackson.annotation.JsonInclude;'));
   
   // Conditional JsonProperty import (only when needed)
   if (importAnalysis.needsJsonProperty) {
-    elements.push(React.createElement(Text, null, "import com.fasterxml.jackson.annotation.JsonProperty;"));
+    elements.push(React.createElement(Text, null, 'import com.fasterxml.jackson.annotation.JsonProperty;'));
   }
   
   // Add cross-schema imports (using processedData)
@@ -863,7 +863,7 @@ function ModelClass({ schema, params, asyncapi, processedData, extendsClass, par
     elements.push(React.createElement(Text, null, importStatement));
   });
   
-  elements.push(React.createElement(Text, null, ""));
+  elements.push(React.createElement(Text, null, ''));
   
   // 3. DETERMINE CLASS NAME (with multiple fallback strategies)
   const finalClassName = className || 
@@ -1066,7 +1066,5 @@ function prepareSchemaProperties(schema) {
   logger.debug('ModelClass.js: Using empty properties array as fallback');
   return [];
 }
-
-
 
 module.exports = ModelClass; 

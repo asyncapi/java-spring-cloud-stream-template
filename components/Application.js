@@ -14,7 +14,7 @@ function toMethodName(str) {
   if (!str) return '';
   
   // Remove curly braces first
-  let cleaned = str.replace(/([{}])/g, '');
+  const cleaned = str.replace(/([{}])/g, '');
   
   // Split by slashes to handle channel path structure
   const segments = cleaned.split('/');
@@ -52,7 +52,7 @@ function toParameterName(str) {
   if (!str) return '';
   
   // Remove curly braces first
-  let cleaned = str.replace(/([{}])/g, '');
+  const cleaned = str.replace(/([{}])/g, '');
   
   // Convert to proper camelCase (e.g., 'userId' -> 'userId', 'orderID' -> 'orderId')
   // Handle cases where we have consecutive uppercase letters anywhere in the string
@@ -77,37 +77,37 @@ function getInitializationValue(payloadType) {
   }
   
   switch (payloadType) {
-    case 'String':
-      return '""';
-    case 'Integer':
-      return '0';
-    case 'Long':
-      return '0L';
-    case 'Float':
-      return '0.0f';
-    case 'Double':
-      return '0.0';
-    case 'Boolean':
-      return 'false';
-    case 'java.time.OffsetDateTime':
-      return 'java.time.OffsetDateTime.now()';
-    case 'java.time.LocalDate':
-      return 'java.time.LocalDate.now()';
-    case 'java.time.LocalTime':
-      return 'java.time.LocalTime.now()';
-    case 'java.time.LocalDateTime':
-      return 'java.time.LocalDateTime.now()';
-    case 'java.time.Instant':
-      return 'java.time.Instant.now()';
-    case 'java.math.BigDecimal':
-      return 'java.math.BigDecimal.ZERO';
-    case 'byte[]':
-      return 'new byte[0]';
-    case 'Object':
-      return 'new Object()';
-    default:
-      // For complex types, use constructor
-      return `new ${payloadType}()`;
+  case 'String':
+    return '""';
+  case 'Integer':
+    return '0';
+  case 'Long':
+    return '0L';
+  case 'Float':
+    return '0.0f';
+  case 'Double':
+    return '0.0';
+  case 'Boolean':
+    return 'false';
+  case 'java.time.OffsetDateTime':
+    return 'java.time.OffsetDateTime.now()';
+  case 'java.time.LocalDate':
+    return 'java.time.LocalDate.now()';
+  case 'java.time.LocalTime':
+    return 'java.time.LocalTime.now()';
+  case 'java.time.LocalDateTime':
+    return 'java.time.LocalDateTime.now()';
+  case 'java.time.Instant':
+    return 'java.time.Instant.now()';
+  case 'java.math.BigDecimal':
+    return 'java.math.BigDecimal.ZERO';
+  case 'byte[]':
+    return 'new byte[0]';
+  case 'Object':
+    return 'new Object()';
+  default:
+    // For complex types, use constructor
+    return `new ${payloadType}()`;
   }
 }
 
@@ -137,7 +137,7 @@ function Application({ asyncapi, params, processedData }) {
 
   // Package declaration
   elements.push(React.createElement(Text, null, `package ${packageName};`));
-  elements.push(React.createElement(Text, null, ""));
+  elements.push(React.createElement(Text, null, ''));
 
   // Build imports dynamically based on what's actually used
   const usedImports = new Set();
@@ -149,39 +149,39 @@ function Application({ asyncapi, params, processedData }) {
   if (supplierFunctions.length > 0) usedImports.add('java.util.function.Supplier');
   if (functionFunctions.length > 0) usedImports.add('java.util.function.Function');
   if (consumerFunctions.length > 0 || supplierFunctions.length > 0 || functionFunctions.length > 0) {
-      usedImports.add('org.springframework.context.annotation.Bean');
+    usedImports.add('org.springframework.context.annotation.Bean');
       
-      // Only add Message import if functions actually use Message types
-      const usesMessageTypes = funcs.some(f => 
-        f.publishPayload === 'Message<?>' || 
+    // Only add Message import if functions actually use Message types
+    const usesMessageTypes = funcs.some(f => 
+      f.publishPayload === 'Message<?>' || 
         f.subscribePayload === 'Message<?>' ||
         f.publishPayload === 'Message<Object>' || 
         f.subscribePayload === 'Message<Object>' ||
         (f.publishPayload && f.publishPayload.startsWith('Message<')) ||
         (f.subscribePayload && f.subscribePayload.startsWith('Message<')) ||
         f.hasEnumParameters
-      );
-      if (usesMessageTypes) {
-        usedImports.add('org.springframework.messaging.Message');
-      }
+    );
+    if (usesMessageTypes) {
+      usedImports.add('org.springframework.messaging.Message');
+    }
       
-      // Add MessageBuilder import if we have Message<?> payload types
-      if (funcs.some(f => f.publishPayload === 'Message<?>' || f.subscribePayload === 'Message<?>')) {
-          usedImports.add('org.springframework.messaging.support.MessageBuilder');
-      }
+    // Add MessageBuilder import if we have Message<?> payload types
+    if (funcs.some(f => f.publishPayload === 'Message<?>' || f.subscribePayload === 'Message<?>')) {
+      usedImports.add('org.springframework.messaging.support.MessageBuilder');
+    }
   }
   if (sendFunctions.length > 0 || funcs.some(f => f.dynamic)) {
-      if (params.dynamicType === 'streamBridge') {
-          usedImports.add('org.springframework.beans.factory.annotation.Autowired');
-          usedImports.add('org.springframework.cloud.stream.function.StreamBridge');
-      } else {
-          // For header mode, we still need StreamBridge and Message imports
-          usedImports.add('org.springframework.beans.factory.annotation.Autowired');
-          usedImports.add('org.springframework.cloud.stream.function.StreamBridge');
-          usedImports.add('org.springframework.cloud.stream.binder.BinderHeaders');
-          usedImports.add('org.springframework.messaging.Message');
-          usedImports.add('org.springframework.messaging.support.MessageBuilder');
-      }
+    if (params.dynamicType === 'streamBridge') {
+      usedImports.add('org.springframework.beans.factory.annotation.Autowired');
+      usedImports.add('org.springframework.cloud.stream.function.StreamBridge');
+    } else {
+      // For header mode, we still need StreamBridge and Message imports
+      usedImports.add('org.springframework.beans.factory.annotation.Autowired');
+      usedImports.add('org.springframework.cloud.stream.function.StreamBridge');
+      usedImports.add('org.springframework.cloud.stream.binder.BinderHeaders');
+      usedImports.add('org.springframework.messaging.Message');
+      usedImports.add('org.springframework.messaging.support.MessageBuilder');
+    }
   }
   
   // Add Arrays import if we have enum validation (in send functions or consumer functions)
@@ -215,323 +215,323 @@ function Application({ asyncapi, params, processedData }) {
     usedImports.add('org.springframework.messaging.support.MessageBuilder');
   }
   if (params.reactive === true || params.reactive === 'true') {
-      usedImports.add('reactor.core.publisher.Flux');
+    usedImports.add('reactor.core.publisher.Flux');
   }
   // Add imports in the correct order (matching reference)
   const importOrder = [
-      'java.util.Arrays',
-      'java.util.List',
-      'java.util.function.Consumer',
-      'java.util.function.Supplier',
-      'java.util.function.Function',
-      'org.slf4j.Logger',
-      'org.slf4j.LoggerFactory',
-      'org.springframework.beans.factory.annotation.Autowired',
-      'org.springframework.boot.SpringApplication',
-      'org.springframework.boot.autoconfigure.SpringBootApplication',
-      'org.springframework.cloud.stream.function.StreamBridge',
-      'org.springframework.cloud.stream.binder.BinderHeaders',
-      'org.springframework.context.annotation.Bean',
-      'org.springframework.messaging.Message',
-      'org.springframework.messaging.support.MessageBuilder',
-      'reactor.core.publisher.Flux'
+    'java.util.Arrays',
+    'java.util.List',
+    'java.util.function.Consumer',
+    'java.util.function.Supplier',
+    'java.util.function.Function',
+    'org.slf4j.Logger',
+    'org.slf4j.LoggerFactory',
+    'org.springframework.beans.factory.annotation.Autowired',
+    'org.springframework.boot.SpringApplication',
+    'org.springframework.boot.autoconfigure.SpringBootApplication',
+    'org.springframework.cloud.stream.function.StreamBridge',
+    'org.springframework.cloud.stream.binder.BinderHeaders',
+    'org.springframework.context.annotation.Bean',
+    'org.springframework.messaging.Message',
+    'org.springframework.messaging.support.MessageBuilder',
+    'reactor.core.publisher.Flux'
   ];
   const addedImports = new Set();
   importOrder.forEach(importName => {
-      if (usedImports.has(importName) && !addedImports.has(importName)) {
-          elements.push(React.createElement(Text, null, `import ${importName};`));
-          addedImports.add(importName);
-      }
+    if (usedImports.has(importName) && !addedImports.has(importName)) {
+      elements.push(React.createElement(Text, null, `import ${importName};`));
+      addedImports.add(importName);
+    }
   });
   if (extraIncludes && extraIncludes.length > 0) {
-      extraIncludes.forEach(include => {
-          // Filter out JsonProperty import as it's not needed in Application.java
-          if (!include.includes('JsonProperty')) {
-              elements.push(React.createElement(Text, null, `import ${include};`));
-          }
-      });
+    extraIncludes.forEach(include => {
+      // Filter out JsonProperty import as it's not needed in Application.java
+      if (!include.includes('JsonProperty')) {
+        elements.push(React.createElement(Text, null, `import ${include};`));
+      }
+    });
   }
   // Add schema imports (for Avro namespaces, etc.)
   if (imports && imports.length > 0) {
-      imports.forEach(importName => {
-          // Filter out JsonProperty import as it's not needed in Application.java
-          if (!importName.includes('JsonProperty') && !addedImports.has(importName)) {
-              elements.push(React.createElement(Text, null, `import ${importName};`));
-              addedImports.add(importName);
-          }
-      });
+    imports.forEach(importName => {
+      // Filter out JsonProperty import as it's not needed in Application.java
+      if (!importName.includes('JsonProperty') && !addedImports.has(importName)) {
+        elements.push(React.createElement(Text, null, `import ${importName};`));
+        addedImports.add(importName);
+      }
+    });
   }
-  elements.push(React.createElement(Text, null, ""));
-  elements.push(React.createElement(Text, null, "@SpringBootApplication"));
-  elements.push(React.createElement(Text, null, "public class Application {"));
-  elements.push(React.createElement(Text, null, "  private static final Logger logger = LoggerFactory.getLogger(Application.class);"));
-  elements.push(React.createElement(Text, null, ""));
+  elements.push(React.createElement(Text, null, ''));
+  elements.push(React.createElement(Text, null, '@SpringBootApplication'));
+  elements.push(React.createElement(Text, null, 'public class Application {'));
+  elements.push(React.createElement(Text, null, '  private static final Logger logger = LoggerFactory.getLogger(Application.class);'));
+  elements.push(React.createElement(Text, null, ''));
   // Add StreamBridge field for send methods or dynamic functions
   if (sendFunctions.length > 0 || funcs.some(f => f.dynamic)) {
-      // StreamBridge is needed for both streamBridge and header modes
-      elements.push(React.createElement(Text, null, "  @Autowired"));
-      elements.push(React.createElement(Text, null, "  private StreamBridge streamBridge;"));
-      elements.push(React.createElement(Text, null, ""));
+    // StreamBridge is needed for both streamBridge and header modes
+    elements.push(React.createElement(Text, null, '  @Autowired'));
+    elements.push(React.createElement(Text, null, '  private StreamBridge streamBridge;'));
+    elements.push(React.createElement(Text, null, ''));
   }
-  elements.push(React.createElement(Text, null, "  public static void main(String[] args) {"));
-  elements.push(React.createElement(Text, null, "    SpringApplication.run(Application.class);"));
-  elements.push(React.createElement(Text, null, "  }"));
+  elements.push(React.createElement(Text, null, '  public static void main(String[] args) {'));
+  elements.push(React.createElement(Text, null, '    SpringApplication.run(Application.class);'));
+  elements.push(React.createElement(Text, null, '  }'));
   // Generate function beans
   funcs.forEach(func => {
-      if (func.type === 'send') return;
+    if (func.type === 'send') return;
 
-      const payloadType = func.subscribePayload || func.publishPayload || 'Object';
+    const _payloadType = func.subscribePayload || func.publishPayload || 'Object';
       
-      // Add multiple message comment if present
-      if (func.multipleMessageComment) {
-          const commentLines = func.multipleMessageComment.split('\n');
-          commentLines.forEach(line => {
-              if (line.trim()) {
-                  elements.push(React.createElement(Text, null, `  ${line}`));
-              }
-          });
-      }
-      elements.push(React.createElement(Text, null, "  @Bean"));
+    // Add multiple message comment if present
+    if (func.multipleMessageComment) {
+      const commentLines = func.multipleMessageComment.split('\n');
+      commentLines.forEach(line => {
+        if (line.trim()) {
+          elements.push(React.createElement(Text, null, `  ${line}`));
+        }
+      });
+    }
+    elements.push(React.createElement(Text, null, '  @Bean'));
       
-      // Generate function signature with fallback logic
-      let functionSignature = func.functionSignature;
-      if (!functionSignature) {
-        // Fallback: generate function signature based on type and properties
-        // Use correct precedence: for consumers prioritize subscribePayload, for suppliers prioritize publishPayload
-        const payloadType = func.type === 'consumer' 
-          ? (func.subscribePayload || func.publishPayload || 'Object')
-          : (func.publishPayload || func.subscribePayload || 'Object');
+    // Generate function signature with fallback logic
+    let functionSignature = func.functionSignature;
+    if (!functionSignature) {
+      // Fallback: generate function signature based on type and properties
+      // Use correct precedence: for consumers prioritize subscribePayload, for suppliers prioritize publishPayload
+      const payloadType = func.type === 'consumer' 
+        ? (func.subscribePayload || func.publishPayload || 'Object')
+        : (func.publishPayload || func.subscribePayload || 'Object');
 
-        if (func.type === 'supplier') {
-          if (func.dynamic && func.reactive) {
-            functionSignature = `public Supplier<Flux<Message<${payloadType}>>> ${func.name}()`;
-          } else if (func.reactive) {
-            functionSignature = `public Supplier<Flux<${payloadType}>> ${func.name}()`;
-          } else {
-            functionSignature = `public Supplier<${payloadType}> ${func.name}()`;
-          }
-        } else if (func.type === 'consumer') {
-          if (func.reactive) {
-            functionSignature = `public Consumer<Flux<${payloadType}>> ${func.name}()`;
-          } else if (func.dynamic && func.parametersToHeaders) {
-            // Use Consumer<Message<T>> when parametersToHeaders is true and function is dynamic
-            functionSignature = `public Consumer<Message<?>> ${func.name}()`;
-          } else if (func.hasEnumParameters) {
-            // SAFE CHANGE: Use Consumer<Message<T>> when channel has enum parameters for better parameter access
-            if (payloadType === 'Message<?>' || payloadType === 'Message<Object>') {
-              // FIX: Handle the case where payloadType is already Message<?> to avoid double-wrapping
-              functionSignature = `public Consumer<Message<?>> ${func.name}()`;
-            } else {
-              functionSignature = `public Consumer<Message<${payloadType}>> ${func.name}()`;
-            }
-          } else if (payloadType === 'Message<?>' || payloadType === 'Message<Object>') {
+      if (func.type === 'supplier') {
+        if (func.dynamic && func.reactive) {
+          functionSignature = `public Supplier<Flux<Message<${payloadType}>>> ${func.name}()`;
+        } else if (func.reactive) {
+          functionSignature = `public Supplier<Flux<${payloadType}>> ${func.name}()`;
+        } else {
+          functionSignature = `public Supplier<${payloadType}> ${func.name}()`;
+        }
+      } else if (func.type === 'consumer') {
+        if (func.reactive) {
+          functionSignature = `public Consumer<Flux<${payloadType}>> ${func.name}()`;
+        } else if (func.dynamic && func.parametersToHeaders) {
+          // Use Consumer<Message<T>> when parametersToHeaders is true and function is dynamic
+          functionSignature = `public Consumer<Message<?>> ${func.name}()`;
+        } else if (func.hasEnumParameters) {
+          // SAFE CHANGE: Use Consumer<Message<T>> when channel has enum parameters for better parameter access
+          if (payloadType === 'Message<?>' || payloadType === 'Message<Object>') {
             // FIX: Handle the case where payloadType is already Message<?> to avoid double-wrapping
             functionSignature = `public Consumer<Message<?>> ${func.name}()`;
           } else {
-            functionSignature = `public Consumer<${payloadType}> ${func.name}()`;
+            functionSignature = `public Consumer<Message<${payloadType}>> ${func.name}()`;
           }
-        } else if (func.type === 'function') {
-          const inputType = func.subscribePayload || 'Object';
-          const outputType = func.publishPayload || func.messageName || 'Object';
-          if (func.reactive) {
-            functionSignature = `public Function<Flux<${inputType}>, Flux<${outputType}>> ${func.name}()`;
-          } else {
-            functionSignature = `public Function<${inputType}, ${outputType}> ${func.name}()`;
-          }
+        } else if (payloadType === 'Message<?>' || payloadType === 'Message<Object>') {
+          // FIX: Handle the case where payloadType is already Message<?> to avoid double-wrapping
+          functionSignature = `public Consumer<Message<?>> ${func.name}()`;
         } else {
-          functionSignature = `public Object ${func.name || 'unknownFunction'}()`;
+          functionSignature = `public Consumer<${payloadType}> ${func.name}()`;
         }
-      }
-      
-      elements.push(React.createElement(Text, null, `  ${functionSignature} {`));
-      // Function body
-      if (func.type === 'supplier') {
-          if (func.reactive) {
-            // Reactive supplier returns Flux
-            elements.push(React.createElement(Text, null, "    return () -> {"));
-            elements.push(React.createElement(Text, null, "      // Add business logic here."));
-            elements.push(React.createElement(Text, null, "      // Return a Flux stream"));
-            const payloadType = func.publishPayload || 'Object';
-            if (payloadType === 'Message<?>' || payloadType === 'Message<Object>') {
-              elements.push(React.createElement(Text, null, "      // Create sample payload - replace with actual business logic"));
-              elements.push(React.createElement(Text, null, "      Object payload = new Object(); // TODO: Replace with actual message payload"));
-              elements.push(React.createElement(Text, null, "      return Flux.just(MessageBuilder.withPayload(payload).build());"));
-            } else {
-              const initValue = getInitializationValue(payloadType);
-              elements.push(React.createElement(Text, null, `      ${payloadType} payload = ${initValue};`));
-              if (func.dynamic) {
-                elements.push(React.createElement(Text, null, "      return Flux.just(MessageBuilder.withPayload(payload).build());"));
-              } else {
-                elements.push(React.createElement(Text, null, "      return Flux.just(payload);"));
-              }
-            }
-            elements.push(React.createElement(Text, null, "    };"));
-          } else {
-            // Non-reactive supplier
-            elements.push(React.createElement(Text, null, "    return () -> {"));
-            elements.push(React.createElement(Text, null, "      // Add business logic here."));
-            // Create proper message with payload
-            const payloadType = func.publishPayload || 'Object';
-            // Handle Message<?> type specially - create a default payload object
-            if (payloadType === 'Message<?>' || payloadType === 'Message<Object>') {
-                elements.push(React.createElement(Text, null, "      // Create sample payload - replace with actual business logic"));
-                elements.push(React.createElement(Text, null, "      Object payload = new Object(); // TODO: Replace with actual message payload"));
-                // For Message<?> types, always wrap in MessageBuilder
-                elements.push(React.createElement(Text, null, "      return MessageBuilder.withPayload(payload).build();"));
-            } else {
-                const initValue = getInitializationValue(payloadType);
-                elements.push(React.createElement(Text, null, `      ${payloadType} payload = ${initValue};`));
-                // For specific types, return payload directly (unless dynamic)
-                if (func.dynamic) {
-                    elements.push(React.createElement(Text, null, "      return MessageBuilder.withPayload(payload).build();"));
-                } else {
-                    elements.push(React.createElement(Text, null, "      return payload;"));
-                }
-            }
-            elements.push(React.createElement(Text, null, "    };"));
-          }
-      } else if (func.type === 'consumer') {
-          if (func.reactive) {
-            // Reactive consumer handles Flux
-            elements.push(React.createElement(Text, null, "    return flux -> {"));
-            elements.push(React.createElement(Text, null, "      // Add business logic here."));
-            elements.push(React.createElement(Text, null, "      // Process each item in the Flux stream"));
-            elements.push(React.createElement(Text, null, "      flux.doOnNext(data -> {"));
-            elements.push(React.createElement(Text, null, "        logger.info(data.toString());"));
-            elements.push(React.createElement(Text, null, "        // Add your processing logic here"));
-            elements.push(React.createElement(Text, null, "      }).subscribe();"));
-            elements.push(React.createElement(Text, null, "    };"));
-          } else if (func.dynamic && func.parametersToHeaders) {
-            // When using Consumer<Message<T>>, parameter is 'message' and payload is extracted
-            elements.push(React.createElement(Text, null, "    return message -> {"));
-            elements.push(React.createElement(Text, null, "      // Add business logic here."));
-            elements.push(React.createElement(Text, null, "      // Extract payload from message"));
-            const payloadType = func.subscribePayload || 'Object';
-            elements.push(React.createElement(Text, null, `      ${payloadType} data = message.getPayload();`));
-            elements.push(React.createElement(Text, null, "      // Access channel parameters from message headers if needed"));
-            elements.push(React.createElement(Text, null, "      // Example: String param = (String) message.getHeaders().get(\"paramName\");"));
-            elements.push(React.createElement(Text, null, "      logger.info(data.toString());"));
-            elements.push(React.createElement(Text, null, "    };"));
-          } else if (func.hasEnumParameters) {
-            // SAFE CHANGE: Handle Message<T> for enum parameters
-            elements.push(React.createElement(Text, null, "    return message -> {"));
-            elements.push(React.createElement(Text, null, "      // Extract payload from message"));
-            // FIX: When subscribePayload is Message<?>, extract as Object to avoid double-wrapping
-            const payloadType = (func.subscribePayload === 'Message<?>' || func.subscribePayload === 'Message<Object>') 
-              ? 'Object' 
-              : (func.subscribePayload || 'Object');
-            elements.push(React.createElement(Text, null, `      ${payloadType} data = message.getPayload();`));
-            
-            // Add parameter extraction and validation for enum parameters (only for Solace binder)
-            if (params.binder === 'solace') {
-              const consumerValidationCode = generateConsumerParameterValidation(func);
-              if (consumerValidationCode.length > 0) {
-                elements.push(React.createElement(Text, null, "      // Extract and validate topic parameters from solace_destination header"));
-                elements.push(React.createElement(Text, null, "      // This validation ensures topic parameters match the generated enum constants"));
-                elements.push(React.createElement(Text, null, "      // Note: This is specific to Solace binder - solace_destination header contains the topic path"));
-                consumerValidationCode.forEach(line => {
-                  elements.push(React.createElement(Text, null, `      ${line}`));
-                });
-                elements.push(React.createElement(Text, null, ""));
-              }
-            }
-            
-            elements.push(React.createElement(Text, null, "      // Add business logic here."));
-            elements.push(React.createElement(Text, null, "      logger.info(data.toString());"));
-            elements.push(React.createElement(Text, null, "    };"));
-          } else if (func.subscribePayload === 'Message<?>' || func.subscribePayload === 'Message<Object>') {
-            // FIX: Handle the case where subscribePayload is already Message<?> to avoid double payload extraction
-            elements.push(React.createElement(Text, null, "    return message -> {"));
-            elements.push(React.createElement(Text, null, "      // Extract payload from message"));
-            elements.push(React.createElement(Text, null, "      Object data = message.getPayload();"));
-            elements.push(React.createElement(Text, null, "      // Add business logic here."));
-            elements.push(React.createElement(Text, null, "      logger.info(data.toString());"));
-            elements.push(React.createElement(Text, null, "    };"));
-          } else {
-            elements.push(React.createElement(Text, null, "    return data -> {"));
-            elements.push(React.createElement(Text, null, "      // Add business logic here."));
-            elements.push(React.createElement(Text, null, "      logger.info(data.toString());"));
-            elements.push(React.createElement(Text, null, "    };"));
-          }
       } else if (func.type === 'function') {
-          elements.push(React.createElement(Text, null, "    return data -> {"));
-          elements.push(React.createElement(Text, null, "      // Add business logic here."));
-          elements.push(React.createElement(Text, null, "      logger.info(data.toString());"));
-          const payloadType = func.publishPayload || 'Object';
-          // Handle Message<?> type specially - cannot instantiate directly
-          if (payloadType === 'Message<?>' || payloadType === 'Message<Object>') {
-              elements.push(React.createElement(Text, null, "      // Process input data and create response"));
-              elements.push(React.createElement(Text, null, "      // TODO: Replace with actual business logic to generate output data"));
-              elements.push(React.createElement(Text, null, "      Object payload = data.getPayload();"));
-              elements.push(React.createElement(Text, null, "      return MessageBuilder.withPayload(payload).build();"));
-          } else {
-              elements.push(React.createElement(Text, null, "      // Process input data and return response"));
-              elements.push(React.createElement(Text, null, "      // TODO: Replace with actual business logic to generate output data"));
-              elements.push(React.createElement(Text, null, `      ${payloadType} payload = new ${payloadType}();`));  
-              elements.push(React.createElement(Text, null, "      return payload;"));
-          }
-          elements.push(React.createElement(Text, null, "    };"));
+        const inputType = func.subscribePayload || 'Object';
+        const outputType = func.publishPayload || func.messageName || 'Object';
+        if (func.reactive) {
+          functionSignature = `public Function<Flux<${inputType}>, Flux<${outputType}>> ${func.name}()`;
+        } else {
+          functionSignature = `public Function<${inputType}, ${outputType}> ${func.name}()`;
+        }
+      } else {
+        functionSignature = `public Object ${func.name || 'unknownFunction'}()`;
       }
-      elements.push(React.createElement(Text, null, "  }"));
+    }
+      
+    elements.push(React.createElement(Text, null, `  ${functionSignature} {`));
+    // Function body
+    if (func.type === 'supplier') {
+      if (func.reactive) {
+        // Reactive supplier returns Flux
+        elements.push(React.createElement(Text, null, '    return () -> {'));
+        elements.push(React.createElement(Text, null, '      // Add business logic here.'));
+        elements.push(React.createElement(Text, null, '      // Return a Flux stream'));
+        const payloadType = func.publishPayload || 'Object';
+        if (payloadType === 'Message<?>' || payloadType === 'Message<Object>') {
+          elements.push(React.createElement(Text, null, '      // Create sample payload - replace with actual business logic'));
+          elements.push(React.createElement(Text, null, '      Object payload = new Object(); // TODO: Replace with actual message payload'));
+          elements.push(React.createElement(Text, null, '      return Flux.just(MessageBuilder.withPayload(payload).build());'));
+        } else {
+          const initValue = getInitializationValue(payloadType);
+          elements.push(React.createElement(Text, null, `      ${payloadType} payload = ${initValue};`));
+          if (func.dynamic) {
+            elements.push(React.createElement(Text, null, '      return Flux.just(MessageBuilder.withPayload(payload).build());'));
+          } else {
+            elements.push(React.createElement(Text, null, '      return Flux.just(payload);'));
+          }
+        }
+        elements.push(React.createElement(Text, null, '    };'));
+      } else {
+        // Non-reactive supplier
+        elements.push(React.createElement(Text, null, '    return () -> {'));
+        elements.push(React.createElement(Text, null, '      // Add business logic here.'));
+        // Create proper message with payload
+        const payloadType = func.publishPayload || 'Object';
+        // Handle Message<?> type specially - create a default payload object
+        if (payloadType === 'Message<?>' || payloadType === 'Message<Object>') {
+          elements.push(React.createElement(Text, null, '      // Create sample payload - replace with actual business logic'));
+          elements.push(React.createElement(Text, null, '      Object payload = new Object(); // TODO: Replace with actual message payload'));
+          // For Message<?> types, always wrap in MessageBuilder
+          elements.push(React.createElement(Text, null, '      return MessageBuilder.withPayload(payload).build();'));
+        } else {
+          const initValue = getInitializationValue(payloadType);
+          elements.push(React.createElement(Text, null, `      ${payloadType} payload = ${initValue};`));
+          // For specific types, return payload directly (unless dynamic)
+          if (func.dynamic) {
+            elements.push(React.createElement(Text, null, '      return MessageBuilder.withPayload(payload).build();'));
+          } else {
+            elements.push(React.createElement(Text, null, '      return payload;'));
+          }
+        }
+        elements.push(React.createElement(Text, null, '    };'));
+      }
+    } else if (func.type === 'consumer') {
+      if (func.reactive) {
+        // Reactive consumer handles Flux
+        elements.push(React.createElement(Text, null, '    return flux -> {'));
+        elements.push(React.createElement(Text, null, '      // Add business logic here.'));
+        elements.push(React.createElement(Text, null, '      // Process each item in the Flux stream'));
+        elements.push(React.createElement(Text, null, '      flux.doOnNext(data -> {'));
+        elements.push(React.createElement(Text, null, '        logger.info(data.toString());'));
+        elements.push(React.createElement(Text, null, '        // Add your processing logic here'));
+        elements.push(React.createElement(Text, null, '      }).subscribe();'));
+        elements.push(React.createElement(Text, null, '    };'));
+      } else if (func.dynamic && func.parametersToHeaders) {
+        // When using Consumer<Message<T>>, parameter is 'message' and payload is extracted
+        elements.push(React.createElement(Text, null, '    return message -> {'));
+        elements.push(React.createElement(Text, null, '      // Add business logic here.'));
+        elements.push(React.createElement(Text, null, '      // Extract payload from message'));
+        const payloadType = func.subscribePayload || 'Object';
+        elements.push(React.createElement(Text, null, `      ${payloadType} data = message.getPayload();`));
+        elements.push(React.createElement(Text, null, '      // Access channel parameters from message headers if needed'));
+        elements.push(React.createElement(Text, null, '      // Example: String param = (String) message.getHeaders().get("paramName");'));
+        elements.push(React.createElement(Text, null, '      logger.info(data.toString());'));
+        elements.push(React.createElement(Text, null, '    };'));
+      } else if (func.hasEnumParameters) {
+        // SAFE CHANGE: Handle Message<T> for enum parameters
+        elements.push(React.createElement(Text, null, '    return message -> {'));
+        elements.push(React.createElement(Text, null, '      // Extract payload from message'));
+        // FIX: When subscribePayload is Message<?>, extract as Object to avoid double-wrapping
+        const payloadType = (func.subscribePayload === 'Message<?>' || func.subscribePayload === 'Message<Object>') 
+          ? 'Object' 
+          : (func.subscribePayload || 'Object');
+        elements.push(React.createElement(Text, null, `      ${payloadType} data = message.getPayload();`));
+            
+        // Add parameter extraction and validation for enum parameters (only for Solace binder)
+        if (params.binder === 'solace') {
+          const consumerValidationCode = generateConsumerParameterValidation(func);
+          if (consumerValidationCode.length > 0) {
+            elements.push(React.createElement(Text, null, '      // Extract and validate topic parameters from solace_destination header'));
+            elements.push(React.createElement(Text, null, '      // This validation ensures topic parameters match the generated enum constants'));
+            elements.push(React.createElement(Text, null, '      // Note: This is specific to Solace binder - solace_destination header contains the topic path'));
+            consumerValidationCode.forEach(line => {
+              elements.push(React.createElement(Text, null, `      ${line}`));
+            });
+            elements.push(React.createElement(Text, null, ''));
+          }
+        }
+            
+        elements.push(React.createElement(Text, null, '      // Add business logic here.'));
+        elements.push(React.createElement(Text, null, '      logger.info(data.toString());'));
+        elements.push(React.createElement(Text, null, '    };'));
+      } else if (func.subscribePayload === 'Message<?>' || func.subscribePayload === 'Message<Object>') {
+        // FIX: Handle the case where subscribePayload is already Message<?> to avoid double payload extraction
+        elements.push(React.createElement(Text, null, '    return message -> {'));
+        elements.push(React.createElement(Text, null, '      // Extract payload from message'));
+        elements.push(React.createElement(Text, null, '      Object data = message.getPayload();'));
+        elements.push(React.createElement(Text, null, '      // Add business logic here.'));
+        elements.push(React.createElement(Text, null, '      logger.info(data.toString());'));
+        elements.push(React.createElement(Text, null, '    };'));
+      } else {
+        elements.push(React.createElement(Text, null, '    return data -> {'));
+        elements.push(React.createElement(Text, null, '      // Add business logic here.'));
+        elements.push(React.createElement(Text, null, '      logger.info(data.toString());'));
+        elements.push(React.createElement(Text, null, '    };'));
+      }
+    } else if (func.type === 'function') {
+      elements.push(React.createElement(Text, null, '    return data -> {'));
+      elements.push(React.createElement(Text, null, '      // Add business logic here.'));
+      elements.push(React.createElement(Text, null, '      logger.info(data.toString());'));
+      const payloadType = func.publishPayload || 'Object';
+      // Handle Message<?> type specially - cannot instantiate directly
+      if (payloadType === 'Message<?>' || payloadType === 'Message<Object>') {
+        elements.push(React.createElement(Text, null, '      // Process input data and create response'));
+        elements.push(React.createElement(Text, null, '      // TODO: Replace with actual business logic to generate output data'));
+        elements.push(React.createElement(Text, null, '      Object payload = data.getPayload();'));
+        elements.push(React.createElement(Text, null, '      return MessageBuilder.withPayload(payload).build();'));
+      } else {
+        elements.push(React.createElement(Text, null, '      // Process input data and return response'));
+        elements.push(React.createElement(Text, null, '      // TODO: Replace with actual business logic to generate output data'));
+        elements.push(React.createElement(Text, null, `      ${payloadType} payload = new ${payloadType}();`));  
+        elements.push(React.createElement(Text, null, '      return payload;'));
+      }
+      elements.push(React.createElement(Text, null, '    };'));
+    }
+    elements.push(React.createElement(Text, null, '  }'));
   });
   // Generate enum classes for channel parameters with enum definitions
   const enumClasses = generateEnumClasses(processedData, asyncapi);
   if (enumClasses.length > 0) {
-    elements.push(React.createElement(Text, null, ""));
-    elements.push(React.createElement(Text, null, "  // Enum classes for channel parameters"));
-    elements.push(React.createElement(Text, null, "  // These enums are generated from AsyncAPI channel parameter enum definitions"));
-    elements.push(React.createElement(Text, null, "  // and handle various data formats (numeric, spaces, camelCase) for valid Java constants"));
+    elements.push(React.createElement(Text, null, ''));
+    elements.push(React.createElement(Text, null, '  // Enum classes for channel parameters'));
+    elements.push(React.createElement(Text, null, '  // These enums are generated from AsyncAPI channel parameter enum definitions'));
+    elements.push(React.createElement(Text, null, '  // and handle various data formats (numeric, spaces, camelCase) for valid Java constants'));
     enumClasses.forEach(enumClass => {
       elements.push(React.createElement(Text, null, `  public static enum ${enumClass.name} {`));
       elements.push(React.createElement(Text, null, `    ${enumClass.values.join(', ')}`));
-      elements.push(React.createElement(Text, null, "  }"));
-      elements.push(React.createElement(Text, null, ""));
+      elements.push(React.createElement(Text, null, '  }'));
+      elements.push(React.createElement(Text, null, ''));
     });
   }
 
   // Generate send methods if required
   sendFunctions.forEach(func => {
-      if (func.sendMethodName) {
-          elements.push(React.createElement(Text, null, ""));
-          const payloadType = func.publishPayload || 'Object';
-          elements.push(React.createElement(Text, null, `  public void ${func.sendMethodName}(`));
-          elements.push(React.createElement(Text, null, `    ${payloadType} payload, ${func.channelInfo.functionParamList}`));
-          elements.push(React.createElement(Text, null, "  ) {"));
+    if (func.sendMethodName) {
+      elements.push(React.createElement(Text, null, ''));
+      const payloadType = func.publishPayload || 'Object';
+      elements.push(React.createElement(Text, null, `  public void ${func.sendMethodName}(`));
+      elements.push(React.createElement(Text, null, `    ${payloadType} payload, ${func.channelInfo.functionParamList}`));
+      elements.push(React.createElement(Text, null, '  ) {'));
           
-          // Add parameter validation for enum parameters
-          const validationCode = generateParameterValidation(func);
-          if (validationCode.length > 0) {
-            elements.push(React.createElement(Text, null, "    // Parameter validation for enum values"));
-            elements.push(React.createElement(Text, null, "    // This validation ensures input parameters match the generated enum constants"));
-            elements.push(React.createElement(Text, null, "    // and handles normalization for different data formats (numeric, spaces, etc.)"));
-            validationCode.forEach(line => {
-              elements.push(React.createElement(Text, null, `    ${line}`));
-            });
-            elements.push(React.createElement(Text, null, ""));
-          }
-          // Replace {param} with %s in the topic string for String.format
-          logger.debug(`Application.js: Processing send function ${func.sendMethodName}, channelInfo:`, func.channelInfo);
-          if (!func.channelInfo || !func.channelInfo.publishChannel) {
-            logger.warn(`Application.js: Missing channelInfo or publishChannel for function ${func.sendMethodName}`);
-            return;
-          }
-          const topicFormat = func.channelInfo.publishChannel.replace(/\{[^}]+\}/g, '%s');
-          elements.push(React.createElement(Text, null, `    String topic = String.format(\"${topicFormat}\",`));
-          elements.push(React.createElement(Text, null, `      ${func.channelInfo.functionArgList});`));
-          
-          if (params.dynamicType === 'header') {
-            elements.push(React.createElement(Text, null, "    Message message = MessageBuilder"));
-            elements.push(React.createElement(Text, null, "      .withPayload(payload)"));
-            elements.push(React.createElement(Text, null, "      .setHeader(BinderHeaders.TARGET_DESTINATION, topic)"));
-            elements.push(React.createElement(Text, null, "      .build();"));
-            elements.push(React.createElement(Text, null, "    streamBridge.send(topic, message);"));
-          } else {
-            elements.push(React.createElement(Text, null, "    streamBridge.send(topic, payload);"));
-          }
-          elements.push(React.createElement(Text, null, "  }"));
+      // Add parameter validation for enum parameters
+      const validationCode = generateParameterValidation(func);
+      if (validationCode.length > 0) {
+        elements.push(React.createElement(Text, null, '    // Parameter validation for enum values'));
+        elements.push(React.createElement(Text, null, '    // This validation ensures input parameters match the generated enum constants'));
+        elements.push(React.createElement(Text, null, '    // and handles normalization for different data formats (numeric, spaces, etc.)'));
+        validationCode.forEach(line => {
+          elements.push(React.createElement(Text, null, `    ${line}`));
+        });
+        elements.push(React.createElement(Text, null, ''));
       }
+      // Replace {param} with %s in the topic string for String.format
+      logger.debug(`Application.js: Processing send function ${func.sendMethodName}, channelInfo:`, func.channelInfo);
+      if (!func.channelInfo || !func.channelInfo.publishChannel) {
+        logger.warn(`Application.js: Missing channelInfo or publishChannel for function ${func.sendMethodName}`);
+        return;
+      }
+      const topicFormat = func.channelInfo.publishChannel.replace(/\{[^}]+\}/g, '%s');
+      elements.push(React.createElement(Text, null, `    String topic = String.format(\"${topicFormat}\",`));
+      elements.push(React.createElement(Text, null, `      ${func.channelInfo.functionArgList});`));
+          
+      if (params.dynamicType === 'header') {
+        elements.push(React.createElement(Text, null, '    Message message = MessageBuilder'));
+        elements.push(React.createElement(Text, null, '      .withPayload(payload)'));
+        elements.push(React.createElement(Text, null, '      .setHeader(BinderHeaders.TARGET_DESTINATION, topic)'));
+        elements.push(React.createElement(Text, null, '      .build();'));
+        elements.push(React.createElement(Text, null, '    streamBridge.send(topic, message);'));
+      } else {
+        elements.push(React.createElement(Text, null, '    streamBridge.send(topic, payload);'));
+      }
+      elements.push(React.createElement(Text, null, '  }'));
+    }
   });
-  elements.push(React.createElement(Text, null, "}"));
+  elements.push(React.createElement(Text, null, '}'));
   return elements;
 }
 
@@ -625,7 +625,7 @@ function generateEnumClasses(processedData, asyncapi) {
                 // CASE 1: Numeric values (e.g., "3487", "3490")
                 // Java enum constants cannot start with numbers, so prefix with "V_"
                 // Example: "3487" becomes "V_3487"
-                if (/^\d+$/.test(value)) {
+                if ((/^\d+$/).test(value)) {
                   return `V_${value}`;
                 }
                 
@@ -691,7 +691,7 @@ function generateEnumClasses(processedData, asyncapi) {
                   const validEnumValues = enumValues.map(value => {
                     if (typeof value === 'string') {
                       // CASE 1: Numeric values (e.g., "3487", "3490")
-                      if (/^\d+$/.test(value)) {
+                      if ((/^\d+$/).test(value)) {
                         return `V_${value}`;
                       }
                       
@@ -784,58 +784,55 @@ function generateParameterValidation(func) {
         // STEP 1: Null check validation
         validationCode.push(`if (${paramName} == null) {`);
         validationCode.push(`  throw new IllegalArgumentException("${paramName} cannot be null");`);
-        validationCode.push(`}`);
+        validationCode.push('}');
         
         // STEP 2: Enum value validation with normalization
-        validationCode.push(`try {`);
+        validationCode.push('try {');
         
         // Convert the parameter value to match enum format if needed
         const hasSpaces = param.enumValues.some(value => typeof value === 'string' && value.includes(' '));
-        const hasNumericValues = param.enumValues.some(value => typeof value === 'string' && /^\d+$/.test(value));
+        const hasNumericValues = param.enumValues.some(value => typeof value === 'string' && (/^\d+$/).test(value));
         
         if (hasSpaces && hasNumericValues) {
           // CASE 1: Mixed enum values (both spaces and numeric values)
           // Example: ["3487", "Mobile Application", "3490", "Test Data Generation"]
-          validationCode.push(`  String normalizedValue;`);
+          validationCode.push('  String normalizedValue;');
           validationCode.push(`  if (${paramName}.matches("^\\\\d+$")) {`);
-          validationCode.push(`    // Numeric input: prefix with "V_" to match enum constant`);
-          validationCode.push(`    // Example: "3487" -> "V_3487"`);
+          validationCode.push('    // Numeric input: prefix with "V_" to match enum constant');
+          validationCode.push('    // Example: "3487" -> "V_3487"');
           validationCode.push(`    normalizedValue = "V_" + ${paramName};`);
-          validationCode.push(`  } else {`);
-          validationCode.push(`    // String input with spaces: convert to UPPER_CASE with underscores`);
-          validationCode.push(`    // Example: "Mobile Application" -> "MOBILE_APPLICATION"`);
+          validationCode.push('  } else {');
+          validationCode.push('    // String input with spaces: convert to UPPER_CASE with underscores');
+          validationCode.push('    // Example: "Mobile Application" -> "MOBILE_APPLICATION"');
           validationCode.push(`    normalizedValue = ${paramName}.replace(" ", "_");`);
-          validationCode.push(`  }`);
+          validationCode.push('  }');
           validationCode.push(`  ${enumName}.valueOf(normalizedValue);`);
-          
         } else if (hasSpaces) {
           // CASE 2: Only string values with spaces
           // Example: ["Mobile Application", "Test Data Generation"]
-          validationCode.push(`  // Normalize string values: spaces -> underscores`);
-          validationCode.push(`  // Example: "Mobile Application" -> "MOBILE_APPLICATION"`);
+          validationCode.push('  // Normalize string values: spaces -> underscores');
+          validationCode.push('  // Example: "Mobile Application" -> "MOBILE_APPLICATION"');
           validationCode.push(`  String normalizedValue = ${paramName}.replace(" ", "_");`);
           validationCode.push(`  ${enumName}.valueOf(normalizedValue);`);
-          
         } else if (hasNumericValues) {
           // CASE 3: Only numeric values
           // Example: ["3487", "3490", "3555"]
-          validationCode.push(`  // Normalize numeric values: prefix with "V_" if numeric`);
-          validationCode.push(`  // Example: "3487" -> "V_3487", "abc" -> "abc" (unchanged)`);
+          validationCode.push('  // Normalize numeric values: prefix with "V_" if numeric');
+          validationCode.push('  // Example: "3487" -> "V_3487", "abc" -> "abc" (unchanged)');
           validationCode.push(`  String normalizedValue = ${paramName}.matches("^\\\\d+$") ? "V_" + ${paramName} : ${paramName};`);
           validationCode.push(`  ${enumName}.valueOf(normalizedValue);`);
-          
         } else {
           // CASE 4: Simple string values (camelCase, etc.)
           // Example: ["customerInitiated", "onlinePaid"]
-          validationCode.push(`  // Direct validation for simple string values (no normalization needed)`);
+          validationCode.push('  // Direct validation for simple string values (no normalization needed)');
           validationCode.push(`  ${enumName}.valueOf(${paramName});`);
         }
         
         // STEP 3: Error handling with helpful error message
-        validationCode.push(`} catch (IllegalArgumentException e) {`);
-        validationCode.push(`  // Provide detailed error message with all valid enum values`);
+        validationCode.push('} catch (IllegalArgumentException e) {');
+        validationCode.push('  // Provide detailed error message with all valid enum values');
         validationCode.push(`  throw new IllegalArgumentException("Invalid ${paramName}: " + ${paramName} + ". Valid values: " + Arrays.toString(${enumName}.values()));`);
-        validationCode.push(`}`);
+        validationCode.push('}');
       }
     });
   }
@@ -861,12 +858,12 @@ function generateConsumerParameterValidation(func) {
   
   if (func.parameters && func.parameters.length > 0) {
     // First, extract the solace_destination header and split the topic path
-    validationCode.push(`// Extract topic parameters from solace_destination header`);
-    validationCode.push(`Object solaceDestinationHeader = message.getHeaders().get("solace_destination");`);
-    validationCode.push(`String solaceDestination = solaceDestinationHeader != null ? solaceDestinationHeader.toString() : null;`);
-    validationCode.push(`if (solaceDestination != null) {`);
-    validationCode.push(`  String[] topicSegments = solaceDestination.split("/");`);
-    validationCode.push(`  logger.info("Topic segments: " + Arrays.toString(topicSegments));`);
+    validationCode.push('// Extract topic parameters from solace_destination header');
+    validationCode.push('Object solaceDestinationHeader = message.getHeaders().get("solace_destination");');
+    validationCode.push('String solaceDestination = solaceDestinationHeader != null ? solaceDestinationHeader.toString() : null;');
+    validationCode.push('if (solaceDestination != null) {');
+    validationCode.push('  String[] topicSegments = solaceDestination.split("/");');
+    validationCode.push('  logger.info("Topic segments: " + Arrays.toString(topicSegments));');
     
     // Sort parameters by position to ensure correct extraction order
     const sortedParams = func.parameters
@@ -874,7 +871,7 @@ function generateConsumerParameterValidation(func) {
       .sort((a, b) => a.position - b.position);
     
     if (sortedParams.length > 0) {
-      validationCode.push(`  // Extract enum parameters by position from topic path`);
+      validationCode.push('  // Extract enum parameters by position from topic path');
       
       sortedParams.forEach(param => {
         const enumName = toPascalCase(param.name);
@@ -884,59 +881,56 @@ function generateConsumerParameterValidation(func) {
         validationCode.push(`  // Extract ${paramName} from position ${position} in topic path`);
         validationCode.push(`  if (topicSegments.length > ${position}) {`);
         validationCode.push(`    String ${paramName} = topicSegments[${position}];`);
-        validationCode.push(`    try {`);
+        validationCode.push('    try {');
         
         // Convert the parameter value to match enum format if needed
         const hasSpaces = param.enumValues.some(value => typeof value === 'string' && value.includes(' '));
-        const hasNumericValues = param.enumValues.some(value => typeof value === 'string' && /^\d+$/.test(value));
+        const hasNumericValues = param.enumValues.some(value => typeof value === 'string' && (/^\d+$/).test(value));
         
         if (hasSpaces && hasNumericValues) {
           // CASE 1: Mixed enum values (both spaces and numeric values)
-          validationCode.push(`      String normalizedValue;`);
+          validationCode.push('      String normalizedValue;');
           validationCode.push(`      if (${paramName}.matches("^\\\\d+$")) {`);
-          validationCode.push(`        // Numeric input: prefix with "V_" to match enum constant`);
+          validationCode.push('        // Numeric input: prefix with "V_" to match enum constant');
           validationCode.push(`        normalizedValue = "V_" + ${paramName};`);
-          validationCode.push(`      } else {`);
-          validationCode.push(`        // String input with spaces: convert to UPPER_CASE with underscores`);
+          validationCode.push('      } else {');
+          validationCode.push('        // String input with spaces: convert to UPPER_CASE with underscores');
           validationCode.push(`        normalizedValue = ${paramName}.replace(" ", "_");`);
-          validationCode.push(`      }`);
+          validationCode.push('      }');
           validationCode.push(`      ${enumName} validated${toPascalCase(paramName)} = ${enumName}.valueOf(normalizedValue);`);
           validationCode.push(`      logger.info("Validated ${paramName} from topic position ${position}: " + validated${toPascalCase(paramName)});`);
-          
         } else if (hasSpaces) {
           // CASE 2: Only string values with spaces
-          validationCode.push(`      // Normalize string values: spaces -> underscores`);
+          validationCode.push('      // Normalize string values: spaces -> underscores');
           validationCode.push(`      String normalizedValue = ${paramName}.replace(" ", "_");`);
           validationCode.push(`      ${enumName} validated${toPascalCase(paramName)} = ${enumName}.valueOf(normalizedValue);`);
           validationCode.push(`      logger.info("Validated ${paramName} from topic position ${position}: " + validated${toPascalCase(paramName)});`);
-          
         } else if (hasNumericValues) {
           // CASE 3: Only numeric values
-          validationCode.push(`      // Normalize numeric values: prefix with "V_" if numeric`);
+          validationCode.push('      // Normalize numeric values: prefix with "V_" if numeric');
           validationCode.push(`      String normalizedValue = ${paramName}.matches("^\\\\d+$") ? "V_" + ${paramName} : ${paramName};`);
           validationCode.push(`      ${enumName} validated${toPascalCase(paramName)} = ${enumName}.valueOf(normalizedValue);`);
           validationCode.push(`      logger.info("Validated ${paramName} from topic position ${position}: " + validated${toPascalCase(paramName)});`);
-          
         } else {
           // CASE 4: Simple string values (camelCase, etc.)
-          validationCode.push(`      // Direct validation for simple string values (no normalization needed)`);
+          validationCode.push('      // Direct validation for simple string values (no normalization needed)');
           validationCode.push(`      ${enumName} validated${toPascalCase(paramName)} = ${enumName}.valueOf(${paramName});`);
           validationCode.push(`      logger.info("Validated ${paramName} from topic position ${position}: " + validated${toPascalCase(paramName)});`);
         }
         
         // Error handling
-        validationCode.push(`    } catch (IllegalArgumentException e) {`);
+        validationCode.push('    } catch (IllegalArgumentException e) {');
         validationCode.push(`      logger.warn("Invalid ${paramName} at topic position ${position}: " + ${paramName} + ". Valid values: " + Arrays.toString(${enumName}.values()));`);
-        validationCode.push(`    }`);
-        validationCode.push(`  } else {`);
+        validationCode.push('    }');
+        validationCode.push('  } else {');
         validationCode.push(`    logger.warn("Topic path too short, expected ${paramName} at position ${position} but only " + topicSegments.length + " segments found");`);
-        validationCode.push(`  }`);
+        validationCode.push('  }');
       });
     }
     
-    validationCode.push(`} else {`);
-    validationCode.push(`  logger.debug("No solace_destination found in message headers");`);
-    validationCode.push(`}`);
+    validationCode.push('} else {');
+    validationCode.push('  logger.debug("No solace_destination found in message headers");');
+    validationCode.push('}');
   }
   
   return validationCode;

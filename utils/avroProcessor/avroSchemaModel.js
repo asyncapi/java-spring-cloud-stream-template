@@ -2,6 +2,80 @@ const _ = require('lodash');
 const { logger } = require('../logger');
 const { stripPackageName } = require('../typeUtils');
 
+/**
+ * ModelClass for representing Java class information
+ */
+class ModelClass {
+  constructor() {
+    this.innerClass = true;
+    this.className = null;
+    this.originalName = null; // NEW: store original schema name
+    this.superClassName = null;
+    this.javaPackage = null;
+  }
+
+  getClassName() {
+    return this.className;
+  }
+
+  setClassName(originalName) {
+    this.className = this.fixClassName(originalName);
+  }
+
+  getOriginalName() { // NEW: getter for original name
+    return this.originalName;
+  }
+
+  setOriginalName(originalName) { // NEW: setter for original name
+    this.originalName = originalName;
+  }
+
+  getSuperClassName() {
+    return this.superClassName;
+  }
+
+  setSuperClassName(originalName) {
+    this.superClassName = this.fixClassName(originalName);
+  }
+
+  getJavaPackage() {
+    return this.javaPackage;
+  }
+
+  setJavaPackage(javaPackage) {
+    this.javaPackage = javaPackage;
+  }
+
+  isSubClass() {
+    return this.superClassName !== undefined;
+  }
+
+  fixClassName(originalName) {
+    // For AVRO schemas, the originalName should already be the class name part (e.g., "JobOrder" from "com.example.api.jobOrder.JobOrder")
+    if (!originalName) return 'UnknownSchema';
+
+    // If the name contains dots, it's a full schema name, so we need to extract the class name
+    if (originalName.includes('.')) {
+      const lastDotIndex = originalName.lastIndexOf('.');
+      originalName = originalName.substring(lastDotIndex + 1);
+    }
+
+    // Remove special characters and convert to PascalCase
+    let className = originalName.replace(/[^a-zA-Z0-9]/g, '');
+    className = className.charAt(0).toUpperCase() + className.slice(1);
+
+    return className;
+  }
+
+  setCanBeInnerClass(innerClass) {
+    this.innerClass = innerClass;
+  }
+
+  canBeInnerClass() {
+    return this.innerClass;
+  }
+}
+
 class SchemaModel {
   constructor() {
     this.superClassMap = new Map();
@@ -126,7 +200,7 @@ class SchemaModel {
     
     logger.debug('schemaModel.js: setupModelClassMap() - Setting up model class map');
     
-    const allSchemas = asyncapi.allSchemas().all()
+    const allSchemas = asyncapi.allSchemas().all();
     if (!allSchemas || allSchemas.length === 0) return;
     
     // Register all schemas recursively as a flat map of name -> ModelClass
@@ -237,80 +311,6 @@ class SchemaModel {
     this.anonymousSchemaToSubClassMap.clear();
     this.modelClassMap.clear();
     this.nameToSchemaMap.clear();
-  }
-}
-
-/**
- * ModelClass for representing Java class information
- */
-class ModelClass {
-  constructor() {
-    this.innerClass = true;
-    this.className = null;
-    this.originalName = null; // NEW: store original schema name
-    this.superClassName = null;
-    this.javaPackage = null;
-  }
-
-  getClassName() {
-    return this.className;
-  }
-
-  setClassName(originalName) {
-    this.className = this.fixClassName(originalName);
-  }
-
-  getOriginalName() { // NEW: getter for original name
-    return this.originalName;
-  }
-
-  setOriginalName(originalName) { // NEW: setter for original name
-    this.originalName = originalName;
-  }
-
-  getSuperClassName() {
-    return this.superClassName;
-  }
-
-  setSuperClassName(originalName) {
-    this.superClassName = this.fixClassName(originalName);
-  }
-
-  getJavaPackage() {
-    return this.javaPackage;
-  }
-
-  setJavaPackage(javaPackage) {
-    this.javaPackage = javaPackage;
-  }
-
-  isSubClass() {
-    return this.superClassName !== undefined;
-  }
-
-  fixClassName(originalName) {
-    // For AVRO schemas, the originalName should already be the class name part (e.g., "JobOrder" from "com.example.api.jobOrder.JobOrder")
-    if (!originalName) return 'UnknownSchema';
-    
-    // If the name contains dots, it's a full schema name, so we need to extract the class name
-    if (originalName.includes('.')) {
-      const lastDotIndex = originalName.lastIndexOf('.');
-      originalName = originalName.substring(lastDotIndex + 1);
-    }
-    
-    // Remove special characters and convert to PascalCase
-    let className = originalName.replace(/[^a-zA-Z0-9]/g, '');
-    className = className.charAt(0).toUpperCase() + className.slice(1);
-    
-    return className;
-  }
-
-  setCanBeInnerClass(innerClass) {
-    this.innerClass = innerClass;
-  }
-
-  canBeInnerClass() {
-    return this.innerClass;
   }
 }
 

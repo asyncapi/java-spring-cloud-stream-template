@@ -54,10 +54,10 @@ const runGenerator = async (fileName, idx, total) => {
   const outputDir = path.resolve(baseOutputDir, baseFileName);
 
   // Force immediate output for file header
-  console.log(`\n===============================================================`);
+  console.log('\n===============================================================');
   console.log(`[${idx + 1}/${total}] Processing: ${fileName}`);
   console.log(`📁 Output: ${outputDir}`);
-  console.log(`===============================================================`);
+  console.log('===============================================================');
   process.stdout.write(''); // Force flush
 
   // Clean up existing output directory
@@ -103,7 +103,7 @@ const runGenerator = async (fileName, idx, total) => {
 };
 
 const runAllTests = async () => {
-  console.log(`\n🧪 Starting AsyncAPI code generation tests...`);
+  console.log('\n🧪 Starting AsyncAPI code generation tests...');
   console.log(`📂 Template: ${templatePath}`);
   console.log(`📁 Source: ${mocksDir}`);
   console.log(`📁 Output: ${baseOutputDir}`);
@@ -130,20 +130,20 @@ const runAllTests = async () => {
   const endTime = Date.now();
   const duration = ((endTime - startTime) / 1000).toFixed(2);
   
-  console.log(`\n📊 Test Results:`);
+  console.log('\n📊 Test Results:');
   console.log(`   ✅ Successful: ${successCount}`);
   console.log(`   ❌ Failed: ${failureCount}`);
   console.log(`   ⏱️  Duration: ${duration}s`);
   
   if (failedFiles.length > 0) {
-    console.log(`\n❌ Failed Files:`);
+    console.log('\n❌ Failed Files:');
     failedFiles.forEach(file => {
       console.log(`   - ${file}`);
     });
   }
   
   if (successfulFiles.length > 0) {
-    console.log(`\n✅ Successful Files:`);
+    console.log('\n✅ Successful Files:');
     successfulFiles.forEach(file => {
       console.log(`   - ${file}`);
     });

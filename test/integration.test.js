@@ -6,7 +6,6 @@ const TEST_SUITE_NAME = 'Comprehensive Integration Tests - ALL AsyncAPI Files Va
 
 // Constants for folder identification
 const MOCKS_FOLDER = path.join('test', 'mocks');
-const OUTPUT_FOLDER = path.join('test', 'output');
 const TEMP_OUTPUT_FOLDER = path.join('test', 'temp', 'comprehensiveIntegrationTestResult');
 
 // ALL AsyncAPI files in the mocks directory

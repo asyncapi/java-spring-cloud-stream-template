@@ -47,18 +47,17 @@ function processJsonSchemas(asyncapi, avroSchemaNames = new Set()) {
     if (!anonymousSchema || !namedSchema) {
       logger.warn('Unable to find both an anonymous and a named schema in an allOf schema for:', { schemaName });
       return null;
-    } else {
-      // Set up inheritance relationships
-      superClassMap.set(anonymousSchema, namedSchema);
-      anonymousSchemaToSubClassMap.set(anonymousSchema, schemaName);
-      superClassMap.set(schemaName, namedSchema);
-      anonymousSchemaToSubClassMap.set(schemaName, anonymousSchema);
+    } 
+    // Set up inheritance relationships
+    superClassMap.set(anonymousSchema, namedSchema);
+    anonymousSchemaToSubClassMap.set(anonymousSchema, schemaName);
+    superClassMap.set(schemaName, namedSchema);
+    anonymousSchemaToSubClassMap.set(schemaName, anonymousSchema);
       
-      return {
-        extendsClass: namedSchema,
-        anonymousSchema: anonymousSchema
-      };
-    }
+    return {
+      extendsClass: namedSchema,
+      anonymousSchema
+    };
   };
 
   Array.from(allSchemas.values()).forEach(schema => {
@@ -148,9 +147,8 @@ function processJsonSchemas(asyncapi, avroSchemaNames = new Set()) {
         if (firstRef['x-parser-schema-id']) {
           extendsClass = firstRef['x-parser-schema-id'];
           inheritanceMap.set(schemaName, extendsClass);
-        }
-        // Also check for $ref (unresolved references)
-        else if (firstRef.$ref) {
+        } else if (firstRef.$ref) {
+          // Also check for $ref (unresolved references)
           const refName = firstRef.$ref.split('/').pop();
           extendsClass = refName;
           inheritanceMap.set(schemaName, extendsClass);
@@ -163,15 +161,15 @@ function processJsonSchemas(asyncapi, avroSchemaNames = new Set()) {
 
     schemaMap.set(schemaName, {
       name: schemaName,
-      namespace: namespace,
-      packagePath: packagePath,
-      className: className,
+      namespace,
+      packagePath,
+      className,
       properties: Array.isArray(properties) ? properties : [],
-      required: required,
-      extendsClass: extendsClass,
+      required,
+      extendsClass,
       isAvro: false,
-      description: description,
-      schema: schema
+      description,
+      schema
     });
   });
 

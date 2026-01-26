@@ -15,22 +15,22 @@ function extractAvroSchemasFromMessages(asyncapi) {
     
     const messages = asyncapi.components().messages();
     if (!messages) {
-          return schemas;
-  }
+      return schemas;
+    }
   
-  // Simple iteration over messages
-  if (typeof messages.forEach === 'function') {
-    messages.forEach((message, messageName) => {
-      try {
-        if (!message) {
-          logger.warn(`extractAvroSchemasFromMessages: message ${messageName} is null or undefined`);
-          return;
-        }
+    // Simple iteration over messages
+    if (typeof messages.forEach === 'function') {
+      messages.forEach((message, messageName) => {
+        try {
+          if (!message) {
+            logger.warn(`extractAvroSchemasFromMessages: message ${messageName} is null or undefined`);
+            return;
+          }
         
-        const payload = message.payload && message.payload();
-        const schemaFormat = message.schemaFormat && message.schemaFormat();
+          const payload = message.payload && message.payload();
+          const schemaFormat = message.schemaFormat && message.schemaFormat();
         
-        // Check if this is an Avro schema
+          // Check if this is an Avro schema
           if (payload && schemaFormat && schemaFormat.includes('avro')) {
             logger.debug(`Found Avro schema in message ${messageName}`);
             
@@ -174,7 +174,7 @@ function extractAvroSchemasFromMessages(asyncapi) {
               }),
               _json: { 
                 name: className, 
-                namespace: namespace, 
+                namespace, 
                 type: 'record',
                 // Include processed fields with correct type information
                 fields: properties.map(prop => ({
@@ -200,7 +200,7 @@ function extractAvroSchemasFromMessages(asyncapi) {
                 return propMap;
               },
               // Add properties array directly to schema object for template detection
-              properties: properties,
+              propertiesArray: properties,
               required: () => required,
               description: () => payload.description ? payload.description() : ''
             };
@@ -214,8 +214,8 @@ function extractAvroSchemasFromMessages(asyncapi) {
               logger.debug(`Replacing existing schema with Avro schema: ${namespace}.${className}`);
               schemas[existingSchemaIndex] = {
                 name: `${namespace}.${className}`,
-                properties: properties,
-                required: required,
+                properties,
+                required,
                 description: payload.description ? payload.description() : '',
                 extendsClass: null,
                 schema: avroSchema,
@@ -227,8 +227,8 @@ function extractAvroSchemasFromMessages(asyncapi) {
             } else {
               schemas.push({
                 name: `${namespace}.${className}`,
-                properties: properties,
-                required: required,
+                properties,
+                required,
                 description: payload.description ? payload.description() : '',
                 extendsClass: null,
                 schema: avroSchema,
@@ -282,28 +282,28 @@ function processAvroFieldType(field) {
   // Handle logical types (must check before other types)
   if (field.logicalType) {
     switch (field.logicalType) {
-      case 'timestamp-millis':
-      case 'timestamp-micros':
-        return {
-          javaType: 'java.time.Instant',
-          required: true,
-          schema: { _json: field, type: () => 'long', description: () => field.doc || '', required: () => true }
-        };
-      case 'decimal':
-        return {
-          javaType: 'java.math.BigDecimal',
-          required: true,
-          schema: { _json: field, type: () => 'bytes', description: () => field.doc || '', required: () => true }
-        };
+    case 'timestamp-millis':
+    case 'timestamp-micros':
+      return {
+        javaType: 'java.time.Instant',
+        required: true,
+        schema: { _json: field, type: () => 'long', description: () => field.doc || '', required: () => true }
+      };
+    case 'decimal':
+      return {
+        javaType: 'java.math.BigDecimal',
+        required: true,
+        schema: { _json: field, type: () => 'bytes', description: () => field.doc || '', required: () => true }
+      };
       // Add more logical types as needed
     }
   }
   
   // Handle arrays
   if (fieldType === 'array' && field.items) {
-    const itemResult = processAvroFieldType(typeof field.items === 'object' ? { ...field.items, name: fieldName + 'Item' } : { name: fieldName + 'Item', type: field.items });
+    const itemResult = processAvroFieldType(typeof field.items === 'object' ? { ...field.items, name: `${fieldName  }Item` } : { name: `${fieldName  }Item`, type: field.items });
     return {
-      javaType: itemResult.javaType + '[]',
+      javaType: `${itemResult.javaType  }[]`,
       required: true,
       schema: { _json: field, type: () => 'array', description: () => field.doc || '', required: () => true }
     };
@@ -312,7 +312,7 @@ function processAvroFieldType(field) {
   // Handle maps (JSON Schema format: type=object with additionalProperties)
   if (fieldType === 'object' && field.additionalProperties) {
     const valueType = field.additionalProperties.type || 'Object';
-    const valueResult = processAvroFieldType({ name: fieldName + 'Value', type: valueType });
+    const valueResult = processAvroFieldType({ name: `${fieldName  }Value`, type: valueType });
     return {
       javaType: `Map<String, ${valueResult.javaType}>`,
       required: true,
@@ -326,7 +326,7 @@ function processAvroFieldType(field) {
     return {
       javaType: enumClassName,
       required: true,
-      enumClassName: enumClassName,
+      enumClassName,
       enumSymbols: field && field.enum ? field.enum : [],
       schema: { _json: field, type: () => 'enum', description: () => field.doc || '', required: () => true, enum: () => field && field.enum ? field.enum : [] }
     };
@@ -338,7 +338,7 @@ function processAvroFieldType(field) {
     return {
       javaType: enumClassName,
       required: true,
-      enumClassName: enumClassName,
+      enumClassName,
       enumSymbols: fieldType.symbols || [],
       schema: { _json: field, type: () => 'enum', description: () => field.doc || '', required: () => true, enum: () => fieldType.symbols }
     };
@@ -374,19 +374,19 @@ function processAvroFieldType(field) {
     // Check for logical types on the field itself
     if (field.logicalType) {
       switch (field.logicalType) {
-        case 'timestamp-millis':
-        case 'timestamp-micros':
-          return {
-            javaType: 'java.time.Instant',
-            required: true,
-            schema: { _json: field, type: () => 'long', description: () => field.doc || '', required: () => true }
-          };
-        case 'decimal':
-          return {
-            javaType: 'java.math.BigDecimal',
-            required: true,
-            schema: { _json: field, type: () => 'bytes', description: () => field.doc || '', required: () => true }
-          };
+      case 'timestamp-millis':
+      case 'timestamp-micros':
+        return {
+          javaType: 'java.time.Instant',
+          required: true,
+          schema: { _json: field, type: () => 'long', description: () => field.doc || '', required: () => true }
+        };
+      case 'decimal':
+        return {
+          javaType: 'java.math.BigDecimal',
+          required: true,
+          schema: { _json: field, type: () => 'bytes', description: () => field.doc || '', required: () => true }
+        };
         // Add more logical types as needed
       }
     }
@@ -455,24 +455,23 @@ function processAvroUnionType(unionTypes, fieldName, field) {
       required: false,
       schema: fieldSchema
     };
-  } else {
-    // Complex union: use Object for now
-    const fieldSchema = {
-      _json: {
-        type: 'object',
-        description: field.doc || ''
-      },
-      type: () => 'object',
-      description: () => field.doc || '',
-      required: () => true
-    };
+  } 
+  // Complex union: use Object for now
+  const fieldSchema = {
+    _json: {
+      type: 'object',
+      description: field.doc || ''
+    },
+    type: () => 'object',
+    description: () => field.doc || '',
+    required: () => true
+  };
     
-    return {
-      javaType: 'Object',
-      required: true,
-      schema: fieldSchema
-    };
-  }
+  return {
+    javaType: 'Object',
+    required: true,
+    schema: fieldSchema
+  };
 }
 
 /**
@@ -587,7 +586,7 @@ function processAvroMapType(mapType, fieldName, field) {
     }
   } else if (typeof valuesType === 'object' && valuesType !== null) {
     // Recursively process value type for Avro features
-    valueJavaType = processAvroFieldType({ ...valuesType, name: fieldName + 'Value' }).javaType;
+    valueJavaType = processAvroFieldType({ ...valuesType, name: `${fieldName  }Value` }).javaType;
   }
   
   const fieldSchema = {
@@ -667,35 +666,35 @@ function processAvroRecordType(recordType, fieldName, field) {
 function convertAvroTypeToJavaTypeInline(avroType) {
   if (typeof avroType === 'string') {
     switch (avroType.toLowerCase()) {
-      case 'string':
-        return 'String';
-      case 'int':
-      case 'integer':
-        return 'Integer';
-      case 'long':
-        return 'Long';
-      case 'float':
-        return 'Float';
-      case 'double':
-        return 'Double';
-      case 'boolean':
-        return 'Boolean';
-      case 'bytes':
-        return 'byte[]';
-      case 'null':
-        return 'Object';
-      case 'enum':
-        return 'String';
-      case 'record':
-        return 'Object';
-      case 'array':
-        return 'Object[]';
-      case 'map':
-        return 'Map<String, Object>';
-      case 'fixed':
-        return 'byte[]';
-      default:
-        return 'String';
+    case 'string':
+      return 'String';
+    case 'int':
+    case 'integer':
+      return 'Integer';
+    case 'long':
+      return 'Long';
+    case 'float':
+      return 'Float';
+    case 'double':
+      return 'Double';
+    case 'boolean':
+      return 'Boolean';
+    case 'bytes':
+      return 'byte[]';
+    case 'null':
+      return 'Object';
+    case 'enum':
+      return 'String';
+    case 'record':
+      return 'Object';
+    case 'array':
+      return 'Object[]';
+    case 'map':
+      return 'Map<String, Object>';
+    case 'fixed':
+      return 'byte[]';
+    default:
+      return 'String';
     }
   } else if (Array.isArray(avroType)) {
     const nonNullTypes = avroType.filter(t => t !== 'null');
@@ -708,26 +707,26 @@ function convertAvroTypeToJavaTypeInline(avroType) {
     const logicalType = avroType.logicalType;
     if (logicalType) {
       switch (logicalType) {
-        case 'date':
-          return 'java.time.LocalDate';
-        case 'time-millis':
-          return 'java.time.LocalTime';
-        case 'time-micros':
-          return 'java.time.LocalTime';
-        case 'timestamp-millis':
-          return 'java.time.Instant';
-        case 'timestamp-micros':
-          return 'java.time.Instant';
-        case 'local-timestamp-millis':
-          return 'java.time.LocalDateTime';
-        case 'local-timestamp-micros':
-          return 'java.time.LocalDateTime';
-        case 'uuid':
-          return 'java.util.UUID';
-        case 'decimal':
-          return 'java.math.BigDecimal';
-        default:
-          return convertAvroTypeToJavaTypeInline(baseType);
+      case 'date':
+        return 'java.time.LocalDate';
+      case 'time-millis':
+        return 'java.time.LocalTime';
+      case 'time-micros':
+        return 'java.time.LocalTime';
+      case 'timestamp-millis':
+        return 'java.time.Instant';
+      case 'timestamp-micros':
+        return 'java.time.Instant';
+      case 'local-timestamp-millis':
+        return 'java.time.LocalDateTime';
+      case 'local-timestamp-micros':
+        return 'java.time.LocalDateTime';
+      case 'uuid':
+        return 'java.util.UUID';
+      case 'decimal':
+        return 'java.math.BigDecimal';
+      default:
+        return convertAvroTypeToJavaTypeInline(baseType);
       }
     }
     return convertAvroTypeToJavaTypeInline(baseType);

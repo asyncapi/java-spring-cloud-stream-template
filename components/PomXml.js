@@ -4,6 +4,37 @@ const { logger } = require('../utils/logger');
 const { isJavaReservedWord } = require('../utils/typeUtils');
 
 /**
+ * Get binder dependency elements based on binder type
+ */
+function getBinderDependency(binder, kafkaVersion, rabbitVersion) {
+  if (binder === 'rabbit') {
+    return [
+      React.createElement(Text, null, '    <dependency>'),
+      React.createElement(Text, null, '      <groupId>org.springframework.cloud</groupId>'),
+      React.createElement(Text, null, '      <artifactId>spring-cloud-stream-binder-rabbit</artifactId>'),
+      React.createElement(Text, null, `      <version>${rabbitVersion}</version>`),
+      React.createElement(Text, null, '    </dependency>')
+    ];
+  }
+  if (binder === 'solace') {
+    return [
+      React.createElement(Text, null, '    <dependency>'),
+      React.createElement(Text, null, '      <groupId>com.solace.spring.cloud</groupId>'),
+      React.createElement(Text, null, '      <artifactId>spring-cloud-starter-stream-solace</artifactId>'),
+      React.createElement(Text, null, '    </dependency>')
+    ];
+  }
+  // Default: kafka
+  return [
+    React.createElement(Text, null, '    <dependency>'),
+    React.createElement(Text, null, '      <groupId>org.springframework.cloud</groupId>'),
+    React.createElement(Text, null, '      <artifactId>spring-cloud-stream-binder-kafka</artifactId>'),
+    React.createElement(Text, null, `      <version>${kafkaVersion}</version>`),
+    React.createElement(Text, null, '    </dependency>')
+  ];
+}
+
+/**
  * PomXml component for generating Maven pom.xml
  */
 function PomXml({ asyncapi, params, processedData, artifactType = 'application' }) {
@@ -35,14 +66,13 @@ function PomXml({ asyncapi, params, processedData, artifactType = 'application' 
       actuator,
       processedData
     });
-  } else {
-    return React.createElement(LibraryPomXml, {
-      groupId,
-      artifactId,
-      version,
-      springCloudStreamVersion
-    });
-  }
+  } 
+  return React.createElement(LibraryPomXml, {
+    groupId,
+    artifactId,
+    version,
+    springCloudStreamVersion
+  });
 }
 
 function ApplicationPomXml({ groupId, artifactId, version, springBootVersion, springCloudVersion, solaceSpringCloudVersion, kafkaSpringCloudVersion, rabbitSpringCloudVersion, binder, actuator, processedData }) {
@@ -102,24 +132,7 @@ function ApplicationPomXml({ groupId, artifactId, version, springBootVersion, sp
     React.createElement(Text, null, '  </dependencyManagement>'),
     React.createElement(Text, null, ''),
     React.createElement(Text, null, '  <dependencies>'),
-    ...(binder === 'rabbit' ? [
-      React.createElement(Text, null, '    <dependency>'),
-      React.createElement(Text, null, '      <groupId>org.springframework.cloud</groupId>'),
-      React.createElement(Text, null, '      <artifactId>spring-cloud-stream-binder-rabbit</artifactId>'),
-      React.createElement(Text, null, `      <version>${rabbitSpringCloudVersion}</version>`),
-      React.createElement(Text, null, '    </dependency>')
-    ] : binder === 'solace' ? [
-      React.createElement(Text, null, '    <dependency>'),
-      React.createElement(Text, null, '      <groupId>com.solace.spring.cloud</groupId>'),
-      React.createElement(Text, null, '      <artifactId>spring-cloud-starter-stream-solace</artifactId>'),
-      React.createElement(Text, null, '    </dependency>')
-    ] : [
-      React.createElement(Text, null, '    <dependency>'),
-      React.createElement(Text, null, '      <groupId>org.springframework.cloud</groupId>'),
-      React.createElement(Text, null, '      <artifactId>spring-cloud-stream-binder-kafka</artifactId>'),
-      React.createElement(Text, null, `      <version>${kafkaSpringCloudVersion}</version>`),
-      React.createElement(Text, null, '    </dependency>')
-    ]),
+    ...getBinderDependency(binder, kafkaSpringCloudVersion, rabbitSpringCloudVersion),
     ...(actuator ? [
       React.createElement(Text, null, '    <dependency>'),
       React.createElement(Text, null, '      <groupId>org.springframework.boot</groupId>'),
@@ -400,7 +413,7 @@ function needsJacksonJsr310(processedData) {
   }
   
   // Check if any schema has properties with JSR310 types
-  const jsr310Types = [
+  const _jsr310Types = [
     'java.time.LocalDate',
     'java.time.LocalTime', 
     'java.time.LocalDateTime',
@@ -419,7 +432,7 @@ function needsJacksonJsr310(processedData) {
       // Check both type and format to detect JSR310 types
       const type = property.type;
       const format = property.format;
-      const schemaName = property.schemaName;
+      const _schemaName = property.schemaName;
       
       // Check for date-time format which maps to OffsetDateTime
       if (type === 'string' && format === 'date-time') {
@@ -470,8 +483,6 @@ function needsJacksonAnnotations(processedData) {
   });
 }
 
-
-
 /**
  * Check if validation dependency is needed based on processed data
  */
@@ -505,8 +516,6 @@ function needsValidation(processedData) {
     });
   });
 }
-
-
 
 module.exports = {
   PomXml,

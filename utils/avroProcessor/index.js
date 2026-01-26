@@ -1,23 +1,23 @@
 const { logger } = require('../logger');
 const { SchemaModel } = require('./avroSchemaModel');
-const { 
-  getEnhancedType, 
-  checkPropertyNames, 
-  getIdentifierName, 
-  fixType,
+const {
+  checkPropertyNames,
   stripPackageName
 } = require('../typeUtils');
-const {
-  getSampleArg,
-  getMultipleMessageComment,
-  getMessagePayloadType,
-  getPayloadClass
-} = require('../functionUtils');
 
 const { processAvroFieldType } = require('./avroProcessor');
 
 // Initialize schema model instance
 const schemaModel = new SchemaModel();
+
+/**
+ * Helper to safely get a value that might be a function or direct value
+ */
+function getValue(obj, defaultValue = undefined) {
+  if (obj === undefined || obj === null) return defaultValue;
+  if (typeof obj === 'function') return obj();
+  return obj;
+}
 
 /**
  * Detect if AsyncAPI document contains Avro schemas
@@ -235,18 +235,18 @@ function processAvroSchema(schema, schemaName) {
     const propertyArray = Array.from(schemaProperties.values());
     propertyArray.forEach(prop => {
       const propertyName = prop.id();
-      const isRequired = Array.isArray(required) ? required.includes(propertyName) : false;
+      const _isRequired = Array.isArray(required) ? required.includes(propertyName) : false;
       
       // Use comprehensive Avro field processing
       const processedField = processAvroFieldType({
         name: propertyName,
         type: prop.type ? prop.type() : 'object',
         doc: prop.description ? prop.description() : '',
-        logicalType: prop.logicalType ? (typeof prop.logicalType === 'function' ? prop.logicalType() : prop.logicalType) : undefined,
+        logicalType: getValue(prop.logicalType),
         items: prop.items ? prop.items() : undefined,
         additionalProperties: prop.additionalProperties ? prop.additionalProperties() : undefined,
         enum: prop.enum ? prop.enum() : undefined,
-        oneOf: prop.oneOf ? (typeof prop.oneOf === 'function' ? prop.oneOf() : prop.oneOf) : undefined,
+        oneOf: getValue(prop.oneOf),
         minimum: prop.minimum ? prop.minimum() : undefined,
         maximum: prop.maximum ? prop.maximum() : undefined,
         pattern: prop.pattern ? prop.pattern() : undefined,
@@ -268,24 +268,24 @@ function processAvroSchema(schema, schemaName) {
   } else if (schemaProperties && typeof schemaProperties.forEach === 'function') {
     // Try forEach method
     schemaProperties.forEach((prop, propName) => {
-      const isRequired = Array.isArray(required) ? required.includes(propName) : false;
+      const _isRequired = Array.isArray(required) ? required.includes(propName) : false;
       
       // Use comprehensive Avro field processing
       const processedField = processAvroFieldType({
         name: propName,
         type: prop.type ? prop.type() : 'object',
         doc: prop.description ? prop.description() : '',
-        logicalType: prop.logicalType ? (typeof prop.logicalType === 'function' ? prop.logicalType() : prop.logicalType) : undefined,
+        logicalType: getValue(prop.logicalType),
         items: prop.items ? prop.items() : undefined,
         additionalProperties: prop.additionalProperties ? prop.additionalProperties() : undefined,
         enum: prop.enum ? prop.enum() : undefined,
-        oneOf: prop.oneOf ? (typeof prop.oneOf === 'function' ? prop.oneOf() : prop.oneOf) : undefined,
+        oneOf: getValue(prop.oneOf),
         minimum: prop.minimum ? prop.minimum() : undefined,
         maximum: prop.maximum ? prop.maximum() : undefined,
         pattern: prop.pattern ? prop.pattern() : undefined,
         fields: prop.fields ? prop.fields() : undefined
       });
-      
+
       properties.push({
         name: propName,
         type: processedField, // Use the processed field object with javaType
@@ -301,14 +301,14 @@ function processAvroSchema(schema, schemaName) {
   } else if (schemaProperties && typeof schemaProperties === 'object') {
     // Handle plain object with property names as keys using Object.entries
     Object.entries(schemaProperties).forEach(([propName, prop]) => {
-      const isRequired = Array.isArray(required) ? required.includes(propName) : false;
+      const _isRequired = Array.isArray(required) ? required.includes(propName) : false;
       
       // Use comprehensive Avro field processing
       const processedField = processAvroFieldType({
         name: propName,
         type: prop.type ? prop.type() : 'object',
         doc: prop.description ? prop.description() : '',
-        logicalType: prop.logicalType ? (typeof prop.logicalType === 'function' ? prop.logicalType() : prop.logicalType) : undefined,
+        logicalType: getValue(prop.logicalType),
         items: prop.items ? prop.items() : undefined,
         additionalProperties: prop.additionalProperties ? prop.additionalProperties() : undefined,
         enum: prop.enum ? prop.enum() : undefined,
@@ -318,7 +318,7 @@ function processAvroSchema(schema, schemaName) {
         pattern: prop.pattern ? prop.pattern() : undefined,
         fields: prop.fields ? prop.fields() : undefined
       });
-      
+
       properties.push({
         name: propName,
         type: processedField, // Use the processed field object with javaType
@@ -341,16 +341,16 @@ function processAvroSchema(schema, schemaName) {
   
   return {
     name: schemaName, // This is the original schema name from AsyncAPI spec
-    className: className, // Use the extracted class name (not the full schema name)
-    packagePath: packagePath,
-    namespace: namespace,
-    properties: properties,
+    className, // Use the extracted class name (not the full schema name)
+    packagePath,
+    namespace,
+    properties,
     isAvro: true,
     isAvroSchema: true,
-    needsJsonPropertyInclude: needsJsonPropertyInclude,
-    extendsClass: extendsClass,
+    needsJsonPropertyInclude,
+    extendsClass,
     canBeInnerClass: modelClass.canBeInnerClass(),
-    modelClass: modelClass
+    modelClass
   };
 }
 
@@ -363,7 +363,7 @@ function getAvroSchemaType(schema) {
   if (!schema) return 'object';
   
   const type = schema.type ? schema.type() : null;
-  const format = schema.format ? schema.format() : null;
+  const _format = schema.format ? schema.format() : null;
   
   if (type === 'array') {
     const items = schema.items();
@@ -371,9 +371,8 @@ function getAvroSchemaType(schema) {
       const itemType = items.type ? items.type() : null;
       if (!itemType || itemType === 'object') {
         return 'array-object';
-      } else {
-        return `array-${itemType}`;
-      }
+      } 
+      return `array-${itemType}`;
     }
     return 'array';
   }

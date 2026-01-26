@@ -15,42 +15,42 @@ function getPrimitiveJavaType(schemaType, payload) {
     : null;
   
   switch (schemaType.toLowerCase()) {
-    case 'string':
-      // Handle string formats (following Nunjucks typeMap)
-      switch (format) {
-        case 'date-time':
-          return 'java.time.OffsetDateTime';
-        case 'byte':
-        case 'binary':
-          return 'byte[]';
-        default:
-          return 'String';
-      }
-    case 'integer':
-      // Handle integer formats
-      switch (format) {
-        case 'int64':
-          return 'Long';
-        case 'int32':
-        default:
-          return 'Integer';
-      }
-    case 'number':
-      // Handle number formats
-      switch (format) {
-        case 'float':
-          return 'Float';
-        case 'double':
-          return 'Double';
-        default:
-          return 'java.math.BigDecimal';
-      }
-    case 'boolean':
-      return 'Boolean';
-    case 'null':
-      return 'String';
+  case 'string':
+    // Handle string formats (following Nunjucks typeMap)
+    switch (format) {
+    case 'date-time':
+      return 'java.time.OffsetDateTime';
+    case 'byte':
+    case 'binary':
+      return 'byte[]';
     default:
-      return null; // Not a primitive type
+      return 'String';
+    }
+  case 'integer':
+    // Handle integer formats
+    switch (format) {
+    case 'int64':
+      return 'Long';
+    case 'int32':
+    default:
+      return 'Integer';
+    }
+  case 'number':
+    // Handle number formats
+    switch (format) {
+    case 'float':
+      return 'Float';
+    case 'double':
+      return 'Double';
+    default:
+      return 'java.math.BigDecimal';
+    }
+  case 'boolean':
+    return 'Boolean';
+  case 'null':
+    return 'String';
+  default:
+    return null; // Not a primitive type
   }
 }
 
@@ -105,7 +105,7 @@ function getFunctionPayloadType(operation, avroSchemaMap) {
     const message = messageArray[0];
 
     const payload = message.payload();
-    logger.debug(`coreProcessor.js: getFunctionPayloadType() - Single message payload:`, payload ? 'exists' : 'null');
+    logger.debug('coreProcessor.js: getFunctionPayloadType() - Single message payload:', payload ? 'exists' : 'null');
     
     if (!payload) {
       return 'String';
@@ -173,25 +173,22 @@ function getFunctionPayloadType(operation, avroSchemaMap) {
             const result = `List<${toPascalCase(className)}>`;
             logger.debug(`coreProcessor.js: getFunctionPayloadType() - Array of objects: "${result}"`);
             return result;
-          } else {
-            // Anonymous schema or no schema name - use generic type
-            const result = 'List<Object>';
-            logger.debug(`coreProcessor.js: getFunctionPayloadType() - Array of anonymous objects: "${result}"`);
-            return result;
-          }
-        } else {
-          // Array of primitives
-          const primitiveType = getPrimitiveJavaType(itemType, items);
-          if (primitiveType) {
-            const result = `List<${primitiveType}>`;
-            logger.debug(`coreProcessor.js: getFunctionPayloadType() - Array of primitives: "${result}"`);
-            return result;
-          } else {
-            const result = 'List<Object>';
-            logger.debug(`coreProcessor.js: getFunctionPayloadType() - Array of unknown type: "${result}"`);
-            return result;
-          }
-        }
+          } 
+          // Anonymous schema or no schema name - use generic type
+          const result = 'List<Object>';
+          logger.debug(`coreProcessor.js: getFunctionPayloadType() - Array of anonymous objects: "${result}"`);
+          return result;
+        } 
+        // Array of primitives
+        const primitiveType = getPrimitiveJavaType(itemType, items);
+        if (primitiveType) {
+          const result = `List<${primitiveType}>`;
+          logger.debug(`coreProcessor.js: getFunctionPayloadType() - Array of primitives: "${result}"`);
+          return result;
+        } 
+        const result = 'List<Object>';
+        logger.debug(`coreProcessor.js: getFunctionPayloadType() - Array of unknown type: "${result}"`);
+        return result;
       }
       // Fallback for array without items
       return 'List<Object>';
@@ -220,7 +217,7 @@ function getFunctionPayloadType(operation, avroSchemaMap) {
               }
             }
             // Simple anonymous schema - use Object
-            logger.debug(`coreProcessor.js: getFunctionPayloadType() - Simple anonymous schema: "Object"`);
+            logger.debug('coreProcessor.js: getFunctionPayloadType() - Simple anonymous schema: "Object"');
             return 'Object';
           }
           
@@ -290,7 +287,7 @@ function getFunctionPayloadType(operation, avroSchemaMap) {
       }
     }
     
-    logger.debug(`coreProcessor.js: getFunctionPayloadType() - Final result: "Object"`);
+    logger.debug('coreProcessor.js: getFunctionPayloadType() - Final result: "Object"');
     return 'Object';
   } catch (error) {
     logger.warn(`getFunctionPayloadType: Error getting payload type: ${error.message}`);
@@ -351,14 +348,12 @@ function getFunctionName(channelName, operation, isSubscriber) {
   if (hasCustomName) {
     // Use x-scs-function-name as-is without suffix
     return toCamelCase(functionName);
-  } else {
-    // Add suffix for generated names
-    if (isSubscriber) {
-      return `${toCamelCase(functionName)}Consumer`;
-    } else {
-      return `${toCamelCase(functionName)}Supplier`;
-    }
-  }
+  } 
+  // Add suffix for generated names
+  if (isSubscriber) {
+    return `${toCamelCase(functionName)}Consumer`;
+  } 
+  return `${toCamelCase(functionName)}Supplier`;
 }
 
 /**
@@ -368,7 +363,7 @@ function getChannelInfo(params, channelName, channel) {
   logger.debug(`functionUtils.js: getChannelInfo() - Getting channel info for: ${channelName}`);
   
   const channelInfo = {
-    channelName: channelName,
+    channelName,
     hasParams: false,
     parameters: [],
     publishChannel: channelName,
@@ -400,7 +395,7 @@ function getChannelInfo(params, channelName, channel) {
       const parameter = {
         name: paramName,
         type: paramType,
-        sampleArg: sampleArg,
+        sampleArg,
         position: actualPosition
       };
       
@@ -418,7 +413,7 @@ function getChannelInfo(params, channelName, channel) {
     });
   }
   
-  logger.debug(`functionUtils.js: getChannelInfo() - Channel info:`, channelInfo);
+  logger.debug('functionUtils.js: getChannelInfo() - Channel info:', channelInfo);
   return channelInfo;
 }
 
@@ -444,7 +439,7 @@ function getChannelInfoForConsumer(params, channelName, channel) {
  * Get subscribe channel name
  */
 function getSubscribeChannel(channelInfo) {
-  logger.debug(`functionUtils.js: getSubscribeChannel() - Getting subscribe channel`);
+  logger.debug('functionUtils.js: getSubscribeChannel() - Getting subscribe channel');
   
   return channelInfo.subscribeChannel || channelInfo.channelName;
 }
@@ -453,7 +448,7 @@ function getSubscribeChannel(channelInfo) {
  * Get publish channel name
  */
 function getPublishChannel(channelInfo) {
-  logger.debug(`functionUtils.js: getPublishChannel() - Getting publish channel`);
+  logger.debug('functionUtils.js: getPublishChannel() - Getting publish channel');
   
   return channelInfo.publishChannel || channelInfo.channelName;
 }
@@ -462,7 +457,7 @@ function getPublishChannel(channelInfo) {
  * Consolidate supplier functions with same payload type
  */
 function consolidateSupplierFunctions(functions) {
-  logger.debug(`functionUtils.js: consolidateSupplierFunctions() - Consolidating supplier functions`);
+  logger.debug('functionUtils.js: consolidateSupplierFunctions() - Consolidating supplier functions');
   
   const queueDestinationMap = new Map();
   const consolidatedFunctions = [];
@@ -528,7 +523,7 @@ function consolidateSupplierFunctions(functions) {
  * Consolidate queue functions (for Solace)
  */
 function consolidateQueueFunctions(functions) {
-  logger.debug(`functionUtils.js: consolidateQueueFunctions() - Consolidating queue functions`);
+  logger.debug('functionUtils.js: consolidateQueueFunctions() - Consolidating queue functions');
   
   // First consolidate suppliers by queue destination
   let consolidatedFunctions = consolidateSupplierFunctions(functions);
@@ -600,7 +595,7 @@ function sortParametersUsingChannelName(parameters, channelName) {
  * Get message name from operation
  */
 function getMessageName(operation) {
-  logger.debug(`functionUtils.js: getMessageName() - Getting message name from operation`);
+  logger.debug('functionUtils.js: getMessageName() - Getting message name from operation');
   
   if (!operation) {
     logger.warn('getMessageName: operation is null or undefined');
@@ -650,7 +645,7 @@ function getMessageName(operation) {
  * Extract schema name from message
  */
 function extractSchemaNameFromMessage(message) {
-  logger.debug(`functionUtils.js: extractSchemaNameFromMessage() - Extracting schema name from message`);
+  logger.debug('functionUtils.js: extractSchemaNameFromMessage() - Extracting schema name from message');
   try {
     // Helper function to extract name from ref
     const extractNameFromRef = (ref) => {
@@ -717,7 +712,7 @@ function extractSchemaNameFromMessage(message) {
       }
     }
 
-    logger.debug(`functionUtils.js: extractSchemaNameFromMessage() - Could not extract schema name`);
+    logger.debug('functionUtils.js: extractSchemaNameFromMessage() - Could not extract schema name');
     return null;
   } catch (error) {
     logger.warn(`extractSchemaNameFromMessage: Error extracting schema name: ${error.message}`);
@@ -754,7 +749,7 @@ function getSendFunctionName(channelName, operation) {
     } else {
       // Convert message name to PascalCase for function name
       const functionName = messageName.replace(/(^|_|\-|\s)(\w)/g, (_, __, c) => c ? c.toUpperCase() : '')
-                                      .replace(/^[a-z]/, c => c.toUpperCase());
+        .replace(/^[a-z]/, c => c.toUpperCase());
       return `send${functionName}`;
     }
   }
@@ -766,7 +761,7 @@ function getSendFunctionName(channelName, operation) {
   if (messageName && messageName !== 'Object') {
     // Convert message name to PascalCase for function name
     const functionName = messageName.replace(/(^|_|\-|\s)(\w)/g, (_, __, c) => c ? c.toUpperCase() : '')
-                                    .replace(/^[a-z]/, c => c.toUpperCase());
+      .replace(/^[a-z]/, c => c.toUpperCase());
     return `send${functionName}`;
   }
 
@@ -797,14 +792,14 @@ function getSendFunctionName(channelName, operation) {
   logger.debug(`functionUtils.js: getSendFunctionName() - Schema name: ${schemaName}`);
   if (schemaName) {
     const functionName = schemaName.replace(/(^|_|\-|\s)(\w)/g, (_, __, c) => c ? c.toUpperCase() : '')
-                                  .replace(/^[a-z]/, c => c.toUpperCase());
+      .replace(/^[a-z]/, c => c.toUpperCase());
     return `send${functionName}`;
   }
 
   // Fallback: use channel name
   const fallbackName = channelName.replace(/[^a-zA-Z0-9]/g, ' ')
-                                  .replace(/(^|_|\-|\s)(\w)/g, (_, __, c) => c ? c.toUpperCase() : '')
-                                  .replace(/^[a-z]/, c => c.toUpperCase());
+    .replace(/(^|_|\-|\s)(\w)/g, (_, __, c) => c ? c.toUpperCase() : '')
+    .replace(/^[a-z]/, c => c.toUpperCase());
   return `send${fallbackName}`;
 }
 
@@ -812,7 +807,7 @@ function getSendFunctionName(channelName, operation) {
  * Get payload class for operation
  */
 function getPayloadClass(pubOrSub, processedSchemas = []) {
-  logger.debug(`functionUtils.js: getPayloadClass() - Getting payload class for operation`);
+  logger.debug('functionUtils.js: getPayloadClass() - Getting payload class for operation');
   
   let ret;
 
@@ -839,7 +834,7 @@ function getPayloadClass(pubOrSub, processedSchemas = []) {
  * Get multiple message comment
  */
 function getMultipleMessageComment(pubOrSub) {
-  logger.debug(`functionUtils.js: getMultipleMessageComment() - Getting comment for operation`);
+  logger.debug('functionUtils.js: getMultipleMessageComment() - Getting comment for operation');
   
   let ret = '';
 
@@ -864,9 +859,9 @@ function getMultipleMessageComment(pubOrSub) {
  * Consolidate consumer functions with same payload type
  */
 function consolidateConsumerFunctions(functions) {
-  logger.debug(`functionUtils.js: consolidateConsumerFunctions() - Consolidating consumer functions`);
+  logger.debug('functionUtils.js: consolidateConsumerFunctions() - Consolidating consumer functions');
   
-  const payloadTypeMap = new Map();
+  const _payloadTypeMap = new Map();
   const queueMap = new Map(); // New map for queue-based consolidation
   const consolidatedFunctions = [];
   
@@ -922,7 +917,6 @@ function consolidateConsumerFunctions(functions) {
   return consolidatedFunctions;
 }
 
-
 /**
  * Get sample argument for parameter (matching reference project)
  */
@@ -945,23 +939,20 @@ function getSampleArg(param) {
       return 'U3dhZ2dlciByb2Nrcw==';
     } else if (format === 'binary') {
       return 'base64-encoded file contents';
-    } else {
-      return '"string"';
-    }
+    } 
+    return '"string"';
   } else if (type === 'integer') {
     if (format === 'int64') {
       return '1L';
-    } else {
-      return '1';
-    }
+    } 
+    return '1';
   } else if (type === 'number') {
     if (format === 'float') {
       return '1.1F';
     } else if (format === 'double') {
       return '1.1';
-    } else {
-      return '100.1';
-    }
+    } 
+    return '100.1';
   } else if (type === 'boolean') {
     return 'true';
   } else if (type === 'null') {
@@ -977,7 +968,7 @@ function getSampleArg(param) {
  * Get message payload type (matching reference project)
  */
 function getMessagePayloadType(message) {
-  logger.debug(`functionUtils.js: getMessagePayloadType() - Getting payload type for message`);
+  logger.debug('functionUtils.js: getMessagePayloadType() - Getting payload type for message');
   
   let ret;
   const payload = message.payload();
@@ -1014,8 +1005,6 @@ function getMessagePayloadType(message) {
   logger.debug(`functionUtils.js: getMessagePayloadType() - Result: ${ret}`);
   return ret || 'Object';
 }
-
-
 
 module.exports = {
   hasMultipleMessages,

@@ -184,7 +184,7 @@ function setupTemplateParameters(generator) {
 /**
  * Extract Java package from AVRO namespaces in messages
  */
-function extractJavaPackageFromAvroNamespaces(asyncapi) {
+function _extractJavaPackageFromAvroNamespaces(asyncapi) {
   logger.debug('pre-process.js: extractJavaPackageFromAvroNamespaces() - Extracting Java package from AVRO namespaces');
   try {
     // Check components.messages for AVRO schemas
@@ -192,7 +192,7 @@ function extractJavaPackageFromAvroNamespaces(asyncapi) {
     if (messages) {
       // Try different ways to iterate over messages
       if (typeof messages.forEach === 'function') {
-        let foundPackages = new Set();
+        const foundPackages = new Set();
         
         messages.forEach((msg, msgName) => {
           try {
@@ -230,15 +230,14 @@ function extractJavaPackageFromAvroNamespaces(asyncapi) {
           const packages = Array.from(foundPackages);
           if (packages.length === 1) {
             return packages[0];
-          } else {
-            // Multiple packages found - try to find a common parent
-            const commonParent = findCommonParentPackage(packages);
-            if (commonParent) {
-              return commonParent;
-            }
-            // If no common parent, use the first package
-            return packages[0];
+          } 
+          // Multiple packages found - try to find a common parent
+          const commonParent = findCommonParentPackage(packages);
+          if (commonParent) {
+            return commonParent;
           }
+          // If no common parent, use the first package
+          return packages[0];
         }
       }
     }
@@ -267,7 +266,7 @@ function findCommonParentPackage(packages) {
   
   for (let i = 0; i < parts.length; i++) {
     const testPrefix = parts.slice(0, i + 1).join('.');
-    const allMatch = packages.every(pkg => pkg.startsWith(testPrefix + '.') || pkg === testPrefix);
+    const allMatch = packages.every(pkg => pkg.startsWith(`${testPrefix  }.`) || pkg === testPrefix);
     
     if (allMatch) {
       commonPrefix = testPrefix;

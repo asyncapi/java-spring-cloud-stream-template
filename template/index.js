@@ -13,7 +13,6 @@ function Template({ asyncapi, params, targetDir }) {
   const { PomXml } = require('../components/PomXml');
   const { Readme } = require('../components/Readme');
   const { processAsyncApi } = require('../utils/asyncApiProcessor');
-  const filenamify = require('filenamify');
 
   logger.debug('template/index.js: Template() - About to call processAsyncApi');
   try {
@@ -40,14 +39,14 @@ function Template({ asyncapi, params, targetDir }) {
     logger.debug('template/index.js: Template() - About to generate pom.xml');
     if (artifactType === 'application') {
       files.push(
-        React.createElement(File, { name: "pom.xml" },
-          React.createElement(PomXml, { params, asyncapi, processedData, artifactType: "application" })
+        React.createElement(File, { name: 'pom.xml' },
+          React.createElement(PomXml, { params, asyncapi, processedData, artifactType: 'application' })
         )
       );
     } else {
       files.push(
-        React.createElement(File, { name: "pom.xml" },
-          React.createElement(PomXml, { params, asyncapi, processedData, artifactType: "library" })
+        React.createElement(File, { name: 'pom.xml' },
+          React.createElement(PomXml, { params, asyncapi, processedData, artifactType: 'library' })
         )
       );
     }
@@ -55,7 +54,7 @@ function Template({ asyncapi, params, targetDir }) {
     // Generate README.md
     logger.debug('template/index.js: Template() - About to generate README.md');
     files.push(
-      React.createElement(File, { name: "README.md" },
+      React.createElement(File, { name: 'README.md' },
         React.createElement(Readme, { params, asyncapi, processedData })
       )
     );
@@ -81,8 +80,8 @@ function Template({ asyncapi, params, targetDir }) {
       logger.debug(`template/index.js: Processing schema [${index}]: ${schemaName}`);
       
       // Skip schemas with numeric names (0, 1) as they are duplicates of component schemas
-      if ((typeof schemaName === 'number' && /^\d+$/.test(String(schemaName))) || 
-          (typeof schemaName === 'string' && /^\d+$/.test(schemaName))) {
+      if ((typeof schemaName === 'number' && (/^\d+$/).test(String(schemaName))) || 
+          (typeof schemaName === 'string' && (/^\d+$/).test(schemaName))) {
         logger.debug(`template/index.js: Skipping numeric schema name: ${schemaName} (duplicate of component schema)`);
         return;
       }
@@ -131,7 +130,7 @@ function Template({ asyncapi, params, targetDir }) {
             processedData, // <-- pass processedData to ModelClass
             extendsClass: processedSchema.extendsClass,
             namespace: processedSchema.namespace,
-            className: className,
+            className,
             parentProperties: processedSchema.parentProperties // <-- pass parentProperties
           })
         )
@@ -141,7 +140,7 @@ function Template({ asyncapi, params, targetDir }) {
     // Generate application.yml in root (will be moved by post-hook)
     logger.debug('template/index.js: Template() - About to generate application.yml');
     files.push(
-      React.createElement(File, { name: "application.yml" },
+      React.createElement(File, { name: 'application.yml' },
         React.createElement(ApplicationYml, { params, asyncapi, processedData })
       )
     );

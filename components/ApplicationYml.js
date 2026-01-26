@@ -1,6 +1,7 @@
 const React = require('react');
 const { Text } = require('@asyncapi/generator-react-sdk');
 const { logger } = require('../utils/logger');
+const { toJavaClassName } = require('../utils/typeUtils');
 
 /**
  * ApplicationYml component for generating Spring Boot application.yml
@@ -38,29 +39,29 @@ function ApplicationYml({ asyncapi, params, processedData }) {
   const needsJacksonConfig = needsJacksonConfiguration(processedData);
   
   // Add Spring Cloud Stream configuration
-  elements.push(React.createElement(Text, null, "spring:"));
+  elements.push(React.createElement(Text, null, 'spring:'));
   
   // Add Jackson configuration if needed
   if (needsJacksonConfig) {
-    elements.push(React.createElement(Text, null, "  jackson:"));
-    elements.push(React.createElement(Text, null, "    serialization:"));
-    elements.push(React.createElement(Text, null, "      write-dates-as-timestamps: false"));
-    elements.push(React.createElement(Text, null, "    deserialization:"));
-    elements.push(React.createElement(Text, null, "      fail-on-unknown-properties: false"));
+    elements.push(React.createElement(Text, null, '  jackson:'));
+    elements.push(React.createElement(Text, null, '    serialization:'));
+    elements.push(React.createElement(Text, null, '      write-dates-as-timestamps: false'));
+    elements.push(React.createElement(Text, null, '    deserialization:'));
+    elements.push(React.createElement(Text, null, '      fail-on-unknown-properties: false'));
   }
   
-  elements.push(React.createElement(Text, null, "  cloud:"));
-  elements.push(React.createElement(Text, null, "    function:"));
-  elements.push(React.createElement(Text, null, `      definition: ${functionDefinition || "''"}`));
+  elements.push(React.createElement(Text, null, '  cloud:'));
+  elements.push(React.createElement(Text, null, '    function:'));
+  elements.push(React.createElement(Text, null, `      definition: ${functionDefinition || '\'\''}`));
   
   // Add function configuration for parametersToHeaders
   if (parametersToHeaders && (binder === 'solace' || binder === 'rabbit')) {
     const headerMappingConfig = generateHeaderMappingConfiguration(consumerFunctions, binder);
     if (headerMappingConfig && Object.keys(headerMappingConfig).length > 0) {
-      elements.push(React.createElement(Text, null, "      configuration:"));
+      elements.push(React.createElement(Text, null, '      configuration:'));
       Object.entries(headerMappingConfig).forEach(([functionName, config]) => {
         elements.push(React.createElement(Text, null, `        ${functionName}:`));
-        elements.push(React.createElement(Text, null, "          input-header-mapping-expression:"));
+        elements.push(React.createElement(Text, null, '          input-header-mapping-expression:'));
         Object.entries(config['input-header-mapping-expression']).forEach(([paramName, expression]) => {
           elements.push(React.createElement(Text, null, `            ${paramName}: ${expression}`));
         });
@@ -68,11 +69,11 @@ function ApplicationYml({ asyncapi, params, processedData }) {
     }
   }
   
-  elements.push(React.createElement(Text, null, "    stream:"));
+  elements.push(React.createElement(Text, null, '    stream:'));
   if (supplierFunctions.length + consumerFunctions.length + functionFunctions.length === 0) {
-    elements.push(React.createElement(Text, null, "      bindings: {}"));
+    elements.push(React.createElement(Text, null, '      bindings: {}'));
   } else {
-    elements.push(React.createElement(Text, null, "      bindings:"));
+    elements.push(React.createElement(Text, null, '      bindings:'));
   }
 
   // Add bindings for supplier functions (use -out-0)
@@ -87,11 +88,11 @@ function ApplicationYml({ asyncapi, params, processedData }) {
     elements.push(React.createElement(Text, null, `          destination: ${destination}`));
     // Add binder property if using Solace
     if (binder === 'solace') {
-      elements.push(React.createElement(Text, null, `          binder: solace-binder`));
+      elements.push(React.createElement(Text, null, '          binder: solace-binder'));
     } else if (binder === 'rabbit') {
-      elements.push(React.createElement(Text, null, `          binder: rabbit-binder`));
+      elements.push(React.createElement(Text, null, '          binder: rabbit-binder'));
     } else if (binder === 'kafka') {
-      elements.push(React.createElement(Text, null, `          binder: kafka-binder`));
+      elements.push(React.createElement(Text, null, '          binder: kafka-binder'));
     }
   });
 
@@ -124,11 +125,11 @@ function ApplicationYml({ asyncapi, params, processedData }) {
     }
     // Add binder property if using Solace
     if (binder === 'solace') {
-      elements.push(React.createElement(Text, null, `          binder: solace-binder`));
+      elements.push(React.createElement(Text, null, '          binder: solace-binder'));
     } else if (binder === 'rabbit') {
-      elements.push(React.createElement(Text, null, `          binder: rabbit-binder`));
+      elements.push(React.createElement(Text, null, '          binder: rabbit-binder'));
     } else if (binder === 'kafka') {
-      elements.push(React.createElement(Text, null, `          binder: kafka-binder`));
+      elements.push(React.createElement(Text, null, '          binder: kafka-binder'));
     }
   });
 
@@ -175,11 +176,11 @@ function ApplicationYml({ asyncapi, params, processedData }) {
     elements.push(React.createElement(Text, null, `        ${inputBindingName}:`));
     elements.push(React.createElement(Text, null, `          destination: ${inputDestination}`));
     if (binder === 'solace') {
-      elements.push(React.createElement(Text, null, `          binder: solace-binder`));
+      elements.push(React.createElement(Text, null, '          binder: solace-binder'));
     } else if (binder === 'rabbit') {
-      elements.push(React.createElement(Text, null, `          binder: rabbit-binder`));
+      elements.push(React.createElement(Text, null, '          binder: rabbit-binder'));
     } else if (binder === 'kafka') {
-      elements.push(React.createElement(Text, null, `          binder: kafka-binder`));
+      elements.push(React.createElement(Text, null, '          binder: kafka-binder'));
     }
     
     // Output binding (-out-0) 
@@ -187,11 +188,11 @@ function ApplicationYml({ asyncapi, params, processedData }) {
     elements.push(React.createElement(Text, null, `        ${outputBindingName}:`));
     elements.push(React.createElement(Text, null, `          destination: ${outputDestination}`));
     if (binder === 'solace') {
-      elements.push(React.createElement(Text, null, `          binder: solace-binder`));
+      elements.push(React.createElement(Text, null, '          binder: solace-binder'));
     } else if (binder === 'rabbit') {
-      elements.push(React.createElement(Text, null, `          binder: rabbit-binder`));
+      elements.push(React.createElement(Text, null, '          binder: rabbit-binder'));
     } else if (binder === 'kafka') {
-      elements.push(React.createElement(Text, null, `          binder: kafka-binder`));
+      elements.push(React.createElement(Text, null, '          binder: kafka-binder'));
     }
   });
 
@@ -203,25 +204,25 @@ function ApplicationYml({ asyncapi, params, processedData }) {
     // Bindings for queue-based consumers
     const queueConsumers = consumerFunctions.filter(f => f.channelInfo && f.channelInfo.queueName);
     if (queueConsumers.length > 0) {
-      elements.push(React.createElement(Text, null, "      solace:"));
-      elements.push(React.createElement(Text, null, "        bindings:"));
+      elements.push(React.createElement(Text, null, '      solace:'));
+      elements.push(React.createElement(Text, null, '        bindings:'));
       queueConsumers.forEach(func => {
         const bindingName = `${func.name}-in-0`;
         elements.push(React.createElement(Text, null, `          ${bindingName}:`));
-        elements.push(React.createElement(Text, null, "            consumer:"));
+        elements.push(React.createElement(Text, null, '            consumer:'));
         elements.push(React.createElement(Text, null, `              queueNameExpression: '''${func.channelInfo.queueName || func.name}'''`));
       });
     }
     // Add binders
     elements.push(
-      React.createElement(Text, null, "      binders:"),
-      React.createElement(Text, null, `        solace-binder:`),
-      React.createElement(Text, null, `          type: solace`)
+      React.createElement(Text, null, '      binders:'),
+      React.createElement(Text, null, '        solace-binder:'),
+      React.createElement(Text, null, '          type: solace')
     );
     // Environment section
-    elements.push(React.createElement(Text, null, "          environment:"));
-    elements.push(React.createElement(Text, null, "            solace:"));
-    elements.push(React.createElement(Text, null, "              java:"));
+    elements.push(React.createElement(Text, null, '          environment:'));
+    elements.push(React.createElement(Text, null, '            solace:'));
+    elements.push(React.createElement(Text, null, '              java:'));
     elements.push(React.createElement(Text, null, `                host: '${host || 'tcp://localhost:55554'}'`));
     elements.push(React.createElement(Text, null, `                msgVpn: ${msgVpn || 'default'}`));
     elements.push(React.createElement(Text, null, `                clientUsername: ${username || 'default'}`));
@@ -229,16 +230,16 @@ function ApplicationYml({ asyncapi, params, processedData }) {
   } else if (binder === 'kafka') {
     // Add binders
     elements.push(
-      React.createElement(Text, null, "      binders:"),
-      React.createElement(Text, null, `        kafka-binder:`),
-      React.createElement(Text, null, `          type: kafka`)
+      React.createElement(Text, null, '      binders:'),
+      React.createElement(Text, null, '        kafka-binder:'),
+      React.createElement(Text, null, '          type: kafka')
     );
-    elements.push(React.createElement(Text, null, "          environment:"));
-    elements.push(React.createElement(Text, null, "            spring:"));
-    elements.push(React.createElement(Text, null, "              cloud:"));
-    elements.push(React.createElement(Text, null, "                stream:"));
-    elements.push(React.createElement(Text, null, "                  kafka:"));
-    elements.push(React.createElement(Text, null, "                    binder:"));
+    elements.push(React.createElement(Text, null, '          environment:'));
+    elements.push(React.createElement(Text, null, '            spring:'));
+    elements.push(React.createElement(Text, null, '              cloud:'));
+    elements.push(React.createElement(Text, null, '                stream:'));
+    elements.push(React.createElement(Text, null, '                  kafka:'));
+    elements.push(React.createElement(Text, null, '                    binder:'));
     
     // Use servers if useServers is true, otherwise use kafkaBrokers
     let brokerList = kafkaBrokers;
@@ -260,13 +261,13 @@ function ApplicationYml({ asyncapi, params, processedData }) {
   } else if (binder === 'rabbit') {
     // Add binders
     elements.push(
-      React.createElement(Text, null, "      binders:"),
-      React.createElement(Text, null, `        rabbit-binder:`),
-      React.createElement(Text, null, `          type: rabbit`)
+      React.createElement(Text, null, '      binders:'),
+      React.createElement(Text, null, '        rabbit-binder:'),
+      React.createElement(Text, null, '          type: rabbit')
     );
-    elements.push(React.createElement(Text, null, "          environment:"));
-    elements.push(React.createElement(Text, null, "            spring:"));
-    elements.push(React.createElement(Text, null, "              rabbitmq:"));
+    elements.push(React.createElement(Text, null, '          environment:'));
+    elements.push(React.createElement(Text, null, '            spring:'));
+    elements.push(React.createElement(Text, null, '              rabbitmq:'));
     elements.push(React.createElement(Text, null, `                host: ${rabbitHost}`));
     elements.push(React.createElement(Text, null, `                port: ${rabbitPort}`));
     elements.push(React.createElement(Text, null, `                username: ${rabbitUsername}`));
@@ -275,39 +276,39 @@ function ApplicationYml({ asyncapi, params, processedData }) {
 
   // Add logging configuration (matching reference)
   elements.push(
-    React.createElement(Text, null, "logging:"),
-    React.createElement(Text, null, "  level:"),
-    React.createElement(Text, null, "    root: info"),
-    React.createElement(Text, null, "    org:"),
-    React.createElement(Text, null, "      springframework: info"),
-    React.createElement(Text, null, "      springframework.cloud.stream: info"),
-    React.createElement(Text, null, "      springframework.integration: info"),
-    React.createElement(Text, null, "    com:"),
-    React.createElement(Text, null, "      company: info")
+    React.createElement(Text, null, 'logging:'),
+    React.createElement(Text, null, '  level:'),
+    React.createElement(Text, null, '    root: info'),
+    React.createElement(Text, null, '    org:'),
+    React.createElement(Text, null, '      springframework: info'),
+    React.createElement(Text, null, '      springframework.cloud.stream: info'),
+    React.createElement(Text, null, '      springframework.integration: info'),
+    React.createElement(Text, null, '    com:'),
+    React.createElement(Text, null, '      company: info')
   );
   
   // Add Jackson logging if Jackson config is needed
   if (needsJacksonConfig) {
     elements.push(
-      React.createElement(Text, null, "    com.fasterxml.jackson: info")
+      React.createElement(Text, null, '    com.fasterxml.jackson: info')
     );
   }
 
   // Add actuator configuration if enabled (matching nunjucks reference project)
   if (actuator === 'true' || actuator === true) {
     elements.push(
-      React.createElement(Text, null, "server:"),
-      React.createElement(Text, null, "  port: 8080"),
-      React.createElement(Text, null, "management:"),
-      React.createElement(Text, null, "  endpoints:"),
-      React.createElement(Text, null, "    web:"),
-      React.createElement(Text, null, "      exposure:"),
-      React.createElement(Text, null, "        include: '*'")
+      React.createElement(Text, null, 'server:'),
+      React.createElement(Text, null, '  port: 8080'),
+      React.createElement(Text, null, 'management:'),
+      React.createElement(Text, null, '  endpoints:'),
+      React.createElement(Text, null, '    web:'),
+      React.createElement(Text, null, '      exposure:'),
+      React.createElement(Text, null, '        include: \'*\'')
     );
   }
 
   // Remove trailing blank lines at the end
-  while (elements.length > 0 && elements[elements.length - 1].props && elements[elements.length - 1].props.children === "") {
+  while (elements.length > 0 && elements[elements.length - 1].props && elements[elements.length - 1].props.children === '') {
     elements.pop();
   }
 

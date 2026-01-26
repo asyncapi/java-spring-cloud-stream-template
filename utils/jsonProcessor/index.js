@@ -1,19 +1,11 @@
 const { logger } = require('../logger');
 const { SchemaModel } = require('./jsonSchemaModel');
-const { 
-  getEnhancedType, 
-  checkPropertyNames, 
-  getIdentifierName, 
-  fixType 
+const {
+  checkPropertyNames
 } = require('../typeUtils');
 const {
-  stripPackageName,
-  getSampleArg,
-  getMultipleMessageComment,
-  getMessagePayloadType,
-  getPayloadClass
+  stripPackageName
 } = require('../functionUtils');
-
 
 // Initialize schema model instance
 const schemaModel = new SchemaModel();
@@ -55,7 +47,7 @@ typeMap.set('string', stringMap);
  * Map schema ID to component name for inline schemas
  * This handles cases like http://example.com/root.json -> RideReceipt
  */
-function mapSchemaIdToComponentName(schemaId, asyncapi) {
+function _mapSchemaIdToComponentName(schemaId, asyncapi) {
   logger.debug(`🔍 DEBUG: mapSchemaIdToComponentName called with schemaId: ${schemaId}`);
   
   if (!schemaId || !schemaId.startsWith('http://')) {
@@ -90,7 +82,7 @@ function mapSchemaIdToComponentName(schemaId, asyncapi) {
   
   // If the library returned numeric keys, try to get the actual component names from _json
   if (asyncapi._json && asyncapi._json.components && asyncapi._json.components.schemas) {
-    logger.debug(`🔍 DEBUG: Trying to find component name from _json structure`);
+    logger.debug('🔍 DEBUG: Trying to find component name from _json structure');
     let foundComponentName = null;
     Object.keys(asyncapi._json.components.schemas).forEach(componentName => {
       const schema = asyncapi._json.components.schemas[componentName];
@@ -298,20 +290,20 @@ function collectAllSchemas(asyncapi) {
           return;
         }
         
-              // Skip schemas with numeric names (0, 1) as they are duplicates of component schemas
-      if (typeof schemaName === 'string' && /^\d+$/.test(schemaName)) {
-        logger.debug(`[collectAllSchemas] Skipping numeric schema name: ${schemaName} (duplicate of component schema)`);
-        return;
-      }
+        // Skip schemas with numeric names (0, 1) as they are duplicates of component schemas
+        if (typeof schemaName === 'string' && (/^\d+$/).test(schemaName)) {
+          logger.debug(`[collectAllSchemas] Skipping numeric schema name: ${schemaName} (duplicate of component schema)`);
+          return;
+        }
       
-      // ENHANCED: Skip anonymous schemas that are not referenced in message payloads
-      const isAnonymousSchema = schemaId && schemaId.startsWith('<anonymous-schema-');
-      if (isAnonymousSchema) {
+        // ENHANCED: Skip anonymous schemas that are not referenced in message payloads
+        const isAnonymousSchema = schemaId && schemaId.startsWith('<anonymous-schema-');
+        if (isAnonymousSchema) {
         // For anonymous schemas, be very aggressive - only keep if they are explicitly referenced
         // Most anonymous schemas are internal implementation details and should not be generated
-        logger.debug(`[collectAllSchemas] Skipping anonymous schema: ${schemaName} (${schemaId}) - not explicitly referenced`);
-        return;
-      }
+          logger.debug(`[collectAllSchemas] Skipping anonymous schema: ${schemaName} (${schemaId}) - not explicitly referenced`);
+          return;
+        }
         
         // Get schema pointer to determine if nested
         const meta = schema.meta();
@@ -321,10 +313,10 @@ function collectAllSchemas(asyncapi) {
         allSchemas.set(schemaName, schema);
         schemaMetadata.set(schemaName, {
           source: 'allSchemas',
-          isNested: isNested,
+          isNested,
           isStandalone: !isNested,
           isBasicType: false,
-          pointer: pointer
+          pointer
         });
       }
     });
@@ -372,10 +364,10 @@ function collectAllSchemas(asyncapi) {
               allSchemas.set(inlineName, payload);
               schemaMetadata.set(inlineName, {
                 source: 'inline',
-                isNested: isNested,
+                isNested,
                 isStandalone: !isNested,
                 isBasicType: false,
-                pointer: pointer
+                pointer
               });
             }
           }
@@ -405,7 +397,7 @@ function collectAllSchemas(asyncapi) {
   });
 
   // 5. Log summary
-  logger.debug(`[collectAllSchemas] Schema collection summary:`);
+  logger.debug('[collectAllSchemas] Schema collection summary:');
   logger.debug(`  • Total schemas found: ${allSchemas.size}`);
   logger.debug(`  • Basic type schemas filtered: ${allSchemas.size - filteredSchemas.size}`);
   logger.debug(`  • Schemas for generation: ${filteredSchemas.size}`);
@@ -479,7 +471,7 @@ function processJsonSchemas(asyncapi, avroSchemaNames = new Set(), avroClassName
       return;
     }
     
-    schemaMap.set(schemaName, { schema, schemaName: schemaName });
+    schemaMap.set(schemaName, { schema, schemaName });
     logger.debug(`jsonProcessor: Added schema to map: ${schemaName}`);
     
     // Check for inheritance relationships
@@ -663,8 +655,8 @@ function processJsonSchemas(asyncapi, avroSchemaNames = new Set(), avroClassName
             format: prop.format ? prop.format() : undefined,
             enum: prop.enum ? prop.enum() : undefined,
             items: prop.items ? prop.items() : undefined,
-            minimum: minimum,
-            maximum: maximum,
+            minimum,
+            maximum,
             // Preserve the actual schema object for nested class generation
             schema: prop,
             // Preserve items schema for array processing
@@ -737,8 +729,8 @@ function processJsonSchemas(asyncapi, avroSchemaNames = new Set(), avroClassName
             format: prop.format ? prop.format() : undefined,
             enum: prop.enum ? prop.enum() : undefined,
             items: prop.items ? prop.items() : undefined,
-            minimum: minimum,
-            maximum: maximum,
+            minimum,
+            maximum,
             // Preserve the actual schema object for nested class generation
             schema: prop,
             // Preserve items schema for array processing
@@ -777,7 +769,7 @@ function processJsonSchemas(asyncapi, avroSchemaNames = new Set(), avroClassName
     const packagePath = javaPackage ? javaPackage.replace(/\./g, '/') : null;
     const namespace = javaPackage;
     const properties = mergedProperties;
-    const required = mergedRequired;
+    const _required = mergedRequired;
     logger.debug(`jsonProcessor: Processing schema ${name} with ${properties.length} properties`);
     // Debug: Log the properties structure to see if validation constraints are included
     properties.forEach((prop, index) => {
@@ -803,22 +795,22 @@ function processJsonSchemas(asyncapi, avroSchemaNames = new Set(), avroClassName
     const schemaJsonId = schema._json && schema._json.$id;
     
     schemas.push({
-      name: name, // This is the original schema name from AsyncAPI spec
+      name, // This is the original schema name from AsyncAPI spec
       title: schemaTitle,
-      className: className, // This is the transformed name for Java
-      packagePath: packagePath,
-      namespace: namespace,
-      properties: properties,
+      className, // This is the transformed name for Java
+      packagePath,
+      namespace,
+      properties,
       isAvro: false,
       isAvroSchema: false,
-      needsJsonPropertyInclude: needsJsonPropertyInclude,
-      extendsClass: extendsClass,
+      needsJsonPropertyInclude,
+      extendsClass,
       canBeInnerClass: modelClass.canBeInnerClass(),
-      modelClass: modelClass,
-      parentProperties: parentProperties,
+      modelClass,
+      parentProperties,
       // Add schema ID information for mapping
       id: schemaJsonId || schemaId,
-      schemaId: schemaId
+      schemaId
     });
     logger.debug(`jsonProcessor: Added schema ${name} with ${properties.length} properties`);
     
@@ -843,17 +835,16 @@ function getJsonSchemaTypeFromJson(schema) {
   if (!schema) return 'object';
   
   const type = schema.type || null;
-  const format = schema.format || null;
-  
+  const _format = schema.format || null;
+
   if (type === 'array') {
     const items = schema.items;
     if (items) {
       const itemType = items.type || null;
       if (!itemType || itemType === 'object') {
         return 'array';
-      } else {
-        return `array-${itemType}`;
-      }
+      } 
+      return `array-${itemType}`;
     }
     return 'array';
   }
@@ -878,17 +869,16 @@ function getJsonSchemaType(schema) {
   if (!schema) return 'object';
   
   const type = schema.type ? schema.type() : null;
-  const format = schema.format ? schema.format() : null;
-  
+  const _format2 = schema.format ? schema.format() : null;
+
   if (type === 'array') {
     const items = schema.items();
     if (items) {
       const itemType = items.type ? items.type() : null;
       if (!itemType || itemType === 'object') {
         return 'array';
-      } else {
-        return `array-${itemType}`;
-      }
+      } 
+      return `array-${itemType}`;
     }
     return 'array';
   }

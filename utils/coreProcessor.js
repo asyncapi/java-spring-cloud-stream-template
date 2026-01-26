@@ -1,7 +1,6 @@
-const _ = require('lodash');
 const { logger } = require('./logger');
 const { processJsonSchemas } = require('./jsonProcessor/index');
-const { extractAvroSchemasFromMessages, isAvroSchema, isAvroMessage } = require('./avroProcessor');
+const { extractAvroSchemasFromMessages } = require('./avroProcessor');
 const { toPascalCase, toCamelCase, getSchemaType } = require('./typeUtils');
 const { getFunctionName, getMultipleMessageComment, sortParametersUsingChannelName, getFunctionPayloadType } = require('./functionUtils');
 const { getPackageName } = require('../components/Application');
@@ -184,9 +183,9 @@ function detectJsonSchemas(asyncapi) {
  * Generates consumer, supplier, and send functions based on channel operations
  */
 function extractFunctions(asyncapi, params, processedSchemas = []) {
-  const functionMap = new Map();
-  const usedFunctionNames = new Set();
-  const { reactive = false, dynamicType = 'streamBridge', binder = 'solace', parametersToHeaders = false } = params;
+  const _functionMap = new Map();
+  const _usedFunctionNames = new Set();
+  const { reactive = false, dynamicType = 'streamBridge', binder: _binder = 'solace', parametersToHeaders = false } = params;
   const channels = asyncapi.channels();
   
   logger.debug('extractFunctions: Starting function extraction');
@@ -287,7 +286,7 @@ function extractFunctions(asyncapi, params, processedSchemas = []) {
         // Handle remaining conflicts by adding a unique suffix
         if (existingMethodNames.includes(sendMethodName)) {
           let counter = 1;
-          let baseName = sendMethodName;
+          const baseName = sendMethodName;
           while (existingMethodNames.includes(sendMethodName)) {
             sendMethodName = `${baseName}${counter}`;
             counter++;
@@ -298,7 +297,7 @@ function extractFunctions(asyncapi, params, processedSchemas = []) {
         functions.push({
           name: getFunctionName(channelName, realPublisher, false),
           type: 'send',
-          sendMethodName: sendMethodName,
+          sendMethodName,
           publishPayload: payloadType,
           dynamic: true,
           dynamicType,
@@ -308,7 +307,7 @@ function extractFunctions(asyncapi, params, processedSchemas = []) {
           parameters,
           channelInfo,
           operation: realPublisher,
-          messageName: messageName,
+          messageName,
           multipleMessageComment: getMultipleMessageComment(realPublisher)
         });
       } else {
@@ -326,7 +325,7 @@ function extractFunctions(asyncapi, params, processedSchemas = []) {
           parameters: [],
           channelInfo,
           operation: realPublisher,
-          messageName: messageName,
+          messageName,
           multipleMessageComment: getMultipleMessageComment(realPublisher)
         });
       }
@@ -375,15 +374,15 @@ function extractFunctions(asyncapi, params, processedSchemas = []) {
                 queueName: queueInfo.queueName,
                 topicSubscriptions: queueInfo.topicSubscriptions
               },
-              group: queueInfo.queueName + '-group',
+              group: `${queueInfo.queueName  }-group`,
               isQueueWithSubscription: true,
               queueName: queueInfo.queueName,
               topicSubscriptions: queueInfo.topicSubscriptions,
               subscribeChannel: channelInfo.subscribeChannel,
               publishChannel: channelInfo.publishChannel,
               operation: realSubscriber,
-              messageName: messageName,
-              hasEnumParameters: hasEnumParameters
+              messageName,
+              hasEnumParameters
             });
           }
         });
@@ -409,15 +408,15 @@ function extractFunctions(asyncapi, params, processedSchemas = []) {
             hasParams: channelInfo.hasParams || false,
             parameters: channelInfo.parameters || [],
             channelInfo,
-            group: channelInfo.queueName + '-group',
+            group: `${channelInfo.queueName  }-group`,
             isQueueWithSubscription: true,
             queueName: channelInfo.queueName,
             topicSubscriptions: channelInfo.topicSubscriptions,
             subscribeChannel: channelInfo.subscribeChannel,
             publishChannel: channelInfo.publishChannel,
             operation: realSubscriber,
-            messageName: messageName,
-            hasEnumParameters: hasEnumParameters
+            messageName,
+            hasEnumParameters
           });
         }
       } else {
@@ -441,9 +440,9 @@ function extractFunctions(asyncapi, params, processedSchemas = []) {
           parameters: channelInfo.parameters || [],
           channelInfo,
           operation: realSubscriber,
-          messageName: messageName,
+          messageName,
           multipleMessageComment: getMultipleMessageComment(realSubscriber),
-          hasEnumParameters: hasEnumParameters
+          hasEnumParameters
         });
       }
     }
@@ -458,7 +457,6 @@ function extractFunctions(asyncapi, params, processedSchemas = []) {
   logger.debug(`extractFunctions: Extracted ${processedFunctions.length} functions total (after x-scs-function-name processing)`);
   return processedFunctions;
 }
-
 
 /**
  * Convert queue name to consumer bean name
@@ -486,26 +484,26 @@ function toConsumerBeanName(str) {
 function extractMessageName(operation) {
   try {
     if (!operation) {
-      logger.debug(`extractMessageName: operation is null`);
+      logger.debug('extractMessageName: operation is null');
       return null;
     }
     
     const messages = operation.messages();
     if (!messages || typeof messages.values !== 'function') {
-      logger.debug(`extractMessageName: No messages or values function`);
+      logger.debug('extractMessageName: No messages or values function');
       return null;
     }
     
     const messageArray = Array.from(messages.values());
     logger.debug(`extractMessageName: Found ${messageArray.length} messages`);
     if (messageArray.length === 0) {
-      logger.debug(`extractMessageName: No messages in array`);
+      logger.debug('extractMessageName: No messages in array');
       return null;
     }
     
     // Take the first message
     const message = messageArray[0];
-    logger.debug(`extractMessageName: Processing first message`);
+    logger.debug('extractMessageName: Processing first message');
     
     // Try to get the message name using AsyncAPI library functions
     if (message.name && typeof message.name === 'function') {
@@ -558,9 +556,9 @@ function extractMessageName(operation) {
     }
     
     // Try to get from message object's internal structure
-    logger.debug(`extractMessageName: Checking message object properties`);
+    logger.debug('extractMessageName: Checking message object properties');
     if (message._json) {
-      logger.debug(`extractMessageName: message._json exists`);
+      logger.debug('extractMessageName: message._json exists');
       // Try to get the message name from the internal JSON structure
       const messageJson = message._json;
       logger.debug(`extractMessageName: message._json keys: ${Object.keys(messageJson).join(', ')}`);
@@ -599,7 +597,7 @@ function toParameterName(str) {
   if (!str) return '';
   
   // Remove curly braces first
-  let cleaned = str.replace(/([{}])/g, '');
+  const cleaned = str.replace(/([{}])/g, '');
   
   // Preserve camelCase parameters (e.g., 'transactionID' -> 'transactionID')
   if (cleaned.match(/^[a-z]+[A-Z][A-Z]/)) {
@@ -667,8 +665,8 @@ function extractChannelParameters(channel) {
           type: getParameterType(param),
           required: isRequired,
           position: actualPosition,
-          enumValues: enumValues,
-          hasEnum: hasEnum
+          enumValues,
+          hasEnum
         });
       } catch (error) {
         logger.warn(`Error processing channel parameter ${param?.id() || 'unknown'}:`, error.message);
@@ -723,16 +721,16 @@ function getParameterType(param) {
       const schemaType = getSchemaType(schema);
       // Convert schema type to Java type
       switch (schemaType.toLowerCase()) {
-        case 'string':
-          return 'String';
-        case 'integer':
-          return 'Integer';
-        case 'number':
-          return 'Double';
-        case 'boolean':
-          return 'Boolean';
-        default:
-          return 'String'; // Default to String for unknown types
+      case 'string':
+        return 'String';
+      case 'integer':
+        return 'Integer';
+      case 'number':
+        return 'Double';
+      case 'boolean':
+        return 'Boolean';
+      default:
+        return 'String'; // Default to String for unknown types
       }
     }
     return 'String';
@@ -920,14 +918,9 @@ function getSchemaImport(schemaName, avroSchemaMap = new Map(), currentPackage =
  */
 function generateAppProperties(asyncapi, params) {
   // Destructure parameters with defaults from package.json
-  const { 
-    binder = 'kafka', 
-    host, 
-    username, 
-    password, 
-    msgVpn, 
-    parametersToHeaders = false,
-    view: paramView 
+  const {
+    binder = 'kafka',
+    view: paramView
   } = params;
   
   // Validate binder parameter
@@ -961,7 +954,7 @@ function generateAppProperties(asyncapi, params) {
       // Provider view: publish operations become publishers (suppliers)
       const isPublisher = isProvider;
       const bindingType = isPublisher ? 'out-0' : 'in-0';
-      const operationType = isPublisher ? 'Supplier' : 'Consumer';
+      const _operationType = isPublisher ? 'Supplier' : 'Consumer';
       
       properties.push(`spring.cloud.stream.bindings.${functionName}-${bindingType}.destination=${destination}`);
       
@@ -982,7 +975,7 @@ function generateAppProperties(asyncapi, params) {
       // Provider view: subscribe operations become subscribers (consumers)
       const isPublisher = !isProvider;
       const bindingType = isPublisher ? 'out-0' : 'in-0';
-      const operationType = isPublisher ? 'Supplier' : 'Consumer';
+      const _operationType = isPublisher ? 'Supplier' : 'Consumer';
       
       properties.push(`spring.cloud.stream.bindings.${functionName}-${bindingType}.destination=${destination}`);
       
@@ -1024,7 +1017,7 @@ function getChannelInfo(channel, operation, parameters) {
   }
   
   const channelInfo = {
-    publishChannel: publishChannel,
+    publishChannel,
     subscribeChannel: getSubscribeChannel(channel, operation),
     parameters
   };
@@ -1111,26 +1104,26 @@ function extractSolaceQueueInfo(channel, operation) {
     
     const bindings = operation.bindings();
     if (!bindings) {
-      logger.debug(`coreProcessor.js: extractSolaceQueueInfo() - No bindings found`);
+      logger.debug('coreProcessor.js: extractSolaceQueueInfo() - No bindings found');
       return null;
     }
     
     const solaceBinding = bindings.get('solace');
     if (!solaceBinding) {
-      logger.debug(`coreProcessor.js: extractSolaceQueueInfo() - No solace binding found`);
+      logger.debug('coreProcessor.js: extractSolaceQueueInfo() - No solace binding found');
       return null;
     }
     
     // Access the raw JSON structure since the AsyncAPI library methods might not work as expected
     const solaceBindingJson = solaceBinding._json || solaceBinding;
     if (!solaceBindingJson || !solaceBindingJson.destinations) {
-      logger.debug(`coreProcessor.js: extractSolaceQueueInfo() - No destinations found in solace binding`);
+      logger.debug('coreProcessor.js: extractSolaceQueueInfo() - No destinations found in solace binding');
       return null;
     }
     
     const destinations = solaceBindingJson.destinations;
     if (!destinations || destinations.length === 0) {
-      logger.debug(`coreProcessor.js: extractSolaceQueueInfo() - No destinations array found`);
+      logger.debug('coreProcessor.js: extractSolaceQueueInfo() - No destinations array found');
       return null;
     }
     
@@ -1168,7 +1161,7 @@ function extractSolaceQueueInfo(channel, operation) {
 /**
  * Get group name for a function
  */
-function getGroupName(channel, operation, params) {
+function _getGroupName(_channel, operation, _params) {
   // Check for x-scs-group extension first
   const extensions = operation.extensions();
   if (extensions && extensions.get('x-scs-group')) {
@@ -1183,7 +1176,7 @@ function getGroupName(channel, operation, params) {
 /**
  * Check if channel has queue with subscription
  */
-function isQueueWithSubscription(channel, operation) {
+function _isQueueWithSubscription(_channel, operation) {
   // Check for x-scs-queue extension
   const extensions = operation.extensions();
   if (extensions && extensions.get('x-scs-queue')) {
@@ -1201,7 +1194,7 @@ function isQueueWithSubscription(channel, operation) {
 /**
  * Get queue name for a function
  */
-function getQueueName(channel, operation, params) {
+function _getQueueName(channel, operation, _params) {
   // Check for x-scs-queue extension first
   const extensions = operation.extensions();
   if (extensions && extensions.get('x-scs-queue')) {
@@ -1225,7 +1218,7 @@ function getQueueName(channel, operation, params) {
  * Replaces parameter placeholders with wildcards for subscribe operations
  */
 function getSubscribeChannel(channel, operation) {
-  let channelName = channel.id();
+  const channelName = channel.id();
   
   // For subscribe operations, use the channel name with wildcards
   if (operation.action() === 'subscribe') {
@@ -1246,7 +1239,7 @@ function getSubscribeChannel(channel, operation) {
  * Replaces parameter placeholders with format strings for publish operations
  */
 function getPublishChannel(channel, operation) {
-  let channelName = channel.id();
+  const channelName = channel.id();
   
   // For publish operations, use the channel name with format strings
   if (operation.action() === 'publish') {
@@ -1301,7 +1294,7 @@ function replaceChannelParametersWithFormatStrings(channelName, channel) {
       let formatString = '%s'; // Default to string
       if (schema) {
         const type = schema.type();
-        const format = schema.format();
+        const _format = schema.format();
         
         if (type === 'integer') {
           formatString = '%d';
@@ -1398,10 +1391,10 @@ function processXScsFunctionNameGrouping(functions, isProvider = false) {
           messageName: consumer.messageName,
           multipleMessageComment: consumer.multipleMessageComment,
           // Additional properties for Function type
-          inputPayload: inputPayload,
-          outputPayload: outputPayload,
-          inputOperation: inputOperation,
-          outputOperation: outputOperation
+          inputPayload,
+          outputPayload,
+          inputOperation,
+          outputOperation
         };
         
         processedFunctions.push(functionSpec);
