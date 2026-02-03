@@ -4,6 +4,15 @@ const {
   checkPropertyNames,
   stripPackageName
 } = require('../typeUtils');
+const {
+  getValue,
+  getFirstMessage,
+  iterateChannelOperations,
+  getSchemaType,
+  createProcessorResult,
+  initializeSchemaModel,
+  extractFunctionsFromCore
+} = require('../processorUtils');
 
 const { processAvroFieldType } = require('./avroProcessor');
 
@@ -11,20 +20,11 @@ const { processAvroFieldType } = require('./avroProcessor');
 const schemaModel = new SchemaModel();
 
 /**
- * Helper to safely get a value that might be a function or direct value
- */
-function getValue(obj, defaultValue = undefined) {
-  if (obj === undefined || obj === null) return defaultValue;
-  if (typeof obj === 'function') return obj();
-  return obj;
-}
-
-/**
  * Detect if AsyncAPI document contains Avro schemas
  */
 function detectAvroSchemas(asyncapi) {
   logger.debug('avroProcessor.js: detectAvroSchemas() - Detecting Avro schemas');
-  
+
   // Check for Avro schemas in components.schemas
   const componentsSchemas = asyncapi.components().schemas();
   if (componentsSchemas) {
@@ -35,44 +35,27 @@ function detectAvroSchemas(asyncapi) {
       }
     }
   }
-  
-  // Check for Avro schemas in messages
-  const channels = asyncapi.channels();
-  for (const channel of channels.values()) {
-    const channelName = channel.id();
-    // Get all operations for this channel
-    const operations = channel.operations && typeof channel.operations === 'function'
-      ? Array.from(channel.operations().values())
-      : [];
 
-    // Find publish and subscribe operations
-    const publishOperation = operations.find(op => op.action && op.action() === 'publish');
-    const subscribeOperation = operations.find(op => op.action && op.action() === 'subscribe');
-    
-    if (publishOperation) {
-      const messages = publishOperation.messages();
-      if (messages && messages.length > 0) {
-        const message = messages[0];
-        if (message && isAvroMessage(message)) {
-          logger.debug(`avroProcessor: Found Avro message in publish channel: ${channelName}`);
-          return true;
-        }
-      }
+  // Check for Avro schemas in messages using shared utility
+  let foundAvro = false;
+  iterateChannelOperations(asyncapi, (channel, channelName, publishOp, subscribeOp) => {
+    if (foundAvro) return;
+
+    const publishMessage = getFirstMessage(publishOp);
+    if (publishMessage && isAvroMessage(publishMessage)) {
+      logger.debug(`avroProcessor: Found Avro message in publish channel: ${channelName}`);
+      foundAvro = true;
+      return;
     }
-    
-    if (subscribeOperation) {
-      const messages = subscribeOperation.messages();
-      if (messages && messages.length > 0) {
-        const message = messages[0];
-        if (message && isAvroMessage(message)) {
-          logger.debug(`avroProcessor: Found Avro message in subscribe channel: ${channelName}`);
-          return true;
-        }
-      }
+
+    const subscribeMessage = getFirstMessage(subscribeOp);
+    if (subscribeMessage && isAvroMessage(subscribeMessage)) {
+      logger.debug(`avroProcessor: Found Avro message in subscribe channel: ${channelName}`);
+      foundAvro = true;
     }
-  }
-  
-  return false;
+  });
+
+  return foundAvro;
 }
 
 /**
@@ -111,18 +94,39 @@ function isAvroMessage(message) {
 }
 
 /**
+ * Process message payload for Avro schema extraction
+ * @param {Object} message - The message object
+ * @param {Set} processedSchemaNames - Set of already processed schema names
+ * @param {Array} schemas - Array to push processed schemas into
+ */
+function processMessagePayloadForAvro(message, processedSchemaNames, schemas) {
+  if (!message) return;
+
+  const payload = message.payload();
+  if (payload && isAvroSchema(payload)) {
+    const schemaName = payload.extensions && payload.extensions().get('x-parser-schema-id')?.value() || payload.id();
+    if (schemaName && !processedSchemaNames.has(schemaName)) {
+      const processedSchema = processAvroSchema(payload, schemaName);
+      if (processedSchema) {
+        schemas.push(processedSchema);
+        processedSchemaNames.add(schemaName);
+      }
+    }
+  }
+}
+
+/**
  * Extract Avro schemas from messages using new schema model
  */
 function extractAvroSchemasFromMessages(asyncapi) {
   logger.debug('avroProcessor.js: extractAvroSchemasFromMessages() - Extracting Avro schemas with new schema model');
-  
-  // Initialize schema model with AsyncAPI document
-  schemaModel.setupSuperClassMap(asyncapi);
-  schemaModel.setupModelClassMap(asyncapi);
-  
+
+  // Initialize schema model with AsyncAPI document using shared utility
+  initializeSchemaModel(schemaModel, asyncapi);
+
   const schemas = [];
   const processedSchemaNames = new Set();
-  
+
   // Extract schemas from components.schemas
   const componentsSchemas = asyncapi.components().schemas();
   if (componentsSchemas) {
@@ -136,65 +140,20 @@ function extractAvroSchemasFromMessages(asyncapi) {
       }
     }
   }
-  
-  // Extract schemas from messages
-  const channels = asyncapi.channels();
-  for (const channel of channels.values()) {
-    const channelName = channel.id();
-    logger.debug(`avroProcessor.js: extractAvroSchemasFromMessages() - Processing channel: ${channelName}`);
-    
-    // Get all operations for this channel
-    const operations = channel.operations && typeof channel.operations === 'function'
-      ? Array.from(channel.operations().values())
-      : [];
 
-    // Find publish and subscribe operations
-    const publishOperation = operations.find(op => op.action && op.action() === 'publish');
-    const subscribeOperation = operations.find(op => op.action && op.action() === 'subscribe');
-    
+  // Extract schemas from messages using shared utility
+  iterateChannelOperations(asyncapi, (channel, channelName, publishOp, subscribeOp) => {
+    logger.debug(`avroProcessor.js: extractAvroSchemasFromMessages() - Processing channel: ${channelName}`);
+
     // Check publish messages
-    if (publishOperation) {
-      const messages = publishOperation.messages();
-      if (messages && messages.length > 0) {
-        const message = messages[0];
-        if (message) {
-          const payload = message.payload();
-          if (payload && isAvroSchema(payload)) {
-            const schemaName = payload.extensions && payload.extensions().get('x-parser-schema-id')?.value() || payload.id();
-            if (schemaName && !processedSchemaNames.has(schemaName)) {
-              const processedSchema = processAvroSchema(payload, schemaName);
-              if (processedSchema) {
-                schemas.push(processedSchema);
-                processedSchemaNames.add(schemaName);
-              }
-            }
-          }
-        }
-      }
-    }
-    
+    const publishMessage = getFirstMessage(publishOp);
+    processMessagePayloadForAvro(publishMessage, processedSchemaNames, schemas);
+
     // Check subscribe messages
-    if (subscribeOperation) {
-      const messages = subscribeOperation.messages();
-      if (messages && messages.length > 0) {
-        const message = messages[0];
-        if (message) {
-          const payload = message.payload();
-          if (payload && isAvroSchema(payload)) {
-            const schemaName = payload.extensions && payload.extensions().get('x-parser-schema-id')?.value() || payload.id();
-            if (schemaName && !processedSchemaNames.has(schemaName)) {
-              const processedSchema = processAvroSchema(payload, schemaName);
-              if (processedSchema) {
-                schemas.push(processedSchema);
-                processedSchemaNames.add(schemaName);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  
+    const subscribeMessage = getFirstMessage(subscribeOp);
+    processMessagePayloadForAvro(subscribeMessage, processedSchemaNames, schemas);
+  });
+
   logger.debug(`avroProcessor: Extracted ${schemas.length} Avro schemas`);
   return schemas;
 }
@@ -355,37 +314,12 @@ function processAvroSchema(schema, schemaName) {
 }
 
 /**
- * Get Avro schema type using enhanced type utilities
+ * Get Avro schema type using shared utility
+ * Uses 'array-object' style for object arrays (Avro convention)
  */
 function getAvroSchemaType(schema) {
   logger.debug('avroProcessor.js: getAvroSchemaType() - Getting Avro schema type');
-  
-  if (!schema) return 'object';
-  
-  const type = schema.type ? schema.type() : null;
-  const _format = schema.format ? schema.format() : null;
-  
-  if (type === 'array') {
-    const items = schema.items();
-    if (items) {
-      const itemType = items.type ? items.type() : null;
-      if (!itemType || itemType === 'object') {
-        return 'array-object';
-      } 
-      return `array-${itemType}`;
-    }
-    return 'array';
-  }
-  
-  if (!type || type === 'object') {
-    const schemaName = schema.extensions && schema.extensions().get('x-parser-schema-id')?.value();
-    if (schemaName) {
-      return `object-${schemaName}`;
-    }
-    return 'object';
-  }
-  
-  return type;
+  return getSchemaType(schema, { useArrayObject: true });
 }
 
 /**
@@ -480,28 +414,20 @@ function determineAvroImports(functions, schemas) {
  */
 function processAsyncApi(asyncapi, params) {
   logger.debug('avroProcessor.js: processAsyncApi() - Starting Avro processing');
-  
-  // Initialize schema model with AsyncAPI document
-  schemaModel.setupSuperClassMap(asyncapi);
-  schemaModel.setupModelClassMap(asyncapi);
-  
+
+  // Initialize schema model with AsyncAPI document using shared utility
+  initializeSchemaModel(schemaModel, asyncapi);
+
   const schemas = extractAvroSchemasFromMessages(asyncapi);
-  
-  // Import and use the core processor's function extraction
-  const coreProcessor = require('../coreProcessor');
-  const functions = coreProcessor.extractFunctions(asyncapi, params, schemas);
-  
+
+  // Extract functions using shared utility
+  const functions = extractFunctionsFromCore(asyncapi, params, schemas);
+
   const extraIncludes = determineAvroExtraIncludes(functions, schemas);
   const imports = determineAvroImports(functions, schemas);
-  const appProperties = {}; // Avro processor doesn't generate app properties
 
-  return {
-    schemas,
-    functions,
-    extraIncludes,
-    imports,
-    appProperties
-  };
+  // Use shared utility for consistent result structure
+  return createProcessorResult(schemas, functions, extraIncludes, imports, {});
 }
 
 module.exports = {

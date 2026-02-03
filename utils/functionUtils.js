@@ -373,7 +373,7 @@ function getChannelInfo(params, channelName, channel) {
   };
   
   // Extract parameters from channel name
-  const paramMatches = channelName.match(/\{([^}]+)\}/g);
+  const paramMatches = channelName.match(/\{([^}]{1,250})\}/g);
   if (paramMatches) {
     channelInfo.hasParams = true;
     
@@ -427,7 +427,7 @@ function getChannelInfoForConsumer(params, channelName, channel) {
   
   // For consumers, convert path parameters to wildcards in subscribe channel
   if (channelInfo.hasParams) {
-    const wildcardChannel = channelName.replace(/\{[^}]+\}/g, '*');
+    const wildcardChannel = channelName.replace(/\{[^}]{1,250}\}/g, '*');
     channelInfo.subscribeChannel = wildcardChannel;
     logger.debug(`functionUtils.js: getChannelInfoForConsumer() - Converted subscribe channel to wildcard: ${channelInfo.subscribeChannel}`);
   }
@@ -571,7 +571,7 @@ function sortParametersUsingChannelName(parameters, channelName) {
   }
   
   // Extract parameter names from channel name in order
-  const paramMatches = channelName.match(/\{([^}]+)\}/g);
+  const paramMatches = channelName.match(/\{([^}]{1,250})\}/g);
   if (!paramMatches) {
     return parameters;
   }

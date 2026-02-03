@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { logger } = require('../utils/logger');
+const { extractPackageFromSchemaId, extractAvroPackageFromMessages, extractAvroPackageFromChannels } = require('../utils/packageUtils');
 
 /**
  * Post-process hook that runs after file generation
@@ -199,17 +200,15 @@ function getPackageInfo(schemaName, generator) {
       
       if (foundSchema) {
         logger.debug(`Post-process: Found schema for ${schemaName}`);
-        
-        // Check if schema has a namespace (for Avro schemas)
+
+        // Check if schema has a namespace (for Avro schemas) using shared utility
         const schemaId = foundSchema.id();
-        const dotIndex = schemaId.lastIndexOf('.');
-        if (dotIndex > 0) {
-          const javaPackage = schemaId.substring(0, dotIndex);
-          const className = schemaId.substring(dotIndex + 1);
-          logger.debug(`Post-process: Found namespace in schema ID: ${javaPackage}.${className}`);
-          return { javaPackage, className };
+        const packageInfo = extractPackageFromSchemaId(schemaId);
+        if (packageInfo) {
+          logger.debug(`Post-process: Found namespace in schema ID: ${packageInfo.javaPackage}.${packageInfo.className}`);
+          return packageInfo;
         }
-        
+
         // Check for namespace in schema's _json property (AVRO schemas)
         const schemaData = foundSchema._json;
         if (schemaData && schemaData.namespace) {
@@ -218,7 +217,7 @@ function getPackageInfo(schemaName, generator) {
           logger.debug(`Post-process: Found namespace in _json: ${javaPackage}.${className}`);
           return { javaPackage, className };
         }
-        
+
         logger.debug(`Post-process: No namespace found for ${schemaName}, schemaData:`, JSON.stringify(schemaData, null, 2));
       }
     }
@@ -269,126 +268,25 @@ function getPackageInfoFromFile(schemaName, targetDir) {
 
 /**
  * Get AVRO package information from message payloads
+ * Uses shared utilities from packageUtils.js
  */
 function getAvroPackageInfoFromMessages(schemaName, asyncapi) {
   logger.debug('post-process.js: getAvroPackageInfoFromMessages() - Getting AVRO package info from messages');
-  try {
-    // Check components.messages for AVRO schemas
-    const messages = asyncapi.components().messages();
-    if (messages) {
-      // Try different ways to iterate over messages
-      if (typeof messages.forEach === 'function') {
-        messages.forEach((msg, msgName) => {
-          try {
-            // Check the message's _json property for AVRO namespace
-            if (msg._json && msg._json.payload) {
-              const payloadData = msg._json.payload;
-              
-              // Check for AVRO namespace in x-parser-schema-id
-              if (payloadData && payloadData['x-parser-schema-id']) {
-                const schemaId = payloadData['x-parser-schema-id'];
-                
-                // Extract package and class name from schema ID (e.g., "com.example.api.jobOrder.JobOrder")
-                const lastDotIndex = schemaId.lastIndexOf('.');
-                if (lastDotIndex > 0) {
-                  const javaPackage = schemaId.substring(0, lastDotIndex);
-                  const className = schemaId.substring(lastDotIndex + 1);
-                  
-                  // Check if this matches our schema name
-                  if (className === schemaName) {
-                    logger.debug(`Post-process: Found AVRO schema match in components.messages: ${javaPackage}.${className}`);
-                    return { javaPackage, className };
-                  }
-                }
-              }
-              
-              // Fallback: Check for name and namespace fields (original AVRO format)
-              if (payloadData && payloadData.namespace && payloadData.name) {
-                const javaPackage = payloadData.namespace;
-                const className = payloadData.name;
-                
-                // Check if this matches our schema name
-                if (className === schemaName) {
-                  logger.debug(`Post-process: Found AVRO schema match in components.messages: ${javaPackage}.${className}`);
-                  return { javaPackage, className };
-                }
-              }
-            }
-          } catch (error) {
-            logger.warn(`Post-process: Error processing message ${msgName}:`, error.message);
-          }
-        });
-      }
-    }
-    
-    // Also check for AVRO schemas in channel operations (inline messages)
-    const channels = asyncapi.channels();
-    if (channels && typeof channels.values === 'function') {
-      for (const channel of channels.values()) {
-        const channelName = channel.id();
-        
-        // Get all operations for this channel
-        const operations = channel.operations && typeof channel.operations === 'function'
-          ? Array.from(channel.operations().values())
-          : [];
 
-        // Check all operations for Avro messages
-        for (const operation of operations) {
-          try {
-            const messages = operation.messages && typeof operation.messages === 'function'
-              ? Array.from(operation.messages().values())
-              : [];
-            
-            for (const message of messages) {
-              const schemaFormat = message.schemaFormat && message.schemaFormat();
-              if (schemaFormat && schemaFormat.includes('avro')) {
-                // This is an Avro message, check for namespace
-                const payload = message.payload && message.payload();
-                if (payload && payload._json) {
-                  const payloadData = payload._json;
-                  
-                  // Check for name and namespace fields (original Avro format)
-                  if (payloadData.namespace && payloadData.name) {
-                    const javaPackage = payloadData.namespace;
-                    const className = payloadData.name;
-                    
-                    // Check if this matches our schema name
-                    if (className === schemaName) {
-                      logger.debug(`Post-process: Found AVRO schema match in channel operations: ${javaPackage}.${className}`);
-                      return { javaPackage, className };
-                    }
-                  }
-                  
-                  // Check for namespace in x-parser-schema-id (transformed Avro format)
-                  if (payloadData['x-parser-schema-id']) {
-                    const schemaId = payloadData['x-parser-schema-id'];
-                    
-                    // Extract package and class name from schema ID (e.g., "userpublisher.User")
-                    const lastDotIndex = schemaId.lastIndexOf('.');
-                    if (lastDotIndex > 0) {
-                      const javaPackage = schemaId.substring(0, lastDotIndex);
-                      const className = schemaId.substring(lastDotIndex + 1);
-                      
-                      // Check if this matches our schema name
-                      if (className === schemaName) {
-                        logger.debug(`Post-process: Found AVRO schema match in channel operations via x-parser-schema-id: ${javaPackage}.${className}`);
-                        return { javaPackage, className };
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          } catch (error) {
-            logger.warn(`Post-process: Error checking channel ${channelName} operation for AVRO namespace:`, error.message);
-          }
-        }
-      }
-    }
-  } catch (error) {
-    logger.warn('Post-process: Error extracting AVRO package info from messages:', error.message);
+  // First, check components.messages using shared utility
+  const messagesResult = extractAvroPackageFromMessages(asyncapi, schemaName);
+  if (messagesResult) {
+    logger.debug(`Post-process: Found AVRO schema match in components.messages: ${messagesResult.javaPackage}.${messagesResult.className}`);
+    return messagesResult;
   }
-  
+
+  // Also check channel operations using shared utility
+  const channelsResult = extractAvroPackageFromChannels(asyncapi, schemaName);
+  if (channelsResult) {
+    logger.debug(`Post-process: Found AVRO schema match in channel operations: ${channelsResult.javaPackage}.${channelsResult.className}`);
+    return channelsResult;
+  }
+
   return null;
 }
 

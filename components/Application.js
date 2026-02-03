@@ -112,6 +112,87 @@ function getInitializationValue(payloadType) {
 }
 
 /**
+ * Convert enum value to valid Java enum constant
+ * Handles various data formats: numeric, hyphens, spaces, camelCase
+ *
+ * @param {string|number} value - The enum value to convert
+ * @returns {string} Valid Java enum constant
+ */
+function toJavaEnumConstant(value) {
+  if (typeof value === 'string') {
+    // CASE 1: Numeric values - prefix with "V_" (Java constants can't start with numbers)
+    if ((/^\d+$/).test(value)) {
+      return `V_${value}`;
+    }
+    // CASE 2: Values with hyphens - convert to underscores
+    if (value.includes('-')) {
+      return value.replace(/-/g, '_');
+    }
+    // CASE 3: Values with spaces - convert to underscores
+    if (value.includes(' ')) {
+      return value.replace(/\s+/g, '_');
+    }
+    // CASE 4: camelCase or other valid values - return as-is
+    return value;
+  }
+  // CASE 5: Non-string values - convert to string
+  return String(value);
+}
+
+/**
+ * Generate Java validation code for enum parameter normalization
+ * Produces code that normalizes input values to match generated enum constants
+ *
+ * @param {string} paramName - The parameter variable name
+ * @param {string} enumName - The enum class name
+ * @param {Array} enumValues - Array of original enum values
+ * @param {string} indent - Indentation string for generated code
+ * @param {string|null} resultVar - Optional variable name for storing validated enum (null for simple valueOf call)
+ * @returns {Array} Array of code lines
+ */
+function generateEnumValidationCode(paramName, enumName, enumValues, indent, resultVar = null) {
+  const code = [];
+  const hasSpaces = enumValues.some(v => typeof v === 'string' && v.includes(' '));
+  const hasNumericValues = enumValues.some(v => typeof v === 'string' && (/^\d+$/).test(v));
+
+  // Build the valueOf call based on whether we need to store the result
+  const valueOfCall = resultVar
+    ? `${enumName} ${resultVar} = ${enumName}.valueOf(normalizedValue);`
+    : `${enumName}.valueOf(normalizedValue);`;
+  const directValueOfCall = resultVar
+    ? `${enumName} ${resultVar} = ${enumName}.valueOf(${paramName});`
+    : `${enumName}.valueOf(${paramName});`;
+
+  if (hasSpaces && hasNumericValues) {
+    // CASE 1: Mixed enum values (both spaces and numeric values)
+    code.push(`${indent}String normalizedValue;`);
+    code.push(`${indent}if (${paramName}.matches("^\\\\d+$")) {`);
+    code.push(`${indent}  // Numeric input: prefix with "V_" to match enum constant`);
+    code.push(`${indent}  normalizedValue = "V_" + ${paramName};`);
+    code.push(`${indent}} else {`);
+    code.push(`${indent}  // String input with spaces: convert to underscores`);
+    code.push(`${indent}  normalizedValue = ${paramName}.replace(" ", "_");`);
+    code.push(`${indent}}`);
+    code.push(`${indent}${valueOfCall}`);
+  } else if (hasSpaces) {
+    // CASE 2: Only string values with spaces
+    code.push(`${indent}// Normalize string values: spaces -> underscores`);
+    code.push(`${indent}String normalizedValue = ${paramName}.replace(" ", "_");`);
+    code.push(`${indent}${valueOfCall}`);
+  } else if (hasNumericValues) {
+    // CASE 3: Only numeric values
+    code.push(`${indent}// Normalize numeric values: prefix with "V_" if numeric`);
+    code.push(`${indent}String normalizedValue = ${paramName}.matches("^\\\\d+$") ? "V_" + ${paramName} : ${paramName};`);
+    code.push(`${indent}${valueOfCall}`);
+  } else {
+    // CASE 4: Simple string values (camelCase, etc.) - no normalization needed
+    code.push(`${indent}// Direct validation for simple string values`);
+    code.push(`${indent}${directValueOfCall}`);
+  }
+  return code;
+}
+
+/**
  * Application component for generating Spring Boot Application.java
  * Matches the reference project output exactly
  */
@@ -617,42 +698,10 @@ function generateEnumClasses(processedData, asyncapi) {
           // Avoid generating duplicate enum classes for the same parameter name
           if (!processedEnums.has(enumName)) {
             processedEnums.add(enumName);
-            
-            // Convert enum values to valid Java identifiers
-            // This handles various data formats while ensuring valid Java enum constants
-            const validEnumValues = param.enumValues.map(value => {
-              if (typeof value === 'string') {
-                // CASE 1: Numeric values (e.g., "3487", "3490")
-                // Java enum constants cannot start with numbers, so prefix with "V_"
-                // Example: "3487" becomes "V_3487"
-                if ((/^\d+$/).test(value)) {
-                  return `V_${value}`;
-                }
-                
-                // CASE 2: Values with hyphens (e.g., "in-app", "out-of-stock")
-                // Convert hyphens to underscores and make uppercase for Java conventions
-                // Example: "in-app" becomes "IN_APP"
-                if (value.includes('-')) {
-                  return value.replace(/-/g, '_');
-                }
-                
-                // CASE 3: Values with spaces (e.g., "Mobile Application", "Test Data Generation")
-                // Convert spaces to underscores and make uppercase for Java conventions
-                // Example: "Mobile Application" becomes "MOBILE_APPLICATION"
-                if (value.includes(' ')) {
-                  return value.replace(/\s+/g, '_');
-                }
-                
-                // CASE 4: camelCase values (e.g., "customerInitiated", "onlinePaid")
-                // Convert to uppercase for Java enum convention
-                return value;
-              }
-              
-              // CASE 5: Non-string values (numbers, booleans, etc.)
-              // Convert to string representation and make uppercase
-              return String(value);
-            });
-            
+
+            // Convert enum values to valid Java identifiers using helper
+            const validEnumValues = param.enumValues.map(toJavaEnumConstant);
+
             enumClasses.push({
               name: enumName,
               values: validEnumValues
@@ -686,33 +735,10 @@ function generateEnumClasses(processedData, asyncapi) {
                 // Avoid generating duplicate enum classes for the same parameter name
                 if (!processedEnums.has(enumName)) {
                   processedEnums.add(enumName);
-                  
-                  // Convert enum values to valid Java identifiers
-                  const validEnumValues = enumValues.map(value => {
-                    if (typeof value === 'string') {
-                      // CASE 1: Numeric values (e.g., "3487", "3490")
-                      if ((/^\d+$/).test(value)) {
-                        return `V_${value}`;
-                      }
-                      
-                      // CASE 2: Values with hyphens (e.g., "in-app", "out-of-stock")
-                      if (value.includes('-')) {
-                        return value.replace(/-/g, '_');
-                      }
-                      
-                      // CASE 3: Values with spaces (e.g., "Mobile Application", "Test Data Generation")
-                      if (value.includes(' ')) {
-                        return value.replace(/\s+/g, '_');
-                      }
-                      
-                      // CASE 4: camelCase values (e.g., "customerInitiated", "onlinePaid")
-                      return value;
-                    }
-                    
-                    // CASE 5: Non-string values (numbers, booleans, etc.)
-                    return String(value);
-                  });
-                  
+
+                  // Convert enum values to valid Java identifiers using helper
+                  const validEnumValues = enumValues.map(toJavaEnumConstant);
+
                   enumClasses.push({
                     name: enumName,
                     values: validEnumValues
@@ -774,60 +800,23 @@ function getParameterEnumValues(param) {
  */
 function generateParameterValidation(func) {
   const validationCode = [];
-  
+
   if (func.parameters && func.parameters.length > 0) {
     func.parameters.forEach(param => {
       if (param.hasEnum && param.enumValues && param.enumValues.length > 0) {
         const enumName = toPascalCase(param.name);
         const paramName = param.name;
-        
+
         // STEP 1: Null check validation
         validationCode.push(`if (${paramName} == null) {`);
         validationCode.push(`  throw new IllegalArgumentException("${paramName} cannot be null");`);
         validationCode.push('}');
-        
-        // STEP 2: Enum value validation with normalization
+
+        // STEP 2: Enum value validation with normalization (using helper)
         validationCode.push('try {');
-        
-        // Convert the parameter value to match enum format if needed
-        const hasSpaces = param.enumValues.some(value => typeof value === 'string' && value.includes(' '));
-        const hasNumericValues = param.enumValues.some(value => typeof value === 'string' && (/^\d+$/).test(value));
-        
-        if (hasSpaces && hasNumericValues) {
-          // CASE 1: Mixed enum values (both spaces and numeric values)
-          // Example: ["3487", "Mobile Application", "3490", "Test Data Generation"]
-          validationCode.push('  String normalizedValue;');
-          validationCode.push(`  if (${paramName}.matches("^\\\\d+$")) {`);
-          validationCode.push('    // Numeric input: prefix with "V_" to match enum constant');
-          validationCode.push('    // Example: "3487" -> "V_3487"');
-          validationCode.push(`    normalizedValue = "V_" + ${paramName};`);
-          validationCode.push('  } else {');
-          validationCode.push('    // String input with spaces: convert to UPPER_CASE with underscores');
-          validationCode.push('    // Example: "Mobile Application" -> "MOBILE_APPLICATION"');
-          validationCode.push(`    normalizedValue = ${paramName}.replace(" ", "_");`);
-          validationCode.push('  }');
-          validationCode.push(`  ${enumName}.valueOf(normalizedValue);`);
-        } else if (hasSpaces) {
-          // CASE 2: Only string values with spaces
-          // Example: ["Mobile Application", "Test Data Generation"]
-          validationCode.push('  // Normalize string values: spaces -> underscores');
-          validationCode.push('  // Example: "Mobile Application" -> "MOBILE_APPLICATION"');
-          validationCode.push(`  String normalizedValue = ${paramName}.replace(" ", "_");`);
-          validationCode.push(`  ${enumName}.valueOf(normalizedValue);`);
-        } else if (hasNumericValues) {
-          // CASE 3: Only numeric values
-          // Example: ["3487", "3490", "3555"]
-          validationCode.push('  // Normalize numeric values: prefix with "V_" if numeric');
-          validationCode.push('  // Example: "3487" -> "V_3487", "abc" -> "abc" (unchanged)');
-          validationCode.push(`  String normalizedValue = ${paramName}.matches("^\\\\d+$") ? "V_" + ${paramName} : ${paramName};`);
-          validationCode.push(`  ${enumName}.valueOf(normalizedValue);`);
-        } else {
-          // CASE 4: Simple string values (camelCase, etc.)
-          // Example: ["customerInitiated", "onlinePaid"]
-          validationCode.push('  // Direct validation for simple string values (no normalization needed)');
-          validationCode.push(`  ${enumName}.valueOf(${paramName});`);
-        }
-        
+        const normalizationCode = generateEnumValidationCode(paramName, enumName, param.enumValues, '  ');
+        validationCode.push(...normalizationCode);
+
         // STEP 3: Error handling with helpful error message
         validationCode.push('} catch (IllegalArgumentException e) {');
         validationCode.push('  // Provide detailed error message with all valid enum values');
@@ -836,7 +825,7 @@ function generateParameterValidation(func) {
       }
     });
   }
-  
+
   return validationCode;
 }
 
@@ -877,47 +866,18 @@ function generateConsumerParameterValidation(func) {
         const enumName = toPascalCase(param.name);
         const paramName = param.name;
         const position = param.position;
-        
+        const resultVarName = `validated${toPascalCase(paramName)}`;
+
         validationCode.push(`  // Extract ${paramName} from position ${position} in topic path`);
         validationCode.push(`  if (topicSegments.length > ${position}) {`);
         validationCode.push(`    String ${paramName} = topicSegments[${position}];`);
         validationCode.push('    try {');
-        
-        // Convert the parameter value to match enum format if needed
-        const hasSpaces = param.enumValues.some(value => typeof value === 'string' && value.includes(' '));
-        const hasNumericValues = param.enumValues.some(value => typeof value === 'string' && (/^\d+$/).test(value));
-        
-        if (hasSpaces && hasNumericValues) {
-          // CASE 1: Mixed enum values (both spaces and numeric values)
-          validationCode.push('      String normalizedValue;');
-          validationCode.push(`      if (${paramName}.matches("^\\\\d+$")) {`);
-          validationCode.push('        // Numeric input: prefix with "V_" to match enum constant');
-          validationCode.push(`        normalizedValue = "V_" + ${paramName};`);
-          validationCode.push('      } else {');
-          validationCode.push('        // String input with spaces: convert to UPPER_CASE with underscores');
-          validationCode.push(`        normalizedValue = ${paramName}.replace(" ", "_");`);
-          validationCode.push('      }');
-          validationCode.push(`      ${enumName} validated${toPascalCase(paramName)} = ${enumName}.valueOf(normalizedValue);`);
-          validationCode.push(`      logger.info("Validated ${paramName} from topic position ${position}: " + validated${toPascalCase(paramName)});`);
-        } else if (hasSpaces) {
-          // CASE 2: Only string values with spaces
-          validationCode.push('      // Normalize string values: spaces -> underscores');
-          validationCode.push(`      String normalizedValue = ${paramName}.replace(" ", "_");`);
-          validationCode.push(`      ${enumName} validated${toPascalCase(paramName)} = ${enumName}.valueOf(normalizedValue);`);
-          validationCode.push(`      logger.info("Validated ${paramName} from topic position ${position}: " + validated${toPascalCase(paramName)});`);
-        } else if (hasNumericValues) {
-          // CASE 3: Only numeric values
-          validationCode.push('      // Normalize numeric values: prefix with "V_" if numeric');
-          validationCode.push(`      String normalizedValue = ${paramName}.matches("^\\\\d+$") ? "V_" + ${paramName} : ${paramName};`);
-          validationCode.push(`      ${enumName} validated${toPascalCase(paramName)} = ${enumName}.valueOf(normalizedValue);`);
-          validationCode.push(`      logger.info("Validated ${paramName} from topic position ${position}: " + validated${toPascalCase(paramName)});`);
-        } else {
-          // CASE 4: Simple string values (camelCase, etc.)
-          validationCode.push('      // Direct validation for simple string values (no normalization needed)');
-          validationCode.push(`      ${enumName} validated${toPascalCase(paramName)} = ${enumName}.valueOf(${paramName});`);
-          validationCode.push(`      logger.info("Validated ${paramName} from topic position ${position}: " + validated${toPascalCase(paramName)});`);
-        }
-        
+
+        // Generate validation code using helper (with result variable)
+        const normalizationCode = generateEnumValidationCode(paramName, enumName, param.enumValues, '      ', resultVarName);
+        validationCode.push(...normalizationCode);
+        validationCode.push(`      logger.info("Validated ${paramName} from topic position ${position}: " + ${resultVarName});`);
+
         // Error handling
         validationCode.push('    } catch (IllegalArgumentException e) {');
         validationCode.push(`      logger.warn("Invalid ${paramName} at topic position ${position}: " + ${paramName} + ". Valid values: " + Arrays.toString(${enumName}.values()));`);

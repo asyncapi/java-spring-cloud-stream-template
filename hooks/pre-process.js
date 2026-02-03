@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const { logger, configureFromGenerator } = require('../utils/logger');
+const { collectAvroPackagesFromMessages, findCommonParentPackage } = require('../utils/packageUtils');
 
 /**
  * Pre-process hook that runs before file generation
@@ -183,97 +184,32 @@ function setupTemplateParameters(generator) {
 
 /**
  * Extract Java package from AVRO namespaces in messages
+ * Uses shared utility from packageUtils.js
  */
 function _extractJavaPackageFromAvroNamespaces(asyncapi) {
   logger.debug('pre-process.js: extractJavaPackageFromAvroNamespaces() - Extracting Java package from AVRO namespaces');
   try {
-    // Check components.messages for AVRO schemas
-    const messages = asyncapi.components().messages();
-    if (messages) {
-      // Try different ways to iterate over messages
-      if (typeof messages.forEach === 'function') {
-        const foundPackages = new Set();
-        
-        messages.forEach((msg, msgName) => {
-          try {
-            // Check the message's _json property for AVRO namespace
-            if (msg._json && msg._json.payload) {
-              const payloadData = msg._json.payload;
-              
-              // Check for AVRO namespace in x-parser-schema-id
-              if (payloadData && payloadData['x-parser-schema-id']) {
-                const schemaId = payloadData['x-parser-schema-id'];
-                
-                // Extract package from schema ID (e.g., "com.example.api.jobOrder.JobOrder" -> "com.example.api.jobOrder")
-                const lastDotIndex = schemaId.lastIndexOf('.');
-                if (lastDotIndex > 0) {
-                  const javaPackage = schemaId.substring(0, lastDotIndex);
-                  foundPackages.add(javaPackage);
-                  logger.debug(`Pre-process: Found AVRO namespace: ${javaPackage}`);
-                }
-              }
-              
-              // Fallback: Check for name and namespace fields (original AVRO format)
-              if (payloadData && payloadData.namespace) {
-                const javaPackage = payloadData.namespace;
-                foundPackages.add(javaPackage);
-                logger.debug(`Pre-process: Found AVRO namespace: ${javaPackage}`);
-              }
-            }
-          } catch (error) {
-            logger.warn(`Pre-process: Error processing message ${msgName}:`, error.message);
-          }
-        });
-        
-        // If we found packages, use the first one (or a common parent if multiple)
-        if (foundPackages.size > 0) {
-          const packages = Array.from(foundPackages);
-          if (packages.length === 1) {
-            return packages[0];
-          } 
-          // Multiple packages found - try to find a common parent
-          const commonParent = findCommonParentPackage(packages);
-          if (commonParent) {
-            return commonParent;
-          }
-          // If no common parent, use the first package
-          return packages[0];
-        }
+    // Collect all AVRO packages using shared utility
+    const foundPackages = collectAvroPackagesFromMessages(asyncapi);
+
+    if (foundPackages.size > 0) {
+      const packages = Array.from(foundPackages);
+      if (packages.length === 1) {
+        return packages[0];
       }
+      // Multiple packages found - try to find a common parent
+      const commonParent = findCommonParentPackage(packages);
+      if (commonParent) {
+        return commonParent;
+      }
+      // If no common parent, use the first package
+      return packages[0];
     }
   } catch (error) {
     logger.warn('Pre-process: Error extracting AVRO namespaces:', error.message);
   }
-  
+
   return null;
 }
 
-/**
- * Find common parent package from multiple packages
- */
-function findCommonParentPackage(packages) {
-  logger.debug('pre-process.js: findCommonParentPackage() - Finding common parent package');
-  if (packages.length === 0) return null;
-  if (packages.length === 1) return packages[0];
-  
-  // Sort packages by length (shortest first)
-  const sortedPackages = packages.sort((a, b) => a.length - b.length);
-  const shortest = sortedPackages[0];
-  
-  // Find the longest common prefix
-  let commonPrefix = '';
-  const parts = shortest.split('.');
-  
-  for (let i = 0; i < parts.length; i++) {
-    const testPrefix = parts.slice(0, i + 1).join('.');
-    const allMatch = packages.every(pkg => pkg.startsWith(`${testPrefix  }.`) || pkg === testPrefix);
-    
-    if (allMatch) {
-      commonPrefix = testPrefix;
-    } else {
-      break;
-    }
-  }
-  
-  return commonPrefix || null;
-} 
+// findCommonParentPackage is now imported from utils/packageUtils.js 

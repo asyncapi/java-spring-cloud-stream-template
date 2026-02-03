@@ -6,6 +6,13 @@ const {
 const {
   stripPackageName
 } = require('../functionUtils');
+const {
+  getChannelOperations,
+  getSchemaType,
+  createProcessorResult,
+  initializeSchemaModel,
+  extractFunctionsFromCore
+} = require('../processorUtils');
 
 // Initialize schema model instance
 const schemaModel = new SchemaModel();
@@ -322,13 +329,11 @@ function collectAllSchemas(asyncapi) {
     });
   }
 
-  // 3. Collect inline schemas from channel operations (if any)
+  // 3. Collect inline schemas from channel operations (if any) using shared utility
   const channels = asyncapi.channels();
   if (channels && typeof channels.forEach === 'function') {
     channels.forEach((channel) => {
-      const operations = channel.operations && typeof channel.operations === 'function'
-        ? Array.from(channel.operations().values())
-        : [];
+      const operations = getChannelOperations(channel);
       operations.forEach(operation => {
         const messages = operation.messages && typeof operation.messages === 'function'
           ? Array.from(operation.messages().values())
@@ -355,12 +360,12 @@ function collectAllSchemas(asyncapi) {
                 logger.debug(`[collectAllSchemas] Skipping basic type schema: ${inlineName}`);
                 return;
               }
-              
+
               // Get schema pointer to determine if nested
               const meta = payload.meta();
               const pointer = meta ? meta.pointer : null;
               const isNested = pointer && pointer.includes('/properties/');
-              
+
               allSchemas.set(inlineName, payload);
               schemaMetadata.set(inlineName, {
                 source: 'inline',
@@ -861,37 +866,12 @@ function getJsonSchemaTypeFromJson(schema) {
 }
 
 /**
- * Get schema type using enhanced type utilities
+ * Get schema type using shared utility
+ * Uses 'array' style for object arrays (JSON convention)
  */
 function getJsonSchemaType(schema) {
   logger.debug('jsonProcessor.js: getJsonSchemaType() - Getting schema type using enhanced utilities');
-  
-  if (!schema) return 'object';
-  
-  const type = schema.type ? schema.type() : null;
-  const _format2 = schema.format ? schema.format() : null;
-
-  if (type === 'array') {
-    const items = schema.items();
-    if (items) {
-      const itemType = items.type ? items.type() : null;
-      if (!itemType || itemType === 'object') {
-        return 'array';
-      } 
-      return `array-${itemType}`;
-    }
-    return 'array';
-  }
-  
-  if (!type || type === 'object') {
-    const schemaName = schema.extensions && schema.extensions().get('x-parser-schema-id')?.value();
-    if (schemaName) {
-      return `object-${schemaName}`;
-    }
-    return 'object';
-  }
-  
-  return type;
+  return getSchemaType(schema, { useArrayObject: false });
 }
 
 /**
@@ -969,29 +949,20 @@ function getSchemaImport(schemaName) {
  */
 function processAsyncApi(asyncapi, params) {
   logger.debug('jsonProcessor.js: processAsyncApi() - Starting JSON processing');
-  
-  // Initialize schema model with AsyncAPI document
-  schemaModel.setupSuperClassMap(asyncapi);
-  schemaModel.setupModelClassMap(asyncapi);
-  
+
+  // Initialize schema model with AsyncAPI document using shared utility
+  initializeSchemaModel(schemaModel, asyncapi);
+
   const schemas = processJsonSchemas(asyncapi);
-  // logger.debug('jsonProcessor.js: processAsyncApi() - processedSchemas:', JSON.stringify(schemas, null, 2));
-  
-  // Import and use the core processor's function extraction
-  const coreProcessor = require('../coreProcessor');
-  const functions = coreProcessor.extractFunctions(asyncapi, params, schemas);
-  
+
+  // Extract functions using shared utility
+  const functions = extractFunctionsFromCore(asyncapi, params, schemas);
+
   const extraIncludes = determineImports(functions, [], schemas);
   const imports = determineSchemaImports(functions);
-  const appProperties = {}; // JSON processor doesn't generate app properties
 
-  return {
-    schemas,
-    functions,
-    extraIncludes,
-    imports,
-    appProperties
-  };
+  // Use shared utility for consistent result structure
+  return createProcessorResult(schemas, functions, extraIncludes, imports, {});
 }
 
 module.exports = {
