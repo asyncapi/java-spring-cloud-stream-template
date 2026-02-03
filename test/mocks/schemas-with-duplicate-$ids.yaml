@@ -1,28 +1,7 @@
 components:
   schemas:
     PaymentCharged:
-      default: {}
       $schema: 'http://json-schema.org/draft-07/schema'
-      examples:
-        - ride_id: 2345234
-          entity_type: Driver
-          amount_charged: 12.32
-          driver:
-            driver_id: 1234132
-            rating: 4
-            last_name: Smith
-            car_class: SUV
-            first_name: Frank
-          payment_charged_id: '23232323'
-          passenger:
-            passenger_id: 2345243
-            rating: 2
-            last_name: Menning
-            first_name: Jesse
-          payment_status: accepted
-          invoice_system_id: PSG-32923
-          information_source: ProcessPayment
-          timestamp: '2020-06-03T16:51:47.29612-04:00'
       description: The root schema comprises the entire JSON document.
       additionalProperties: true
       type: object
@@ -215,7 +194,6 @@ components:
           $id: '#/properties/timestamp'
       $id: 'http://example.com/example.json'
     RideUpdated-1:
-      default: {}
       $schema: 'http://json-schema.org/draft-07/schema'
       examples:
         - ride_id: 545496c5-a334-4344-9662-efde68c0b98a
@@ -311,7 +289,6 @@ components:
           minimum: 0
           $id: '#/properties/speed'
         driver:
-          default: {}
           examples:
             - driver_id: 1234132
               rating: 4.73
@@ -378,7 +355,6 @@ components:
               $id: '#/properties/driver/properties/first_name'
           $id: '#/properties/driver'
         passenger:
-          default: {}
           examples:
             - passenger_id: 2345243
               rating: 2.25

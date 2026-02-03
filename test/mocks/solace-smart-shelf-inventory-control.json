@@ -1,0 +1,164 @@
+{
+  "components": {
+    "schemas": {
+      "Product": {
+        "x-ep-schema-version": "0.1.0",
+        "x-ep-schema-version-id": "pypi5my6jgi",
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "x-ep-schema-state-name": "RELEASED",
+        "x-ep-schema-name": "Product",
+        "type": "object",
+        "x-ep-application-domain-id": "n85j0k6rt5i",
+        "required": [
+          "description",
+          "sku",
+          "quantity",
+          "price",
+          "currency"
+        ],
+        "x-ep-schema-version-displayname": "",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "AcmeRetail - Enterprise Governance",
+        "x-ep-schema-state-id": "2",
+        "x-ep-schema-id": "tgqm04d0udj",
+        "properties": {
+          "quantity": {
+            "type": "integer"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "messages": {
+      "Product": {
+        "x-ep-event-id": "5jwdbycqaq9",
+        "x-ep-event-version-displayname": "",
+        "x-ep-custom-attr-sensitivity": "none",
+        "description": "An item for sale in the Acme-Retail store.  Can be used for inventory updates, or price changes distribution.",
+        "x-ep-application-domain-id": "n85j0k6rt5i",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+        "x-ep-event-state-name": "RELEASED",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "AcmeRetail - Enterprise Governance",
+        "x-ep-event-version-id": "0kd3gdt9n45",
+        "payload": {
+          "$ref": "#/components/schemas/Product"
+        },
+        "x-ep-event-version": "0.1.2",
+        "x-ep-event-name": "Product",
+        "x-ep-custom-attr-confidentiality": "none",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "2"
+      }
+    }
+  },
+  "channels": {
+    "acmeRetail/eeg/product/{productVerb}/v1/{department}/{upcCode}": {
+      "subscribe": {
+        "message": {
+          "$ref": "#/components/messages/Product"
+        }
+      },
+      "publish": {
+        "bindings": {
+          "solace": {
+            "destinations": [
+              {
+                "destinationType": "queue",
+                "queue": {
+                  "name": "smartShelf.products.addedchanged",
+                  "topicSubscriptions": [
+                    "acmeRetail/eeg/product/added/v1/*/*",
+                    "acmeRetail/eeg/product/priceUpdated/v1/*/*"
+                  ]
+                }
+              }
+            ],
+            "bindingVersion": "0.3.0"
+          }
+        },
+        "message": {
+          "$ref": "#/components/messages/Product"
+        }
+      },
+      "parameters": {
+        "productVerb": {
+          "schema": {
+            "type": "string",
+            "enum": [
+              "added",
+              "priceUpdated",
+              "removed",
+              "tempUnavail"
+            ]
+          },
+          "x-ep-enum-state-name": "RELEASED",
+          "x-ep-enum-version-displayname": "",
+          "x-ep-enum-version": "0.1.1",
+          "x-ep-enum-name": "Product Verbs",
+          "x-ep-enum-state-id": "2",
+          "x-ep-application-domain-id": "n85j0k6rt5i",
+          "x-ep-enum-version-id": "sbgfh22woe2",
+          "x-ep-enum-id": "8waaoc9581r",
+          "x-ep-shared": "true",
+          "x-ep-parameter-name": "productVerb",
+          "x-ep-application-domain-name": "AcmeRetail - Enterprise Governance"
+        },
+        "department": {
+          "schema": {
+            "type": "string",
+            "enum": [
+              "100",
+              "110",
+              "120",
+              "130",
+              "200",
+              "300"
+            ]
+          },
+          "x-ep-enum-state-name": "RELEASED",
+          "x-ep-enum-version-displayname": "",
+          "x-ep-enum-version": "0.1.1",
+          "x-ep-enum-name": "Store Department",
+          "x-ep-enum-state-id": "2",
+          "x-ep-application-domain-id": "n85j0k6rt5i",
+          "x-ep-enum-version-id": "0f2dilcb9lt",
+          "x-ep-enum-id": "3q8ds0j3i2g",
+          "x-ep-shared": "true",
+          "x-ep-parameter-name": "department",
+          "x-ep-application-domain-name": "AcmeRetail - Enterprise Governance"
+        },
+        "upcCode": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "upcCode"
+        }
+      }
+    }
+  },
+  "asyncapi": "2.5.0",
+  "info": {
+    "x-ep-application-version": "0.1.2",
+    "x-ep-application-version-id": "obneb6skhm7",
+    "x-ep-application-id": "g6kk89b73fh",
+    "description": "The Smart Shelf is installed in selected markets and continually updates information on what products are being removed from shelves, in an effort to analyze customer trends, as well as forecast fraud.\n\n**Emits:** Product events with Removed verb when items removed from shelf\n**Consumes**: Product events with Restocked/Returned verbs when item returned to shelf",
+    "x-ep-state-name": "RELEASED",
+    "title": "Smart Shelf Inventory Control",
+    "x-ep-application-domain-id": "9n3oj6yfxm3",
+    "version": "0.1.2",
+    "x-ep-state-id": "2",
+    "x-ep-application-domain-name": "AcmeRetail - Store Operations"
+  }
+}

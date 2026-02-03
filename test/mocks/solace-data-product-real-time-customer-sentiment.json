@@ -1,0 +1,412 @@
+{
+  "components": {
+    "schemas": {
+      "Product": {
+        "x-ep-schema-version": "0.1.0",
+        "x-ep-schema-version-id": "pypi5my6jgi",
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "x-ep-schema-state-name": "RELEASED",
+        "x-ep-schema-name": "Product",
+        "type": "object",
+        "x-ep-application-domain-id": "n85j0k6rt5i",
+        "required": [
+          "description",
+          "sku",
+          "quantity",
+          "price",
+          "currency"
+        ],
+        "x-ep-schema-version-displayname": "",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "AcmeRetail - Enterprise Governance",
+        "x-ep-schema-state-id": "2",
+        "x-ep-schema-id": "tgqm04d0udj",
+        "properties": {
+          "quantity": {
+            "type": "integer"
+          },
+          "price": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          }
+        }
+      },
+      "Retail_Order": {
+        "x-ep-schema-version": "0.1.3",
+        "x-ep-schema-state-id": "2",
+        "x-ep-schema-version-id": "da6twwdzwyb",
+        "x-ep-schema-id": "9xw7jd923hf",
+        "x-ep-schema-state-name": "RELEASED",
+        "x-ep-schema-name": "Retail Order",
+        "type": "object",
+        "x-ep-application-domain-id": "9n3oj6yfxm3",
+        "properties": {
+          "price": {
+            "type": "number",
+            "minimum": 0
+          },
+          "billTo": {
+            "type": "object",
+            "properties": {
+              "zip": {
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              }
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "shipTo": {
+            "type": "object",
+            "properties": {
+              "zip": {
+                "type": "string"
+              },
+              "address": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "x-ep-schema-version-displayname": "",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "AcmeRetail - Store Operations"
+      }
+    },
+    "messages": {
+      "Analysis": {
+        "x-ep-event-id": "mip0bxd6mo3",
+        "x-ep-event-version-displayname": "",
+        "x-ep-custom-attr-sensitivity": "customerid",
+        "description": "",
+        "x-ep-application-domain-id": "n85j0k6rt5i",
+        "x-ep-event-state-name": "RELEASED",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "AcmeRetail - Enterprise Governance",
+        "x-ep-event-version-id": "pd8me6932o6",
+        "x-ep-event-version": "0.1.1",
+        "x-ep-event-name": "Analysis",
+        "x-ep-custom-attr-confidentiality": "internal",
+        "x-ep-event-state-id": "2"
+      },
+      "Product": {
+        "x-ep-event-id": "5jwdbycqaq9",
+        "x-ep-event-version-displayname": "",
+        "x-ep-custom-attr-sensitivity": "none",
+        "description": "An item for sale in the Acme-Retail store.  Can be used for inventory updates, or price changes distribution.",
+        "x-ep-application-domain-id": "n85j0k6rt5i",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+        "x-ep-event-state-name": "RELEASED",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "AcmeRetail - Enterprise Governance",
+        "x-ep-event-version-id": "0kd3gdt9n45",
+        "payload": {
+          "$ref": "#/components/schemas/Product"
+        },
+        "x-ep-event-version": "0.1.2",
+        "x-ep-event-name": "Product",
+        "x-ep-custom-attr-confidentiality": "none",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "2"
+      },
+      "Retail_Order": {
+        "x-ep-event-id": "jcbnyrt7dtx",
+        "x-ep-event-version-displayname": "",
+        "x-ep-custom-attr-sensitivity": "pci",
+        "description": "State change information about a single product order, from birth (regardless if from a store, mobile application or 3rd party) until fulfillment.\n\nA single product order typically  contain multiple products.",
+        "x-ep-application-domain-id": "9n3oj6yfxm3",
+        "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+        "x-ep-event-state-name": "RELEASED",
+        "x-ep-shared": "true",
+        "x-ep-application-domain-name": "AcmeRetail - Store Operations",
+        "x-ep-event-version-id": "f5wignab3df",
+        "payload": {
+          "$ref": "#/components/schemas/Retail_Order"
+        },
+        "x-ep-event-version": "0.1.2",
+        "x-ep-event-name": "Retail Order",
+        "x-ep-custom-attr-confidentiality": "internal",
+        "contentType": "application/json",
+        "x-ep-event-state-id": "2"
+      }
+    }
+  },
+  "channels": {
+    "acmeRetail/eeg/analysis/{analysisVerb}/v1/{reportType}/{reportId}": {
+      "subscribe": {
+        "message": {
+          "$ref": "#/components/messages/Analysis"
+        }
+      },
+      "parameters": {
+        "reportType": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "reportType"
+        },
+        "reportId": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "reportId"
+        },
+        "analysisVerb": {
+          "schema": {
+            "type": "string",
+            "enum": [
+              "produced",
+              "amended"
+            ]
+          },
+          "x-ep-enum-state-name": "RELEASED",
+          "x-ep-enum-version-displayname": "",
+          "x-ep-enum-version": "0.1.1",
+          "x-ep-enum-name": "Analysis Verbs",
+          "x-ep-enum-state-id": "2",
+          "x-ep-application-domain-id": "n85j0k6rt5i",
+          "x-ep-enum-version-id": "f49f6ge4spb",
+          "x-ep-enum-id": "xf9x56zchie",
+          "x-ep-shared": "true",
+          "x-ep-parameter-name": "analysisVerb",
+          "x-ep-application-domain-name": "AcmeRetail - Enterprise Governance"
+        }
+      }
+    },
+    "acmeRetail/eeg/product/{productVerb}/v1/{department}/{upcCode}": {
+      "publish": {
+        "bindings": {
+          "solace": {
+            "destinations": [
+              {
+                "destinationType": "queue",
+                "queue": {
+                  "name": "customerSentiment.multipleStreams",
+                  "topicSubscriptions": [
+                    "acmeRetail/eeg/product/added/v1/*/*",
+                    "acmeRetail/storeOps/retailOrder/*/v1/*/*/*",
+                    "acmeRetail/storeOps/store/*/v1/*/*"
+                  ]
+                }
+              }
+            ],
+            "bindingVersion": "0.3.0"
+          }
+        },
+        "message": {
+          "$ref": "#/components/messages/Product"
+        }
+      },
+      "parameters": {
+        "productVerb": {
+          "schema": {
+            "type": "string",
+            "enum": [
+              "added",
+              "priceUpdated",
+              "removed",
+              "tempUnavail"
+            ]
+          },
+          "x-ep-enum-state-name": "RELEASED",
+          "x-ep-enum-version-displayname": "",
+          "x-ep-enum-version": "0.1.1",
+          "x-ep-enum-name": "Product Verbs",
+          "x-ep-enum-state-id": "2",
+          "x-ep-application-domain-id": "n85j0k6rt5i",
+          "x-ep-enum-version-id": "sbgfh22woe2",
+          "x-ep-enum-id": "8waaoc9581r",
+          "x-ep-shared": "true",
+          "x-ep-parameter-name": "productVerb",
+          "x-ep-application-domain-name": "AcmeRetail - Enterprise Governance"
+        },
+        "department": {
+          "schema": {
+            "type": "string",
+            "enum": [
+              "100",
+              "110",
+              "120",
+              "130",
+              "200",
+              "300"
+            ]
+          },
+          "x-ep-enum-state-name": "RELEASED",
+          "x-ep-enum-version-displayname": "",
+          "x-ep-enum-version": "0.1.1",
+          "x-ep-enum-name": "Store Department",
+          "x-ep-enum-state-id": "2",
+          "x-ep-application-domain-id": "n85j0k6rt5i",
+          "x-ep-enum-version-id": "0f2dilcb9lt",
+          "x-ep-enum-id": "3q8ds0j3i2g",
+          "x-ep-shared": "true",
+          "x-ep-parameter-name": "department",
+          "x-ep-application-domain-name": "AcmeRetail - Enterprise Governance"
+        },
+        "upcCode": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "upcCode"
+        }
+      }
+    },
+    "acmeRetail/storeOps/retailOrder/{retailOrderVerb}/v1/{storeLocation}/{customerId}/{orderId}": {
+      "publish": {
+        "bindings": {
+          "solace": {
+            "destinations": [
+              {
+                "destinationType": "queue",
+                "queue": {
+                  "name": "customerSentiment.multipleStreams",
+                  "topicSubscriptions": [
+                    "acmeRetail/eeg/product/added/v1/*/*",
+                    "acmeRetail/storeOps/retailOrder/*/v1/*/*/*",
+                    "acmeRetail/storeOps/store/*/v1/*/*"
+                  ]
+                }
+              }
+            ],
+            "bindingVersion": "0.3.0"
+          }
+        },
+        "message": {
+          "$ref": "#/components/messages/Retail_Order"
+        }
+      },
+      "parameters": {
+        "retailOrderVerb": {
+          "schema": {
+            "type": "string",
+            "enum": [
+              "customerInitiated",
+              "customerCancelled",
+              "customerCompleted",
+              "customerPaid",
+              "onlineInitiated",
+              "onlineCancelled",
+              "onlineCompleted",
+              "onlinePaid",
+              "onlineFulfilled"
+            ]
+          },
+          "x-ep-enum-state-name": "RELEASED",
+          "x-ep-enum-version-displayname": "",
+          "x-ep-enum-version": "0.1.1",
+          "x-ep-enum-name": "Retail Order Verbs",
+          "x-ep-enum-state-id": "2",
+          "x-ep-application-domain-id": "9n3oj6yfxm3",
+          "x-ep-enum-version-id": "uyef7go9jg1",
+          "x-ep-enum-id": "kj01k3vfspr",
+          "x-ep-shared": "true",
+          "x-ep-parameter-name": "retailOrderVerb",
+          "x-ep-application-domain-name": "AcmeRetail - Store Operations"
+        },
+        "storeLocation": {
+          "schema": {
+            "type": "string",
+            "enum": [
+              "3487",
+              "3488",
+              "3489",
+              "3490",
+              "3491",
+              "3492",
+              "3493",
+              "3494",
+              "3495",
+              "3496",
+              "3497",
+              "3498",
+              "3499",
+              "3500",
+              "3501",
+              "3502",
+              "3503",
+              "3504",
+              "3505",
+              "3506",
+              "3507",
+              "3508",
+              "3509",
+              "3555",
+              "Mobile Application",
+              "Test Data Generation",
+              "Inhouse Traffic",
+              "Partner"
+            ]
+          },
+          "x-ep-enum-state-name": "RELEASED",
+          "x-ep-enum-version-displayname": "",
+          "x-ep-enum-version": "0.1.1",
+          "x-ep-enum-name": "Store Locations",
+          "x-ep-enum-state-id": "2",
+          "x-ep-application-domain-id": "9n3oj6yfxm3",
+          "x-ep-enum-version-id": "fdolp49969n",
+          "x-ep-enum-id": "4xdj8kaz1le",
+          "x-ep-shared": "true",
+          "x-ep-parameter-name": "storeLocation",
+          "x-ep-application-domain-name": "AcmeRetail - Store Operations"
+        },
+        "orderId": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "orderId"
+        },
+        "customerId": {
+          "schema": {
+            "type": "string"
+          },
+          "x-ep-parameter-name": "customerId"
+        }
+      }
+    }
+  },
+  "asyncapi": "2.5.0",
+  "info": {
+    "x-ep-application-version": "0.1.3",
+    "x-ep-application-version-id": "eyxkegqs6ub",
+    "x-ep-application-id": "6k0e40a76al",
+    "x-ep-state-name": "RELEASED",
+    "title": "Data Product - Real-time Customer Sentiment",
+    "x-ep-application-domain-id": "9n3oj6yfxm3",
+    "version": "0.1.3",
+    "x-ep-state-id": "2",
+    "x-ep-application-domain-name": "AcmeRetail - Store Operations"
+  }
+}

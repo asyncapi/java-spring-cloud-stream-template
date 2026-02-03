@@ -1,0 +1,14 @@
+asyncapi: 2.1.0
+info:
+  title: Simple Test
+  version: 1.0.0
+  description: Simple test for import cleanup
+
+channels:
+  simple-topic:
+    publish:
+      message:
+        payload:
+          type: string
+
+components: {}

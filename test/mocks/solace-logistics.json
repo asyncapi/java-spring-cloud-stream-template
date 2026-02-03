@@ -1,0 +1,716 @@
+{
+    "components": {
+        "schemas": {
+            "Shipment_Exception": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "6jocy5vvaq0",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "Shipment Exception",
+                "title": "Shipment Exception Event",
+                "type": "object",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "required": [
+                    "eventType", "timestamp", "shipmentId", "exceptionType", "description"
+                ],
+                "x-ep-schema-version-displayname": "0.1.0",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "rrrnq5enok0",
+                "properties": {
+                    "exceptionType": {
+                        "type": "string"
+                    },
+                    "shipmentId": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "eventType": {
+                        "type": "string",
+                        "enum": ["ShipmentException"]
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                }
+            },
+            "Inventory_Level_Changed": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "774vppaic4d",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "Inventory Level Changed",
+                "type": "object",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "required": [
+                    "eventType",
+                    "timestamp",
+                    "productId",
+                    "locationId",
+                    "quantity",
+                    "changeType"
+                ],
+                "x-ep-schema-version-displayname": "0.1.0",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "lpfayzi7rxu",
+                "properties": {
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "productId": {
+                        "type": "string"
+                    },
+                    "locationId": {
+                        "type": "string"
+                    },
+                    "changeType": {
+                        "type": "string",
+                        "enum": ["increase", "decrease"]
+                    },
+                    "eventType": {
+                        "const": "inventoryLevelChanged",
+                        "type": "string"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                }
+            },
+            "Shipment_Delayed": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "9v033035ypi",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "Shipment Delayed",
+                "title": "Shipment Delay Event",
+                "type": "object",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "required": [
+                    "eventType", "timestamp", "shipmentId", "reason", "expectedDelay"
+                ],
+                "x-ep-schema-version-displayname": "0.1.0",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "hxb72cfd2wc",
+                "properties": {
+                    "reason": {
+                        "type": "string"
+                    },
+                    "shipmentId": {
+                        "type": "string"
+                    },
+                    "eventType": {
+                        "type": "string",
+                        "enum": ["ShipmentDelay"]
+                    },
+                    "expectedDelay": {
+                        "type": "integer"
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                }
+            },
+            "Shipment_Delivered": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "71z23hakdfb",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "Shipment Delivered",
+                "title": "Shipment Delivered Event",
+                "type": "object",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "required": [
+                    "eventType", "timestamp", "shipmentId", "deliveryLocation", "deliveryTime"
+                ],
+                "x-ep-schema-version-displayname": "0.1.0",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "0rgjjhbhtmg",
+                "properties": {
+                    "deliveryLocation": {
+                        "type": "string"
+                    },
+                    "deliveryTime": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "shipmentId": {
+                        "type": "string"
+                    },
+                    "eventType": {
+                        "type": "string",
+                        "enum": ["ShipmentDelivered"]
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                }
+            },
+            "Shipment_Moved": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "ecbvtv8cdlb",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "Shipment Moved",
+                "title": "Shipment Tracking Event",
+                "type": "object",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "required": [
+                    "eventType", "timestamp", "shipmentId", "location", "status"
+                ],
+                "x-ep-schema-version-displayname": "0.1.0",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "m3j2fywhx78",
+                "properties": {
+                    "shipmentId": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "eventType": {
+                        "type": "string",
+                        "enum": ["ShipmentTracking"]
+                    },
+                    "timestamp": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Shipment_Created": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "v8hzfhizv60",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "description": "A JSON representation of a Shipment Creation event",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "Shipment Created",
+                "type": "object",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "required": [
+                    "eventType",
+                    "shipmentId",
+                    "orderId",
+                    "customerId",
+                    "shipmentDate",
+                    "shippingAddress",
+                    "items"
+                ],
+                "x-ep-schema-version-displayname": "0.1.0",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "0c1x09ebpt5",
+                "properties": {
+                    "orderId": {
+                        "description": "Unique identifier for the order associated with this shipment",
+                        "type": "string"
+                    },
+                    "shipmentId": {
+                        "description": "Unique identifier for the shipment",
+                        "type": "string"
+                    },
+                    "customerId": {
+                        "description": "Unique identifier for the customer associated with this shipment",
+                        "type": "string"
+                    },
+                    "shippingAddress": {
+                        "description": "The shipping address for the shipment",
+                        "type": "object",
+                        "properties": {
+                            "country": {
+                                "description": "The country of the shipment destination",
+                                "type": "string"
+                            },
+                            "city": {
+                                "description": "The city of the shipment destination",
+                                "type": "string"
+                            },
+                            "street": {
+                                "description": "The street address of the shipment destination",
+                                "type": "string"
+                            },
+                            "postalCode": {
+                                "description": "The postal code of the shipment destination",
+                                "type": "string"
+                            },
+                            "name": {
+                                "description": "The name of the person the shipment is being sent to",
+                                "type": "string"
+                            },
+                            "state": {
+                                "description": "The state or province of the shipment destination",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "street",
+                            "city",
+                            "state",
+                            "postalCode",
+                            "country"
+                        ]
+                    },
+                    "eventType": {
+                        "description": "Indicates that this is a Shipment Creation event",
+                        "type": "string",
+                        "enum": ["ShipmentCreation"]
+                    },
+                    "shipmentDate": {
+                        "format": "date-time",
+                        "description": "The date and time that the shipment was created",
+                        "type": "string"
+                    },
+                    "items": {
+                        "description": "A list of items being shipped as part of this shipment",
+                        "type": "array",
+                        "items": {
+                            "description": "Information about an item being shipped",
+                            "type": "object",
+                            "properties": {
+                                "itemId": {
+                                    "description": "The unique identifier for the item being shipped",
+                                    "type": "string"
+                                },
+                                "quantity": {
+                                    "description": "The quantity of the item being shipped",
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["itemId", "quantity"]
+                        }
+                    }
+                }
+            }
+        },
+        "messages": {
+            "Shipment_Exception": {
+                "x-ep-event-id": "b8cb70hi3po",
+                "x-ep-event-version-displayname": "0.1.0",
+                "description": "The Shipment Exception event contains information such as the timestamp of the event, the shipment identifier, the type of exception, and a description of the exception.",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-event-version-id": "ufk8no1xzqc",
+                "payload": {
+                    "$ref": "#/components/schemas/Shipment_Exception"
+                },
+                "x-ep-event-version": "0.1.0",
+                "x-ep-event-name": "Shipment Exception",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            },
+            "Inventory_Level_Changed": {
+                "x-ep-event-id": "2yr6an1dlrp",
+                "x-ep-event-version-displayname": "0.1.0",
+                "description": "An event generated when inventory levels of a certain item drop below a pre-defined threshold.",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-event-version-id": "xxryey8e8ke",
+                "payload": {
+                    "$ref": "#/components/schemas/Inventory_Level_Changed"
+                },
+                "x-ep-event-version": "0.1.0",
+                "x-ep-event-name": "Inventory Level Changed",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            },
+            "Shipment_Delayed": {
+                "x-ep-event-id": "20erefpccke",
+                "x-ep-event-version-displayname": "0.1.0",
+                "description": "The **Shipment Delayed** event contains information such as the timestamp of the event, the shipment identifier, the reason for the delay, and the expected length of the delay in minutes.",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-event-version-id": "nemrq9ueee8",
+                "payload": {
+                    "$ref": "#/components/schemas/Shipment_Delayed"
+                },
+                "x-ep-event-version": "0.1.0",
+                "x-ep-event-name": "Shipment Delayed",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            },
+            "Shipment_Delivered": {
+                "x-ep-event-id": "40qftjn2x6g",
+                "x-ep-event-version-displayname": "0.1.1",
+                "description": "This event is generated when a shipment is delivered to its destination, usually triggered by a delivery driver scanning a delivery confirmation code.\n\nThe topic has been updated to include orderID and customerID.",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-event-version-id": "g291nv2nq6p",
+                "payload": {
+                    "$ref": "#/components/schemas/Shipment_Delivered"
+                },
+                "x-ep-event-version": "0.1.1",
+                "x-ep-event-name": "Shipment Delivered",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            },
+            "Shipment_Moved": {
+                "x-ep-event-id": "rv35c3yit71",
+                "x-ep-event-version-displayname": "0.1.1",
+                "description": "This event is generated when a shipment is tracked, providing real-time updates on the shipment's location and status. \n\nThe topic has been updated to include orderID and customerID.",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-event-version-id": "dxf2jjdjlji",
+                "payload": {
+                    "$ref": "#/components/schemas/Shipment_Moved"
+                },
+                "x-ep-event-version": "0.1.1",
+                "x-ep-event-name": "Shipment Moved",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            },
+            "Shipment_Created": {
+                "x-ep-event-id": "weynbdjhqyc",
+                "x-ep-event-version-displayname": "0.1.1",
+                "description": "This event is generated when a shipment is created, usually triggered by an order from a customer.\n\nThe topic has been updated to include orderID and customerID.",
+                "x-ep-application-domain-id": "bex7ddi7ke5",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "true",
+                "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation",
+                "x-ep-event-version-id": "7y53ovvm82i",
+                "payload": {
+                    "$ref": "#/components/schemas/Shipment_Created"
+                },
+                "x-ep-event-version": "0.1.1",
+                "x-ep-event-name": "Shipment Created",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            }
+        }
+    },
+    "channels": {
+        "acmeRetail/sc/logistics/shipment/exception/v1/{shipmentID}/{orderID}/{customerID}/{lat}/{lon}": {
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/Shipment_Exception"
+                }
+            },
+            "parameters": {
+                "orderID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderID"
+                },
+                "shipmentID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "shipmentID"
+                },
+                "customerID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerID"
+                },
+                "lon": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "lon"
+                },
+                "lat": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "lat"
+                }
+            }
+        },
+        "acmeRetail/sc/logistics/shipment/delayed/v1/{shipmentID}/{orderID}/{customerID}/{delayReason}": {
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/Shipment_Delayed"
+                }
+            },
+            "parameters": {
+                "orderID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderID"
+                },
+                "shipmentID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "shipmentID"
+                },
+                "customerID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerID"
+                },
+                "delayReason": {
+                    "schema": {
+                        "type": "string",
+                        "enum": [
+                            "traffic",
+                            "weather",
+                            "mechanical",
+                            "customs",
+                            "strike",
+                            "congestion",
+                            "demand",
+                            "technical",
+                            "political"
+                        ]
+                    },
+                    "x-ep-enum-state-name": "DRAFT",
+                    "x-ep-enum-version-displayname": "0.1.0",
+                    "x-ep-enum-version": "0.1.0",
+                    "x-ep-enum-name": "Shipment Delay Reason",
+                    "x-ep-enum-state-id": "1",
+                    "x-ep-application-domain-id": "bex7ddi7ke5",
+                    "x-ep-enum-version-id": "4zt40u8pnm2",
+                    "x-ep-enum-id": "nswy5f64s1v",
+                    "x-ep-shared": "true",
+                    "x-ep-parameter-name": "delayReason",
+                    "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation"
+                }
+            }
+        },
+        "acmeRetail/sc/logistics/shipment/moved/v1/{shipmentID}/{orderID}/{customerID}/{lat}/{lon}/{shipmentStatus}": {
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/Shipment_Moved"
+                }
+            },
+            "parameters": {
+                "orderID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderID"
+                },
+                "shipmentID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "shipmentID"
+                },
+                "customerID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerID"
+                },
+                "lon": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "lon"
+                },
+                "lat": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "lat"
+                },
+                "shipmentStatus": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "shipmentStatus"
+                }
+            }
+        },
+        "acmeRetail/sc/logistics/shipment/delivered/v1/{shipmentID}/{orderID}/{customerID}/{lat}/{lon}": {
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/Shipment_Delivered"
+                }
+            },
+            "parameters": {
+                "orderID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderID"
+                },
+                "shipmentID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "shipmentID"
+                },
+                "customerID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerID"
+                },
+                "lon": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "lon"
+                },
+                "lat": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "lat"
+                }
+            }
+        },
+        "acmeRetail/sc/logistics/shipment/created/v1/{shipmentID}/{orderID}/{customerID}/{lat}/{lon}": {
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/Shipment_Created"
+                }
+            },
+            "parameters": {
+                "orderID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderID"
+                },
+                "shipmentID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "shipmentID"
+                },
+                "customerID": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "customerID"
+                },
+                "lon": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "lon"
+                },
+                "lat": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "lat"
+                }
+            }
+        },
+        "acmeRetail/sc/inventory/levelChanged/v1/{inventoryLevel}/{sku}/{amount}/{direction}": {
+            "publish": {
+                "bindings": {
+                    "solace": {
+                        "destinations": [
+                            {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "logistics.inventory.levelChanged",
+                                    "topicSubscriptions": ["acmeRetail/sc/inventory/levelChanged/v1/*/*/*/*"]
+                                }
+                            }
+                        ],
+                        "bindingVersion": "0.3.0"
+                    }
+                },
+                "message": {
+                    "$ref": "#/components/messages/Inventory_Level_Changed"
+                }
+            },
+            "parameters": {
+                "amount": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "amount"
+                },
+                "inventoryLevel": {
+                    "schema": {
+                        "type": "string",
+                        "enum": ["low", "optimal", "high"]
+                    },
+                    "x-ep-enum-state-name": "DRAFT",
+                    "x-ep-enum-version-displayname": "0.1.0",
+                    "x-ep-enum-version": "0.1.0",
+                    "x-ep-enum-name": "Inventory Level",
+                    "x-ep-enum-state-id": "1",
+                    "x-ep-application-domain-id": "bex7ddi7ke5",
+                    "x-ep-enum-version-id": "lgkl4jf92vc",
+                    "x-ep-enum-id": "vk5ur2ciaof",
+                    "x-ep-shared": "true",
+                    "x-ep-parameter-name": "inventoryLevel",
+                    "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation"
+                },
+                "sku": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "sku"
+                },
+                "direction": {
+                    "schema": {
+                        "type": "string",
+                        "enum": ["up", "down"]
+                    },
+                    "x-ep-enum-state-name": "DRAFT",
+                    "x-ep-enum-version-displayname": "0.1.0",
+                    "x-ep-enum-version": "0.1.0",
+                    "x-ep-enum-name": "Inventory Level Direction",
+                    "x-ep-enum-state-id": "1",
+                    "x-ep-application-domain-id": "bex7ddi7ke5",
+                    "x-ep-enum-version-id": "470aohv07dc",
+                    "x-ep-enum-id": "gnts55zrq2h",
+                    "x-ep-shared": "true",
+                    "x-ep-parameter-name": "direction",
+                    "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation"
+                }
+            }
+        }
+    },
+    "asyncapi": "2.5.0",
+    "info": {
+        "x-ep-application-version": "0.1.0",
+        "x-ep-application-version-id": "j61g6fbiglx",
+        "x-ep-application-id": "f5mbmu2teop",
+        "description": "This system involves moving products from suppliers and manufacturers to distribution centers and stores, and then to customers.",
+        "x-ep-displayname": "0.1.0",
+        "x-ep-state-name": "DRAFT",
+        "title": "Logistics",
+        "x-ep-application-domain-id": "bex7ddi7ke5",
+        "version": "0.1.0",
+        "x-ep-state-id": "1",
+        "x-ep-application-domain-name": "Acme Retail - Supply Chain Optimisation"
+    }
+}

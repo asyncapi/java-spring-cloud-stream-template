@@ -116,7 +116,7 @@ components:
           $id: '#/properties/currency_code'
       $id: 'http://example.com/root.json'
   messages:
-    Billing Receipt Created:
+    Billing_Receipt_Created:
       payload:
         $ref: '#/components/schemas/RideReceipt'
       description: >-
@@ -133,7 +133,7 @@ channels:
           destinations:
             - destinationType: topic
       message:
-        $ref: '#/components/messages/Billing Receipt Created'
+        $ref: '#/components/messages/Billing_Receipt_Created'
     parameters:
       ride_id:
         schema:

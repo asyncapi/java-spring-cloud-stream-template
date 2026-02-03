@@ -1,0 +1,587 @@
+{
+    "components": {
+        "schemas": {
+            "CoffeeShop-Order_Details": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "tkuii1g2aj9",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "CoffeeShop-Order Details",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "x-ep-application-domain-id": "77jhw5yw9oy",
+                "required": [
+                    "orderId", "country", "items", "pickupTime", "specialInstructions"
+                ],
+                "x-ep-schema-version-displayname": "",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "CoffeeShop - Order Management",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "nvklogeamt0",
+                "properties": {
+                    "country": {
+                        "type": "string"
+                    },
+                    "pickupTime": {
+                        "type": "string"
+                    },
+                    "orderId": {
+                        "type": "number"
+                    },
+                    "requestId": {
+                        "type": "number"
+                    },
+                    "specialInstructions": {
+                        "type": "string"
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "storeId": {
+                        "type": "number"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "quantity": {
+                                    "type": "number"
+                                },
+                                "productID": {
+                                    "type": "string"
+                                },
+                                "size": {
+                                    "type": "string"
+                                },
+                                "options": {
+                                  "type": "object",
+                                  "properties": {
+                                    "quantity": {
+                                        "type": "number"
+                                    },
+                                    "productID": {
+                                        "type": "string"
+                                    },
+                                    "details": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                  }
+                                },
+                                "productName": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["productID", "productName", "quantity"]
+                        }
+                    }
+                }
+            },
+            "CoffeeShop-Order_ETA_": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "ssvjv64c9kc",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "CoffeeShop-Order ETA ",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "x-ep-application-domain-id": "77jhw5yw9oy",
+                "required": [
+                    "orderID", "eta"
+                ],
+                "x-ep-schema-version-displayname": "",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "CoffeeShop - Order Management",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "s1jrd2r9m1c",
+                "properties": {
+                    "country": {
+                        "type": "string"
+                    },
+                    "eta": {
+                        "type": "string"
+                    },
+                    "orderId": {
+                        "type": "number"
+                    },
+                    "requestId": {
+                        "type": "number"
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "storeId": {
+                        "type": "number"
+                    }
+                }
+            },
+            "CoffeeShop-Order_Status": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "iv4cav7w59o",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "CoffeeShop-Order Status",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "x-ep-application-domain-id": "77jhw5yw9oy",
+                "required": [
+                    "requestId", "orderID", "status"
+                ],
+                "x-ep-schema-version-displayname": "",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "CoffeeShop - Order Management",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "0ezxe429cly",
+                "properties": {
+                    "country": {
+                        "type": "string"
+                    },
+                    "orderId": {
+                        "type": "number"
+                    },
+                    "requestId": {
+                        "type": "number"
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "storeId": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CoffeeShop-Inventory": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "taenw9b9d48",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "CoffeeShop-Inventory",
+                "title": "Generated schema for Order Status",
+                "type": "object",
+                "x-ep-application-domain-id": "77jhw5yw9oy",
+                "required": [
+                    "orderId", "status"
+                ],
+                "x-ep-schema-version-displayname": "",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "CoffeeShop - Order Management",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "rz2zy8oqgha",
+                "properties": {
+                    "country": {
+                        "type": "string"
+                    },
+                    "orderId": {
+                        "type": "number"
+                    },
+                    "requestId": {
+                        "type": "number"
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "storeId": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": ["low", "medium", "high"]
+                    }
+                }
+            },
+            "CoffeeShop-Order_Ready": {
+                "x-ep-schema-version": "0.1.0",
+                "x-ep-schema-version-id": "o5cs3132rp3",
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "x-ep-schema-state-name": "DRAFT",
+                "x-ep-schema-name": "CoffeeShop-Order Ready",
+                "title": "Generated schema for Root",
+                "type": "object",
+                "x-ep-application-domain-id": "77jhw5yw9oy",
+                "required": [
+                    "requestId", "orderID"
+                ],
+                "x-ep-schema-version-displayname": "",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "CoffeeShop - Order Management",
+                "x-ep-schema-state-id": "1",
+                "x-ep-schema-id": "fah0coceiyg",
+                "properties": {
+                    "country": {
+                        "type": "string"
+                    },
+                    "orderId": {
+                        "type": "number"
+                    },
+                    "requestId": {
+                        "type": "number"
+                    },
+                    "source": {
+                        "type": "string"
+                    },
+                    "storeId": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "messages": {
+            "Order_Completed": {
+                "x-ep-event-id": "bqhx79m24o6",
+                "x-ep-event-version-displayname": "",
+                "description": "",
+                "x-ep-application-domain-id": "77jhw5yw9oy",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "CoffeeShop - Order Management",
+                "x-ep-event-version-id": "rgxa25wjrvl",
+                "payload": {
+                    "$ref": "#/components/schemas/CoffeeShop-Order_Status"
+                },
+                "x-ep-event-version": "0.1.0",
+                "x-ep-event-name": "Order Completed",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            },
+            "OM-Order_Details": {
+                "x-ep-event-id": "h2y7mkf9k4k",
+                "x-ep-event-version-displayname": "",
+                "description": "",
+                "x-ep-application-domain-id": "77jhw5yw9oy",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "CoffeeShop - Order Management",
+                "x-ep-event-version-id": "9jopjbyz2gf",
+                "payload": {
+                    "$ref": "#/components/schemas/CoffeeShop-Order_Details"
+                },
+                "x-ep-event-version": "0.1.0",
+                "x-ep-event-name": "OM-Order Details",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            },
+            "KF-Order_Prep_Started": {
+                "x-ep-event-id": "lpujb4hinyh",
+                "x-ep-event-version-displayname": "",
+                "description": "",
+                "x-ep-application-domain-id": "77jhw5yw9oy",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "CoffeeShop - Order Management",
+                "x-ep-event-version-id": "95gut5tca16",
+                "payload": {
+                    "$ref": "#/components/schemas/CoffeeShop-Order_ETA_"
+                },
+                "x-ep-event-version": "0.1.0",
+                "x-ep-event-name": "KF-Order Prep Started",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            },
+            "KF-Order_Ready": {
+                "x-ep-event-id": "yrnq9p1kgpp",
+                "x-ep-event-version-displayname": "",
+                "description": "",
+                "x-ep-application-domain-id": "77jhw5yw9oy",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "CoffeeShop - Order Management",
+                "x-ep-event-version-id": "ebt4fa0k0il",
+                "payload": {
+                    "$ref": "#/components/schemas/CoffeeShop-Order_Ready"
+                },
+                "x-ep-event-version": "0.1.0",
+                "x-ep-event-name": "KF-Order Ready",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            },
+            "KF-Order_OutOfStock": {
+                "x-ep-event-id": "6rict1ymqpd",
+                "x-ep-event-version-displayname": "",
+                "description": "",
+                "x-ep-application-domain-id": "77jhw5yw9oy",
+                "schemaFormat": "application/vnd.aai.asyncapi+json;version=2.5.0",
+                "x-ep-event-state-name": "DRAFT",
+                "x-ep-shared": "false",
+                "x-ep-application-domain-name": "CoffeeShop - Order Management",
+                "x-ep-event-version-id": "98y026200hh",
+                "payload": {
+                    "$ref": "#/components/schemas/CoffeeShop-Inventory"
+                },
+                "x-ep-event-version": "0.1.0",
+                "x-ep-event-name": "KF-Order OutOfStock",
+                "contentType": "application/json",
+                "x-ep-event-state-id": "1"
+            }
+        }
+    },
+    "servers": {},
+    "channels": {
+        "coffeeshop/order/status/v1/ready/{source}/{country}/{storeId}/{orderId}": {
+            "publish": {
+                "bindings": {
+                    "solace": {
+                        "destinations": [
+                            {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "BS:Order Status",
+                                    "topicSubscriptions": ["coffeeshop/order/status/v1/inprogress/*/*/*/*", "coffeeshop/order/status/v1/outofstock/*/*/*/*", "coffeeshop/order/status/v1/ready/*/*/*/*"]
+                                }
+                            }, {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "BS:New Orders",
+                                    "topicSubscriptions": ["coffeeshop/order/details/v1/*/*/*/*"]
+                                }
+                            }
+                        ],
+                        "bindingVersion": "0.3.0"
+                    }
+                },
+                "message": {
+                    "$ref": "#/components/messages/KF-Order_Ready"
+                }
+            },
+            "parameters": {
+                "country": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "country"
+                },
+                "orderId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderId"
+                },
+                "source": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "source"
+                },
+                "storeId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "storeId"
+                }
+            }
+        },
+        "coffeeshop/order/status/v1/inprogress/{source}/{country}/{storeId}/{orderId}": {
+            "publish": {
+                "bindings": {
+                    "solace": {
+                        "destinations": [
+                            {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "BS:Order Status",
+                                    "topicSubscriptions": ["coffeeshop/order/status/v1/inprogress/*/*/*/*", "coffeeshop/order/status/v1/outofstock/*/*/*/*", "coffeeshop/order/status/v1/ready/*/*/*/*"]
+                                }
+                            }, {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "BS:New Orders",
+                                    "topicSubscriptions": ["coffeeshop/order/details/v1/*/*/*/*"]
+                                }
+                            }
+                        ],
+                        "bindingVersion": "0.3.0"
+                    }
+                },
+                "message": {
+                    "$ref": "#/components/messages/KF-Order_Prep_Started"
+                }
+            },
+            "parameters": {
+                "country": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "country"
+                },
+                "orderId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderId"
+                },
+                "source": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "source"
+                },
+                "storeId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "storeId"
+                }
+            }
+        },
+        "coffeeshop/order/status/v1/completed/{source}/{country}/{storeId}/{orderId}": {
+            "subscribe": {
+                "message": {
+                    "$ref": "#/components/messages/Order_Completed"
+                }
+            },
+            "parameters": {
+                "country": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "country"
+                },
+                "orderId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderId"
+                },
+                "source": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "source"
+                },
+                "storeId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "storeId"
+                }
+            }
+        },
+        "coffeeshop/order/details/v1/{source}/{country}/{storeId}/{orderId}": {
+            "publish": {
+                "bindings": {
+                    "solace": {
+                        "destinations": [
+                            {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "BS:Order Status",
+                                    "topicSubscriptions": ["coffeeshop/order/status/v1/inprogress/*/*/*/*", "coffeeshop/order/status/v1/outofstock/*/*/*/*", "coffeeshop/order/status/v1/ready/*/*/*/*"]
+                                }
+                            }, {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "BS:New Orders",
+                                    "topicSubscriptions": ["coffeeshop/order/details/v1/*/*/*/*"]
+                                }
+                            }
+                        ],
+                        "bindingVersion": "0.3.0"
+                    }
+                },
+                "message": {
+                    "$ref": "#/components/messages/OM-Order_Details"
+                }
+            },
+            "parameters": {
+                "country": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "country"
+                },
+                "orderId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderId"
+                },
+                "source": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "source"
+                },
+                "storeId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "storeId"
+                }
+            }
+        },
+        "coffeeshop/order/status/v1/outofstock/{source}/{country}/{storeId}/{orderId}": {
+            "publish": {
+                "bindings": {
+                    "solace": {
+                        "destinations": [
+                            {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "BS:Order Status",
+                                    "topicSubscriptions": ["coffeeshop/order/status/v1/inprogress/*/*/*/*", "coffeeshop/order/status/v1/outofstock/*/*/*/*", "coffeeshop/order/status/v1/ready/*/*/*/*"]
+                                }
+                            }, {
+                                "destinationType": "queue",
+                                "queue": {
+                                    "name": "BS:New Orders",
+                                    "topicSubscriptions": ["coffeeshop/order/details/v1/*/*/*/*"]
+                                }
+                            }
+                        ],
+                        "bindingVersion": "0.3.0"
+                    }
+                },
+                "message": {
+                    "$ref": "#/components/messages/KF-Order_OutOfStock"
+                }
+            },
+            "parameters": {
+                "country": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "country"
+                },
+                "orderId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "orderId"
+                },
+                "source": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "source"
+                },
+                "storeId": {
+                    "schema": {
+                        "type": "string"
+                    },
+                    "x-ep-parameter-name": "storeId"
+                }
+            }
+        }
+    },
+    "asyncapi": "2.5.0",
+    "info": {
+        "x-ep-application-version": "0.1.0",
+        "x-ep-application-version-id": "b55tickeudb",
+        "x-ep-application-id": "a52ad55ngst",
+        "x-ep-state-name": "DRAFT",
+        "title": "Barista Station",
+        "x-ep-application-domain-id": "77jhw5yw9oy",
+        "version": "0.1.0",
+        "x-ep-state-id": "1",
+        "x-ep-application-domain-name": "CoffeeShop - Order Management"
+    }
+}
